@@ -32,3 +32,5 @@ Pods/
 
 # Local config
 *.pbxproj
+Suzuran/GoogleService-Info.plist
+**/GoogleService-Info.plist
