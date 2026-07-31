@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct SuzuranApp: App {
+    @StateObject private var appRouter = AppRouter()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AppRootView()
+                .environmentObject(appRouter)
         }
     }
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="18122" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useSafeAreas="YES" initialViewController="v1">
+    <scenes>
+        <scene sceneID="EHf-IW-A2E">
+            <objects>
+                <viewController storyboardIdentifier="LaunchScreenViewController" id="v1" sceneMemberID="viewController">
+                    <view key="view" contentMode="scaleToFill" id="v2">
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="812"/>
+                        <color key="backgroundColor" red="0.0843137255" green="0.1843137255" blue="0.3333333333" alpha="1" colorSpace="calibratedRGB"/>
+                        <subviews>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Suzuran" textAlignment="center" lineBreakMode="wordWrap" numberOfLines="1" adjustsFontSizeToFit="YES" baselineAdjustment="alignCenters" translatesAutoresizingMaskIntoConstraints="NO" id="titleLabel">
+                                <rect key="frame" x="20" y="328" width="335" height="52"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="42"/>
+                                <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                            <label opaque="NO" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Natural focus for your day." textAlignment="center" lineBreakMode="wordWrap" numberOfLines="2" adjustsFontSizeToFit="YES" baselineAdjustment="alignCenters" translatesAutoresizingMaskIntoConstraints="NO" id="subtitleLabel">
+                                <rect key="frame" x="20" y="392" width="335" height="48"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <color key="textColor" white="1" alpha="0.85" colorSpace="calibratedWhite"/>
+                                <nil key="highlightedColor"/>
+                            </label>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="titleLabel" firstAttribute="centerX" secondItem="v2" secondAttribute="centerX" id="c1"/>
+                            <constraint firstItem="titleLabel" firstAttribute="centerY" secondItem="v2" secondAttribute="centerY" id="c2" constant="-16"/>
+                            <constraint firstItem="titleLabel" firstAttribute="leading" secondItem="v2" secondAttribute="leading" id="c3" constant="20"/>
+                            <constraint firstItem="v2" firstAttribute="trailing" secondItem="titleLabel" secondAttribute="trailing" id="c4" constant="20"/>
+                            <constraint firstItem="subtitleLabel" firstAttribute="top" secondItem="titleLabel" secondAttribute="bottom" id="c5" constant="16"/>
+                            <constraint firstItem="subtitleLabel" firstAttribute="centerX" secondItem="v2" secondAttribute="centerX" id="c6"/>
+                            <constraint firstItem="subtitleLabel" firstAttribute="leading" secondItem="v2" secondAttribute="leading" id="c7" constant="20"/>
+                            <constraint firstItem="v2" firstAttribute="trailing" secondItem="subtitleLabel" secondAttribute="trailing" id="c8" constant="20"/>
+                        </constraints>
+                        <viewLayoutGuide key="safeArea" id="safeArea"/>
+                    </view>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="v5" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="137.5" y="103.5"/>
+        </scene>
+    </scenes>
+</document>
