@@ -1,21 +1,8 @@
-//
-//  ContentView.swift
-//  Suzuran
-//
-//  Created by Robby Yehezkiel Pardomuan on 31/07/26.
-//
-
 import SwiftUI
 
 struct ContentView: View {
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
-        }
-        .padding()
+        HomeView()
     }
 }
 
