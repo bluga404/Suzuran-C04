@@ -1,16 +1,30 @@
 import Combine
 import SwiftUI
 
+@MainActor
 final class AppRouter: ObservableObject {
-    @Published private(set) var currentRoute: AppRoute = .onboarding
+    @Published private(set) var rootRoute: AppRoute = .onboarding
+    @Published var homePath = NavigationPath()
+
     @AppStorage("isOnboardingCompleted") private var isOnboardingCompleted = false
 
     init() {
-        currentRoute = isOnboardingCompleted ? .home : .onboarding
+        rootRoute = isOnboardingCompleted ? .home : .onboarding
     }
 
     func completeOnboarding() {
         isOnboardingCompleted = true
-        currentRoute = .home
+        homePath = NavigationPath()
+        rootRoute = .home
+    }
+
+    func restartOnboarding() {
+        isOnboardingCompleted = false
+        homePath = NavigationPath()
+        rootRoute = .onboarding
+    }
+
+    func navigateToHomeRoute(_ route: HomeRoute) {
+        homePath.append(route)
     }
 }

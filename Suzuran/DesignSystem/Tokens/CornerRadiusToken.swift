@@ -1,5 +1,5 @@
 import SwiftUI
 
-enum CornerRadius {
+enum CornerRadiusToken {
     static let card: CGFloat = 20
 }

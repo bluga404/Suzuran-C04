@@ -1,6 +1,6 @@
 import SwiftUI
 
-enum Typography {
+enum FontToken {
     static let display = Font.system(size: 42, weight: .bold, design: .rounded)
     static let title = Font.system(size: 34, weight: .semibold, design: .rounded)
     static let heading = Font.system(size: 28, weight: .semibold, design: .rounded)
