@@ -1,5 +1,6 @@
 import AVFoundation
 import UIKit
+import Combine
 
 protocol FaceScanSessionServicing: AnyObject {
     var session: AVCaptureSession { get }
@@ -15,4 +16,7 @@ protocol FaceScanSessionServicing: AnyObject {
         flashMode: AVCaptureDevice.FlashMode,
         completion: @escaping (Result<UIImage, Error>) -> Void
     )
+
+    /// Publisher that emits the current light quality as measured from the camera preview frames.
+    var lightQualityPublisher: AnyPublisher<FaceScanLightQuality, Never> { get }
 }

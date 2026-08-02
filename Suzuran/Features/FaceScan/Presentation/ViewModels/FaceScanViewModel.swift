@@ -24,11 +24,13 @@ final class FaceScanViewModel: ObservableObject {
     @Published private(set) var errorMessage: String?
     @Published private(set) var availableFlashOptions: [FaceScanFlashOption] = [.off]
     @Published var selectedFlashOption: FaceScanFlashOption = .off
+    @Published private(set) var lightQuality: FaceScanLightQuality = .unknown
 
     private let faceScanService: FaceScanSessionServicing
     private var isRequestingPermission = false
     private var isStartingSession = false
     private var isCapturingPhoto = false
+    private var cancellables = Set<AnyCancellable>()
 
     var session: AVCaptureSession {
         faceScanService.session
@@ -106,6 +108,13 @@ final class FaceScanViewModel: ObservableObject {
 
     init(faceScanService: FaceScanSessionServicing) {
         self.faceScanService = faceScanService
+        // Subscribe to light-quality updates
+        faceScanService.lightQualityPublisher
+            .receive(on: RunLoop.main)
+            .sink { [weak self] quality in
+                self?.lightQuality = quality
+            }
+            .store(in: &cancellables)
     }
 
     func onAppear() {

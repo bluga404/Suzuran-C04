@@ -1,13 +1,21 @@
 @preconcurrency import AVFoundation
 import UIKit
+import CoreImage
+import Combine
 
 final class FaceScanSessionService: NSObject, FaceScanSessionServicing {
     private let sessionQueue = DispatchQueue(label: "com.suzuran.facescan.session", qos: .userInitiated)
     private(set) lazy var session: AVCaptureSession = AVCaptureSession()
     private let photoOutput = AVCapturePhotoOutput()
+    private let videoDataOutput = AVCaptureVideoDataOutput()
     private var isSessionConfigured = false
     private var preparedCaptureSettings = AVCapturePhotoSettings()
     nonisolated(unsafe) fileprivate var currentPhotoCaptureDelegate: PhotoCaptureDelegate?
+
+    private let lightQualitySubject = CurrentValueSubject<FaceScanLightQuality, Never>(.unknown)
+    var lightQualityPublisher: AnyPublisher<FaceScanLightQuality, Never> {
+        lightQualitySubject.eraseToAnyPublisher()
+    }
 
     var authorizationStatus: AVAuthorizationStatus {
         AVCaptureDevice.authorizationStatus(for: .video)
@@ -163,6 +171,14 @@ final class FaceScanSessionService: NSObject, FaceScanSessionServicing {
             throw FaceScanError.unableToAddOutput
         }
 
+        // Video output for light estimation
+        videoDataOutput.alwaysDiscardsLateVideoFrames = true
+        videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: kCVPixelFormatType_32BGRA]
+        if session.canAddOutput(videoDataOutput) {
+            session.addOutput(videoDataOutput)
+            videoDataOutput.setSampleBufferDelegate(self, queue: sessionQueue)
+        }
+
         session.commitConfiguration()
         isSessionConfigured = true
     }
@@ -207,6 +223,49 @@ final class FaceScanSessionService: NSObject, FaceScanSessionServicing {
         }
 
         return AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front)
+    }
+}
+
+// MARK: - Light estimation using video frames
+extension FaceScanSessionService: AVCaptureVideoDataOutputSampleBufferDelegate {
+    func captureOutput(_ output: AVCaptureOutput, didOutput sampleBuffer: CMSampleBuffer, from connection: AVCaptureConnection) {
+        guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
+
+        // Use Core Image's CIAreaAverage to compute average color (luminance)
+        let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
+        let extent = ciImage.extent
+        let context = CIContext(options: nil)
+
+        guard let filter = CIFilter(name: "CIAreaAverage") else { return }
+        filter.setValue(ciImage, forKey: kCIInputImageKey)
+        filter.setValue(CIVector(cgRect: extent), forKey: kCIInputExtentKey)
+
+        guard let outputImage = filter.outputImage else { return }
+
+        var bitmap = [UInt8](repeating: 0, count: 4)
+        context.render(outputImage, toBitmap: &bitmap, rowBytes: 4, bounds: CGRect(x: 0, y: 0, width: 1, height: 1), format: .RGBA8, colorSpace: CGColorSpaceCreateDeviceRGB())
+
+        // Convert to luminance (0.0 - 1.0)
+        let r = Double(bitmap[0]) / 255.0
+        let g = Double(bitmap[1]) / 255.0
+        let b = Double(bitmap[2]) / 255.0
+
+        // Standard relative luminance
+        let luminance = 0.2126 * r + 0.7152 * g + 0.0722 * b
+
+        let newQuality: FaceScanLightQuality
+        if luminance < 0.18 {
+            newQuality = .low
+        } else if luminance < 0.5 {
+            newQuality = .adequate
+        } else {
+            newQuality = .good
+        }
+
+        // Only publish on change
+        if lightQualitySubject.value != newQuality {
+            lightQualitySubject.send(newQuality)
+        }
     }
 }
 

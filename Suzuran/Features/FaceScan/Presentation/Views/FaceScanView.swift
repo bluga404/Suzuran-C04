@@ -67,7 +67,39 @@ struct FaceScanView: View {
         .frame(maxWidth: .infinity)
         .aspectRatio(3 / 4, contentMode: .fit)
         .padding(.horizontal, SpacingToken.large)
+        .overlay(alignment: .topTrailing) {
+            lightQualityIndicator
+                .padding(.top, SpacingToken.small)
+                .padding(.trailing, SpacingToken.small)
+        }
         .shadow(color: Color.black.opacity(0.08), radius: 18, x: 0, y: 10)
+    }
+
+    private var lightQualityIndicator: some View {
+        let quality = viewModel.lightQuality
+        let (color, text): (Color, String) = {
+            switch quality {
+            case .unknown: return (ColorToken.textSecondary, "Unknown")
+            case .low: return (Color.red, "Low")
+            case .adequate: return (Color.yellow, "Adequate")
+            case .good: return (Color.green, "Good")
+            }
+        }()
+
+        return HStack(spacing: SpacingToken.small) {
+            Circle()
+                .fill(color)
+                .frame(width: 10, height: 10)
+
+            Text(text)
+                .font(FontToken.body)
+                .foregroundColor(ColorToken.textPrimary)
+        }
+        .padding(8)
+        .background(ColorToken.surface)
+        .cornerRadius(12)
+        .shadow(color: Color.black.opacity(0.06), radius: 6, x: 0, y: 3)
+        .accessibilityLabel(viewModel.lightQuality.accessibilityDescription)
     }
 
     @ViewBuilder
