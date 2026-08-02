@@ -13,6 +13,7 @@ struct FaceScanView: View {
     var body: some View {
         VStack(spacing: SpacingToken.large) {
             headerSection
+            progressSection
             previewSection
             actionSection
 
@@ -72,16 +73,40 @@ struct FaceScanView: View {
 
     @ViewBuilder
     private var previewContent: some View {
-        if let capturedImage = viewModel.capturedImage {
-            Image(uiImage: capturedImage)
-                .resizable()
-                .scaledToFill()
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .clipped()
-        } else if viewModel.canCapture || viewModel.state == .captureInProgress || viewModel.state == .startingSession {
+        if viewModel.isScanningLive {
             FaceScanPreviewView(session: viewModel.session)
                 .overlay {
-                    if viewModel.state == .startingSession || viewModel.state == .captureInProgress {
+                    ZStack {
+                        RoundedRectangle(cornerRadius: CornerRadiusToken.card, style: .continuous)
+                            .strokeBorder(Color.white.opacity(0.45), lineWidth: 2)
+                            .padding(22)
+
+                        VStack(spacing: SpacingToken.small) {
+                            if let target = viewModel.currentTarget {
+                                Text(target.title)
+                                    .font(FontToken.heading)
+                                    .foregroundColor(.white)
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
+                                    .background(.black.opacity(0.42), in: Capsule())
+                            }
+
+                            ProgressView(value: viewModel.stabilityProgress)
+                                .tint(.white)
+                                .frame(maxWidth: 180)
+                                .padding(.horizontal, 12)
+                        }
+                    }
+
+                    if case .preparing = viewModel.state {
+                        ProgressView()
+                            .progressViewStyle(.circular)
+                            .tint(.white)
+                            .padding(14)
+                            .background(.black.opacity(0.4), in: Circle())
+                    }
+
+                    if case .capturing = viewModel.state {
                         ProgressView()
                             .progressViewStyle(.circular)
                             .tint(.white)
@@ -89,6 +114,8 @@ struct FaceScanView: View {
                             .background(.black.opacity(0.4), in: Circle())
                     }
                 }
+        } else if viewModel.state == .completed {
+            completedPreviewView
         } else {
             permissionPlaceholderView
         }
@@ -96,9 +123,9 @@ struct FaceScanView: View {
 
     @ViewBuilder
     private var actionSection: some View {
-        if viewModel.hasCapturedImage {
+        if viewModel.canRetake {
             Button(action: viewModel.retake) {
-                Text("Capture Another FaceScan")
+                Text("Scan Again")
                     .font(FontToken.button)
                     .foregroundColor(.white)
                     .frame(maxWidth: .infinity, minHeight: 56)
@@ -107,21 +134,9 @@ struct FaceScanView: View {
             }
             .buttonStyle(.plain)
             .padding(.horizontal, SpacingToken.large)
-        } else if viewModel.canCapture || viewModel.state == .captureInProgress {
+        } else if viewModel.isScanningLive {
             VStack(spacing: SpacingToken.medium) {
                 flashControl
-
-                Button(action: viewModel.captureFaceScan) {
-                    Text(viewModel.captureButtonTitle)
-                        .font(FontToken.button)
-                        .foregroundColor(.white)
-                        .frame(maxWidth: .infinity, minHeight: 56)
-                        .background(ColorToken.accent)
-                        .cornerRadius(CornerRadiusToken.card)
-                }
-                .buttonStyle(.plain)
-                .disabled(!viewModel.canCapture)
-                .opacity(viewModel.canCapture ? 1 : 0.65)
             }
             .padding(.horizontal, SpacingToken.large)
         } else {
@@ -187,7 +202,10 @@ struct FaceScanView: View {
                 }
             }
             .pickerStyle(.segmented)
-            .disabled(viewModel.state == .captureInProgress || !viewModel.isFlashAvailable)
+            .disabled(!viewModel.isFlashAvailable)
+            .onChange(of: viewModel.selectedFlashOption) { _, newOption in
+                viewModel.updateFlashOption(newOption)
+            }
 
             if !viewModel.isFlashAvailable {
                 Text("Flash is not available for this front-camera setup.")
@@ -205,7 +223,7 @@ struct FaceScanView: View {
                 .font(.system(size: 42))
                 .foregroundColor(ColorToken.secondary)
 
-            if viewModel.state == .requestingPermission || viewModel.state == .checkingPermission || viewModel.state == .startingSession {
+            if viewModel.state == .requestingPermission || viewModel.state == .checkingPermission || viewModel.state == .preparing {
                 ProgressView()
                     .progressViewStyle(.circular)
                     .tint(ColorToken.accent)
@@ -214,6 +232,80 @@ struct FaceScanView: View {
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .padding(.horizontal, SpacingToken.large)
+    }
+
+    private var progressSection: some View {
+        VStack(spacing: SpacingToken.small) {
+            HStack {
+                Text("\(viewModel.capturedCount)/\(viewModel.totalCaptureCount) captured")
+                    .font(FontToken.body)
+                    .foregroundColor(ColorToken.textSecondary)
+                Spacer()
+            }
+
+            ProgressView(value: viewModel.progressFraction)
+                .tint(ColorToken.accent)
+
+            HStack(spacing: SpacingToken.small) {
+                ForEach(viewModel.captureOrder) { area in
+                    Button {
+                        viewModel.selectTargetArea(area)
+                    } label: {
+                        Text(area.title)
+                            .font(.caption)
+                            .foregroundColor(labelColor(for: area))
+                            .lineLimit(1)
+                            .minimumScaleFactor(0.7)
+                            .padding(.vertical, 6)
+                            .frame(maxWidth: .infinity)
+                            .background(backgroundColor(for: area), in: Capsule())
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(!viewModel.isAreaSelectable(area))
+                    .opacity(viewModel.isAreaSelectable(area) ? 1 : 0.72)
+                }
+            }
+        }
+        .padding(.horizontal, SpacingToken.large)
+    }
+
+    private var completedPreviewView: some View {
+        VStack(spacing: SpacingToken.small) {
+            if let firstCapture = viewModel.capturedArtifacts.first,
+               let image = viewModel.capturedPreviewByArea[firstCapture.area] {
+                Image(uiImage: image)
+                    .resizable()
+                    .scaledToFill()
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .clipped()
+            } else {
+                ColorToken.surface
+            }
+        }
+    }
+
+    private func labelColor(for area: FaceScanArea) -> Color {
+        if viewModel.isAreaCaptured(area) {
+            return .white
+        }
+
+        if viewModel.currentTarget == area && viewModel.isScanningLive {
+            return ColorToken.textPrimary
+        }
+
+        return ColorToken.textSecondary
+    }
+
+    private func backgroundColor(for area: FaceScanArea) -> Color {
+        if viewModel.isAreaCaptured(area) {
+            return ColorToken.accent
+        }
+
+        if viewModel.currentTarget == area && viewModel.isScanningLive {
+            return ColorToken.primary.opacity(0.2)
+        }
+
+        return ColorToken.surface
     }
 }
 

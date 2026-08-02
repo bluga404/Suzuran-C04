@@ -53,22 +53,15 @@ struct HomeView: View {
                                         .foregroundColor(ColorToken.textSecondary)
                                 }
                                 Spacer()
-                                if viewModel.isPreparingFaceScan {
-                                    ProgressView()
-                                        .progressViewStyle(.circular)
-                                        .tint(ColorToken.accent)
-                                } else {
-                                    Image(systemName: "camera.viewfinder")
-                                        .foregroundColor(ColorToken.accent)
-                                        .font(.title2)
-                                }
+                                Image(systemName: "camera.viewfinder")
+                                    .foregroundColor(ColorToken.accent)
+                                    .font(.title2)
                             }
                             .padding(SpacingToken.large)
                         )
                         .padding(.horizontal, SpacingToken.large)
                 }
                 .buttonStyle(.plain)
-                .disabled(viewModel.isPreparingFaceScan)
 
                 Spacer()
             }

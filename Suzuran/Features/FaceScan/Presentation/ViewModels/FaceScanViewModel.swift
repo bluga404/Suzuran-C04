@@ -6,44 +6,70 @@ import UIKit
 @MainActor
 final class FaceScanViewModel: ObservableObject {
     enum State: Equatable {
+        case idle
         case checkingPermission
         case requestingPermission
         case unavailable
         case denied
         case restricted
-        case startingSession
-        case previewReady
-        case captureInProgress
-        case captured
+        case preparing
+        case scanning
+        case capturing(FaceScanArea)
+        case completed
         case failed(String)
     }
 
     @Published private(set) var authorizationStatus: AVAuthorizationStatus = .notDetermined
-    @Published private(set) var state: State = .checkingPermission
-    @Published private(set) var capturedImage: UIImage?
+    @Published private(set) var state: State = .idle
     @Published private(set) var errorMessage: String?
+    @Published private(set) var currentTarget: FaceScanArea?
+    @Published private(set) var guidanceText: String = "Align your face to begin."
+    @Published private(set) var stabilityProgress: Double = 0
+    @Published private(set) var capturedArtifacts: [FaceScanCaptureArtifact] = []
+    @Published private(set) var capturedPreviewByArea: [FaceScanArea: UIImage] = [:]
     @Published private(set) var availableFlashOptions: [FaceScanFlashOption] = [.off]
     @Published var selectedFlashOption: FaceScanFlashOption = .off
 
     private let faceScanService: FaceScanSessionServicing
+    private var cancellables = Set<AnyCancellable>()
     private var isRequestingPermission = false
-    private var isStartingSession = false
-    private var isCapturingPhoto = false
 
     var session: AVCaptureSession {
         faceScanService.session
     }
 
-    var canCapture: Bool {
-        state == .previewReady
+    var captureOrder: [FaceScanArea] {
+        FaceScanArea.captureOrder
     }
 
     var shouldShowSettingsButton: Bool {
         authorizationStatus == .denied || authorizationStatus == .restricted
     }
 
-    var hasCapturedImage: Bool {
-        capturedImage != nil
+    var capturedCount: Int {
+        capturedArtifacts.count
+    }
+
+    var totalCaptureCount: Int {
+        captureOrder.count
+    }
+
+    var progressFraction: Double {
+        let total = Double(max(totalCaptureCount, 1))
+        return min(1, Double(capturedCount) / total)
+    }
+
+    var isScanningLive: Bool {
+        switch state {
+        case .preparing, .scanning, .capturing:
+            return true
+        default:
+            return false
+        }
+    }
+
+    var canRetake: Bool {
+        state == .completed || !capturedArtifacts.isEmpty
     }
 
     var isFlashAvailable: Bool {
@@ -60,18 +86,22 @@ final class FaceScanViewModel: ObservableObject {
 
     var titleText: String {
         switch state {
+        case .idle:
+            return "FaceScan"
         case .checkingPermission, .requestingPermission:
             return "Preparing FaceScan"
         case .unavailable:
             return "FaceScan unavailable"
         case .denied, .restricted:
             return "FaceScan access blocked"
-        case .startingSession:
+        case .preparing:
             return "Starting FaceScan"
-        case .previewReady, .captureInProgress:
-            return "Ready to capture"
-        case .captured:
-            return "FaceScan captured"
+        case .scanning:
+            return "Scan in progress"
+        case .capturing(let area):
+            return "Capturing \(area.title)"
+        case .completed:
+            return "FaceScan completed"
         case .failed:
             return "Unable to start FaceScan"
         }
@@ -79,6 +109,8 @@ final class FaceScanViewModel: ObservableObject {
 
     var messageText: String {
         switch state {
+        case .idle:
+            return "Follow the guide to capture all face regions."
         case .checkingPermission:
             return "Checking FaceScan permission."
         case .requestingPermission:
@@ -87,25 +119,20 @@ final class FaceScanViewModel: ObservableObject {
             return "This device does not support front camera capture."
         case .denied, .restricted:
             return "Open Settings and allow FaceScan access for Suzuran."
-        case .startingSession:
+        case .preparing:
             return "Preparing a fast FaceScan preview."
-        case .previewReady:
-            return "Align your face and capture your scan."
-        case .captureInProgress:
-            return "Capturing image..."
-        case .captured:
-            return "Review your captured image, or take another one."
+        case .scanning, .capturing:
+            return guidanceText
+        case .completed:
+            return "All required face areas have been captured."
         case .failed(let reason):
             return reason
         }
     }
 
-    var captureButtonTitle: String {
-        state == .captureInProgress ? "Capturing..." : "Capture FaceScan"
-    }
-
     init(faceScanService: FaceScanSessionServicing) {
         self.faceScanService = faceScanService
+        bindServiceEvents()
     }
 
     func onAppear() {
@@ -139,7 +166,7 @@ final class FaceScanViewModel: ObservableObject {
         switch newPhase {
         case .active:
             refreshAuthorizationStatus()
-            if capturedImage == nil {
+            if state != .completed {
                 startSessionIfNeeded()
             }
         case .inactive, .background:
@@ -193,36 +220,41 @@ final class FaceScanViewModel: ObservableObject {
         }
     }
 
-    func captureFaceScan() {
-        guard canCapture, !isCapturingPhoto else {
+    func retake() {
+        capturedArtifacts = []
+        capturedPreviewByArea = [:]
+        errorMessage = nil
+        guidanceText = "Align your face to begin."
+        stabilityProgress = 0
+        currentTarget = FaceScanArea.captureOrder.first
+        refreshFlashOptions()
+        faceScanService.resetFlow()
+        startSessionIfNeeded()
+    }
+
+    func updateFlashOption(_ option: FaceScanFlashOption) {
+        selectedFlashOption = option
+        faceScanService.setFlashOption(option)
+    }
+
+    func selectTargetArea(_ area: FaceScanArea) {
+        guard isScanningLive else {
             return
         }
 
-        isCapturingPhoto = true
-        errorMessage = nil
-        state = .captureInProgress
-
-        faceScanService.capturePhoto(flashMode: selectedFlashOption.captureFlashMode) { [weak self] result in
-            guard let self = self else { return }
-            self.isCapturingPhoto = false
-
-            switch result {
-            case .success(let image):
-                self.capturedImage = image
-                self.state = .captured
-                self.stopSession()
-            case .failure(let error):
-                self.errorMessage = error.localizedDescription
-                self.state = self.faceScanService.isSessionRunning ? .previewReady : .failed(error.localizedDescription)
-            }
+        guard capturedPreviewByArea[area] == nil else {
+            return
         }
+
+        faceScanService.selectTargetArea(area)
     }
 
-    func retake() {
-        capturedImage = nil
-        errorMessage = nil
-        refreshFlashOptions()
-        startSessionIfNeeded()
+    func isAreaCaptured(_ area: FaceScanArea) -> Bool {
+        capturedPreviewByArea[area] != nil
+    }
+
+    func isAreaSelectable(_ area: FaceScanArea) -> Bool {
+        isScanningLive && !isAreaCaptured(area)
     }
 
     private func refreshAuthorizationStatus() {
@@ -230,8 +262,8 @@ final class FaceScanViewModel: ObservableObject {
 
         switch authorizationStatus {
         case .authorized:
-            if capturedImage == nil {
-                state = faceScanService.isSessionRunning ? .previewReady : .startingSession
+            if state != .completed {
+                state = faceScanService.isSessionRunning ? .scanning : .checkingPermission
             }
         case .notDetermined:
             state = .checkingPermission
@@ -255,26 +287,25 @@ final class FaceScanViewModel: ObservableObject {
             return
         }
 
-        guard capturedImage == nil else {
+        guard state != .completed else {
             return
         }
 
-        guard !faceScanService.isSessionRunning, !isStartingSession else {
-            state = .previewReady
+        guard !faceScanService.isSessionRunning else {
+            state = .scanning
             return
         }
 
-        isStartingSession = true
-        state = .startingSession
+        state = .preparing
+        faceScanService.setFlashOption(selectedFlashOption)
 
         faceScanService.startSession { [weak self] result in
             guard let self = self else { return }
-            self.isStartingSession = false
 
             switch result {
             case .success:
                 self.refreshFlashOptions()
-                self.state = .previewReady
+                self.state = .scanning
             case .failure(let error):
                 self.errorMessage = error.localizedDescription
                 self.state = .failed(error.localizedDescription)
@@ -284,8 +315,6 @@ final class FaceScanViewModel: ObservableObject {
 
     private func stopSession() {
         faceScanService.stopSession()
-        isStartingSession = false
-        isCapturingPhoto = false
     }
 
     private func refreshFlashOptions() {
@@ -294,6 +323,73 @@ final class FaceScanViewModel: ObservableObject {
 
         if !availableFlashOptions.contains(selectedFlashOption) {
             selectedFlashOption = .off
+        }
+
+        faceScanService.setFlashOption(selectedFlashOption)
+    }
+
+    private func bindServiceEvents() {
+        faceScanService.progressPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] snapshot in
+                self?.applySnapshot(snapshot)
+            }
+            .store(in: &cancellables)
+
+        faceScanService.capturePublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] artifact in
+                self?.capturedArtifacts.append(artifact)
+                if let image = UIImage(data: artifact.imageData) {
+                    self?.capturedPreviewByArea[artifact.area] = image
+                }
+            }
+            .store(in: &cancellables)
+
+        faceScanService.completionPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] artifacts in
+                self?.capturedArtifacts = artifacts
+                self?.state = .completed
+                self?.stabilityProgress = 1
+            }
+            .store(in: &cancellables)
+
+        faceScanService.errorPublisher
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] message in
+                self?.errorMessage = message
+            }
+            .store(in: &cancellables)
+    }
+
+    private func applySnapshot(_ snapshot: FaceScanProgressSnapshot) {
+        currentTarget = snapshot.currentTarget
+        guidanceText = snapshot.hint
+        stabilityProgress = snapshot.stabilityProgress
+
+        switch snapshot.status {
+        case .idle:
+            if state != .completed {
+                state = .idle
+            }
+        case .preparing:
+            state = .preparing
+        case .scanning:
+            if state != .completed {
+                state = .scanning
+            }
+        case .capturing(let area):
+            state = .capturing(area)
+        case .completed:
+            state = .completed
+        case .unavailable:
+            state = .unavailable
+        case .permissionDenied:
+            state = .denied
+        case .failed(let reason):
+            state = .failed(reason)
+            errorMessage = reason
         }
     }
 }
