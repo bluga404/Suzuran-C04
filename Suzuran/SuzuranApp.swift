@@ -1,17 +1,14 @@
-//
-//  SuzuranApp.swift
-//  Suzuran
-//
-//  Created by Robby Yehezkiel Pardomuan on 31/07/26.
-//
-
 import SwiftUI
+import Combine
 
 @main
 struct SuzuranApp: App {
+    @StateObject private var container = AppContainer.live()
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            RootView(viewModel: container.rootViewModel)
         }
     }
 }
+
