@@ -8,12 +8,17 @@
 import SwiftUI
 
 struct ContentView: View {
-    @State private var isScanningMode = false
-    
     var body: some View {
-        FaceScanView()
+        VStack {
+            Image(systemName: "globe")
+                .imageScale(.large)
+                .foregroundStyle(.tint)
+            Text("Hello, world!")
+        }
+        .padding()
     }
 }
+
 #Preview {
     ContentView()
 }
