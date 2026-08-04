@@ -17,6 +17,7 @@ xcov/
 *.xccrashpoint
 *.xcworkspace/xcuserdata/
 *.xcworkspace/xcshareddata/
+GoogleService-Info.plist
 
 # macOS
 .DS_Store
