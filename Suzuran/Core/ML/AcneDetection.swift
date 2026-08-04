@@ -1,0 +1,86 @@
+import Foundation
+import SwiftUI
+
+// MARK: - Acne Type
+
+enum AcneType: String, CaseIterable, Sendable {
+    case comedones
+    case papules
+    case pustules
+    case nodulesCysts
+
+    nonisolated var displayName: String {
+        switch self {
+        case .comedones: return "Comedones"
+        case .papules: return "Papules"
+        case .pustules: return "Pustules"
+        case .nodulesCysts: return "Nodules & Cysts"
+        }
+    }
+
+    /// Severity weight from PRD §2.2.2
+    nonisolated var severityWeight: Float {
+        switch self {
+        case .comedones: return 0.5
+        case .papules: return 1
+        case .pustules: return 2
+        case .nodulesCysts: return 3 
+        }
+    }
+
+    nonisolated var color: Color {
+        switch self {
+        case .comedones: return .cyan
+        case .papules: return .yellow
+        case .pustules: return .orange
+        case .nodulesCysts: return .red
+        }
+    }
+
+    /// Maps model output label to AcneType, handling various label formats
+    nonisolated static func from(label: String) -> AcneType? {
+        let normalized = label.lowercased()
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+            .replacingOccurrences(of: " ", with: "_")
+
+        switch normalized {
+        case "comedones", "whitehead_blackhead", "whitehead_&_blackhead", "comedo", "0":
+            return .comedones
+        case "papules", "papule", "1":
+            return .papules
+        case "pustules", "pustule", "2":
+            return .pustules
+        case "nodules_cysts", "nodules_&_cysts", "nodules", "cysts", "nodule", "cyst", "3":
+            return .nodulesCysts
+        default:
+            break
+        }
+
+        // Partial match fallback
+        if normalized.contains("comedo") || normalized.contains("whitehead") || normalized.contains("blackhead") {
+            return .comedones
+        }
+        if normalized.contains("papul") { return .papules }
+        if normalized.contains("pustul") { return .pustules }
+        if normalized.contains("nodul") || normalized.contains("cyst") { return .nodulesCysts }
+
+        return nil
+    }
+}
+
+// MARK: - Acne Detection
+
+struct AcneDetection: Identifiable, Sendable {
+    let id: UUID
+    let acneType: AcneType
+    let confidence: Float
+    /// Bounding box in Vision normalized coordinates (origin bottom-left, 0–1 range)
+    let boundingBox: CGRect
+
+    nonisolated init(acneType: AcneType, confidence: Float, boundingBox: CGRect) {
+        self.id = UUID()
+        self.acneType = acneType
+        self.confidence = confidence
+        self.boundingBox = boundingBox
+    }
+}
