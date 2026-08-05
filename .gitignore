@@ -18,6 +18,7 @@ xcov/
 *.xcworkspace/xcuserdata/
 *.xcworkspace/xcshareddata/
 GoogleService-Info.plist
+.kiro
 
 # macOS
 .DS_Store

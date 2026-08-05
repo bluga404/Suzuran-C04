@@ -5,7 +5,7 @@ import Vision
 
 nonisolated final class PredictionService: @unchecked Sendable {
     private static let classNames = ["comedo", "nodule/cystic", "papule", "pustule"]
-    private let confidenceThreshold = 0.005
+    private let confidenceThreshold = 0.05
 
     private let model: MLModel?
     private let visionModel: VNCoreMLModel?

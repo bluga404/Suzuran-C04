@@ -173,11 +173,24 @@ struct ScanView: View {
         ScrollView {
             VStack(spacing: 20) {
                 if let image = viewModel.capturedImage {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFit()
-                        .frame(maxWidth: .infinity)
-                        .clipShape(RoundedRectangle(cornerRadius: 12))
+                    GeometryReader { geo in
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: geo.size.width, height: geo.size.height)
+                            .overlay {
+                                DetectionsOverlayView(
+                                    detections: viewModel.detections,
+                                    imageSize: image.size,
+                                    viewSize: geo.size
+                                )
+                            }
+                    }
+                    .aspectRatio(
+                        image.size.width / image.size.height,
+                        contentMode: .fit
+                    )
+                    .clipShape(RoundedRectangle(cornerRadius: 12))
                 }
 
                 if let errorMessage = viewModel.errorMessage {
