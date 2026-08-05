@@ -47,7 +47,7 @@ final class AcneDetectionViewModel: ObservableObject {
         let config = MLModelConfiguration()
         config.computeUnits = .cpuAndNeuralEngine
         do {
-            let coreMLModel = try best_model_coreml(configuration: config)
+            let coreMLModel = try best(configuration: config)
             visionModel = try VNCoreMLModel(for: coreMLModel.model)
         } catch {
             visionModel = nil
