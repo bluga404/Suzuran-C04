@@ -3,9 +3,20 @@ import Combine
 
 @MainActor
 final class HomeViewModel: ObservableObject {
-    let welcomeText: String
+    struct ViewState {
+        let welcomeText: String
+        let ingredientOcrButtonTitle: String
+    }
 
-    init(welcomeText: String) {
-        self.welcomeText = welcomeText
+    @Published private(set) var viewState: ViewState
+
+    init(
+        welcomeText: String,
+        ingredientOcrButtonTitle: String
+    ) {
+        viewState = ViewState(
+            welcomeText: welcomeText,
+            ingredientOcrButtonTitle: ingredientOcrButtonTitle
+        )
     }
 }

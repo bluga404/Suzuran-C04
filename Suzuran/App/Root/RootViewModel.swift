@@ -1,29 +1,21 @@
-import Foundation
 import Combine
+import Foundation
 
 @MainActor
 final class RootViewModel: ObservableObject {
     enum Phase: Equatable {
-        case home
+        case launching
+        case ready
         case failed(AppError)
     }
 
-    @Published private(set) var phase: Phase = .home
+    @Published private(set) var phase: Phase = .launching
 
     private let bootstrapper: AppBootstrapping
-    private let homeViewModelFactory: () -> HomeViewModel
     private var hasStarted = false
 
-    init(
-        bootstrapper: AppBootstrapping,
-        homeViewModelFactory: @escaping () -> HomeViewModel
-    ) {
+    init(bootstrapper: AppBootstrapping) {
         self.bootstrapper = bootstrapper
-        self.homeViewModelFactory = homeViewModelFactory
-    }
-
-    func makeHomeViewModel() -> HomeViewModel {
-        homeViewModelFactory()
     }
 
     func start() {
@@ -36,6 +28,7 @@ final class RootViewModel: ObservableObject {
         Task {
             do {
                 try await bootstrapper.bootstrap()
+                phase = .ready
             } catch {
                 phase = .failed(AppErrorMapper.map(error))
             }
@@ -43,7 +36,7 @@ final class RootViewModel: ObservableObject {
     }
 
     func retry() {
-        phase = .home
+        phase = .launching
         hasStarted = false
         start()
     }

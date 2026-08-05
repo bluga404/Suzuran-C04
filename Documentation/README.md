@@ -1,30 +1,26 @@
-# Suzuran Base Project Documentation
+# Dokumentasi Dasar Proyek Suzuran
 
-This folder defines the baseline engineering standards for the Suzuran app.
+Folder ini berisi standar teknik untuk pengembangan aplikasi Suzuran. Dokumentasi dibuat agar setiap pengembang memahami struktur, aturan arsitektur, dan cara menambahkan fitur baru.
 
-## Goals
+## Tujuan
 
-- Keep feature code scalable as the codebase grows.
-- Enforce Clean Architecture dependency direction.
-- Use SwiftUI + MVVM for presentation concerns.
-- Provide reusable base UI components and edge-state handling.
-- Keep startup flow aligned with Apple HIG launch guidance.
+- Menjaga kode fitur tetap skalabel seiring pertumbuhan proyek.
+- Menegakkan arah dependensi Clean Architecture.
+- Menggunakan SwiftUI + MVVM untuk presentasi.
+- Menyediakan komponen UI dasar dan pola penanganan edge-state.
+- Menjaga flow startup sesuai panduan Apple HIG.
 
-## Documentation Index
+## Indeks Dokumentasi
 
-- `Architecture/01_Architecture_Overview.md`
-- `Architecture/02_Project_Structure.md`
-- `Architecture/03_Layer_Rules_And_Violations.md`
-- `Architecture/04_Naming_Conventions.md`
-- `Architecture/05_Launch_Screen_and_App_Flow.md`
-- `Architecture/06_Feature_Implementation_Checklist.md`
-- `BaseProject/01_Base_UI_And_Edge_States.md`
-- `ExampleFeature/01_Example_Feature_Acne_Detection.md`
+- `Guidelines/ArchitectureOverviewGuide.md`
+- `StructureFolder/BaseUIAndEdgeStatesGuide.md`
+- `ExampleFeature/ExampleFeatureAcneDetectionGuide.md`
 - `References/Research_References.md`
 
-## How To Use This Folder
+## Cara Menggunakan Folder Ini
 
-1. Read Architecture overview and layer rules first.
-2. Follow naming conventions before adding new files.
-3. Use the feature checklist for every new module.
-4. Keep the references file updated when architecture decisions change.
+1. Baca dokumen `Architecture` terlebih dahulu untuk memahami prinsip arsitektur.
+2. Ikuti konvensi penamaan sebelum menambahkan file baru.
+3. Gunakan checklist fitur untuk setiap modul baru.
+4. Gunakan dokumentasi `ExampleFeature` sebagai referensi implementasi lengkap.
+5. Perbarui `References/Research_References.md` bila ada keputusan arsitektur baru.

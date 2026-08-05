@@ -3,17 +3,11 @@ import Combine
 
 @MainActor
 final class AppContainer: ObservableObject {
-    let environment: AppEnvironment
-    let bootstrapper: AppBootstrapping
     let rootViewModel: RootViewModel
 
     private init(
-        environment: AppEnvironment,
-        bootstrapper: AppBootstrapping,
         rootViewModel: RootViewModel
     ) {
-        self.environment = environment
-        self.bootstrapper = bootstrapper
         self.rootViewModel = rootViewModel
     }
 
@@ -22,21 +16,21 @@ final class AppContainer: ObservableObject {
         let keyValueStore = UserDefaultsKeyValueStore(userDefaults: .standard)
         let environment = AppEnvironment(logger: logger, keyValueStore: keyValueStore)
         let bootstrapper = AppBootstrapper(environment: environment)
-        let rootViewModel = RootViewModel(
-            bootstrapper: bootstrapper,
-            homeViewModelFactory: {
-                HomeViewModel(welcomeText: AppConstants.homeWelcomeTitle)
-            }
-        )
+        let rootViewModel = RootViewModel(bootstrapper: bootstrapper)
 
         return AppContainer(
-            environment: environment,
-            bootstrapper: bootstrapper,
             rootViewModel: rootViewModel
         )
     }
 
     func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(welcomeText: AppConstants.homeWelcomeTitle)
+        HomeViewModel(
+            welcomeText: AppConstants.homeWelcomeTitle,
+            ingredientOcrButtonTitle: AppConstants.homeIngredientOcrButtonTitle
+        )
+    }
+
+    func makeRootViewDependencies() -> RootView.Dependencies {
+        RootView.Dependencies(makeHomeViewModel: makeHomeViewModel)
     }
 }

@@ -1,5 +1,4 @@
 import SwiftUI
-import Combine
 
 @main
 struct SuzuranApp: App {
@@ -7,7 +6,10 @@ struct SuzuranApp: App {
 
     var body: some Scene {
         WindowGroup {
-            RootView(viewModel: container.rootViewModel)
+            RootView(
+                viewModel: container.rootViewModel,
+                dependencies: container.makeRootViewDependencies()
+            )
         }
     }
 }

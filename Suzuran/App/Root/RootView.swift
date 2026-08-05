@@ -1,14 +1,39 @@
 import SwiftUI
-import Combine
 
 struct RootView: View {
+    struct Dependencies {
+        let makeHomeViewModel: () -> HomeViewModel
+    }
+
     @ObservedObject var viewModel: RootViewModel
+    @StateObject private var router: AppRouter
+    @StateObject private var homeViewModel: HomeViewModel
+    private let dependencies: Dependencies
+
+    init(
+        viewModel: RootViewModel,
+        dependencies: Dependencies
+    ) {
+        self.viewModel = viewModel
+        self.dependencies = dependencies
+        let router = AppRouter()
+        _router = StateObject(wrappedValue: router)
+        _homeViewModel = StateObject(wrappedValue: dependencies.makeHomeViewModel())
+    }
 
     var body: some View {
-        Group {
+        NavigationStack(path: $router.path) {
             switch viewModel.phase {
-            case .home:
-                HomeView(viewModel: viewModel.makeHomeViewModel())
+            case .launching:
+                LoadingStateView(
+                    title: "Preparing App",
+                    subtitle: "Setting up dependencies and local data."
+                )
+            case .ready:
+                HomeView(
+                    viewModel: homeViewModel,
+                    onNavigateToIngredientOcr: { router.push(.ingredientOcr) }
+                )
             case let .failed(error):
                 ErrorStateView(
                     title: "Startup Failed",
@@ -16,6 +41,12 @@ struct RootView: View {
                     primaryActionTitle: "Retry",
                     onPrimaryAction: viewModel.retry
                 )
+            }
+        }
+        .navigationDestination(for: AppRoute.self) { route in
+            switch route {
+            case .ingredientOcr:
+                ImagePickerPOCView()
             }
         }
         .onAppear(perform: viewModel.start)
@@ -26,8 +57,15 @@ struct RootView: View {
 #Preview {
     RootView(
         viewModel: RootViewModel(
-            bootstrapper: PreviewBootstrapper(),
-            homeViewModelFactory: { HomeViewModel(welcomeText: AppConstants.homeWelcomeTitle) }
+            bootstrapper: PreviewBootstrapper()
+        ),
+        dependencies: RootView.Dependencies(
+            makeHomeViewModel: {
+                HomeViewModel(
+                    welcomeText: AppConstants.homeWelcomeTitle,
+                    ingredientOcrButtonTitle: AppConstants.homeIngredientOcrButtonTitle
+                )
+            }
         )
     )
 }

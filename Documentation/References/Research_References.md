@@ -1,39 +1,50 @@
-# Research References
+# Referensi Penelitian
 
-This project baseline is aligned with the references below.
+Dasar proyek ini disesuaikan dengan referensi di bawah. Tujuannya agar desain arsitektur dan penggunaan SwiftUI mengikuti praktik yang dapat dipertanggungjawabkan.
 
-## Apple and Swift Official References
+## Referensi Resmi Apple dan Swift
 
-1. SwiftUI App lifecycle (`App` protocol):
+1. Siklus hidup aplikasi SwiftUI (`App` protocol):
    https://developer.apple.com/documentation/swiftui/app
 
-2. SwiftUI NavigationStack and path-driven navigation:
+2. SwiftUI `NavigationStack` dan navigasi berbasis path:
    https://developer.apple.com/documentation/swiftui/navigationstack
 
-3. Human Interface Guidelines, Launching:
+3. SwiftUI `@StateObject`:
+   https://developer.apple.com/documentation/swiftui/stateobject
+
+4. SwiftUI `@ObservedObject`:
+   https://developer.apple.com/documentation/swiftui/observedobject
+
+5. Mengelola data model dalam aplikasi (`source-of-truth`):
+   https://developer.apple.com/documentation/swiftui/managing-model-data-in-your-app
+
+6. Human Interface Guidelines untuk launching:
    https://developer.apple.com/design/human-interface-guidelines/launching
 
-4. Xcode launch screen implementation guide:
+7. Panduan launch screen Xcode:
    https://developer.apple.com/documentation/xcode/specifying-your-apps-launch-screen
 
-5. Swift API Design Guidelines (naming and documentation):
+8. Swift API Design Guidelines (penamaan dan dokumentasi):
    https://www.swift.org/documentation/api-design-guidelines/
 
-6. Xcode markup formatting reference for code comments and Quick Help:
+9. Referensi markup Xcode untuk komentar kode dan Quick Help:
    https://developer.apple.com/library/archive/documentation/Xcode/Reference/xcode_markup_formatting_ref/
 
-## Practical Architecture References
+## Referensi Praktis Arsitektur
 
-1. Clean Architecture for SwiftUI (layer separation concepts and dependency direction):
+1. Clean Architecture untuk SwiftUI (konsep pemisahan lapisan dan arah dependensi):
    https://nalexn.github.io/clean-architecture-swiftui/
 
-2. Dependency Injection in Swift with protocols (protocol composition and factory ideas):
+2. Dependency Injection di Swift dengan protocol (ide komposisi dan factory):
    https://swiftwithmajid.com/2019/03/06/dependency-injection-in-swift-with-protocols/
 
-## Key Takeaways Applied in This Base Project
+## Pelajaran Penting yang Digunakan di Proyek Ini
 
-- Use a single composition root to build dependencies.
-- Keep domain contracts free from framework details.
-- Map DTOs to domain entities before reaching presentation.
-- Keep startup launch experience system-managed and instant.
-- Use strict naming and documentation discipline to sustain team scale.
+- Gunakan satu composition root untuk membangun dependensi.
+- Buat view model fitur di composition, bukan di view model lifecycle root.
+- Jaga kontrak domain tetap bebas dari detail framework.
+- Map DTO ke entitas domain sebelum mencapai presentasi.
+- Jadikan pengalaman startup langsung dan dikelola oleh sistem.
+- Gunakan `@StateObject` untuk ownership dan `@ObservedObject` untuk dependency yang diinject.
+- Gunakan disiplin penamaan dan dokumentasi yang kuat agar tim scale tetap terjaga.
