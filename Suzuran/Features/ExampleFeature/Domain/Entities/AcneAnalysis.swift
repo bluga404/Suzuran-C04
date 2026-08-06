@@ -9,7 +9,7 @@ struct AcneAnalysis: Identifiable, Equatable {
     let recommendation: String
 }
 
-enum AcneSeverity: String, Equatable {
+enum AcneSeverity: String, Equatable, Codable {
     case clear
     case mild
     case moderate
@@ -21,13 +21,4 @@ struct AcneFinding: Identifiable, Equatable {
     let zone: FaceZone
     let lesionCount: Int
     let inflammationLevel: Double
-}
-
-enum FaceZone: String, Equatable {
-    case forehead
-    case leftCheek
-    case rightCheek
-    case nose
-    case chin
-    case jawline
 }

@@ -15,11 +15,19 @@ struct UserDefaultsKeyValueStore: KeyValueStore {
         userDefaults.string(forKey: key)
     }
 
+    func data(forKey key: String) -> Data? {
+        userDefaults.data(forKey: key)
+    }
+
     func set(_ value: Bool, forKey key: String) {
         userDefaults.set(value, forKey: key)
     }
 
     func set(_ value: String, forKey key: String) {
+        userDefaults.set(value, forKey: key)
+    }
+
+    func set(_ value: Data, forKey key: String) {
         userDefaults.set(value, forKey: key)
     }
 }
