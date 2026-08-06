@@ -9,13 +9,11 @@ import ImageIO
 final class FaceScanViewModel: NSObject, ObservableObject {
     @Published private(set) var phase: FaceScanPhase = .positioningFace
     @Published private(set) var lightingCondition: LightingCondition = .acceptable
+    @Published private(set) var proximity: FaceProximity = .tooFar
     @Published private(set) var isFaceInPosition: Bool = false
-    @Published private(set) var completedZones: [FaceZone] = []
-    @Published private(set) var currentZone: FaceZone = .forehead
-    @Published private(set) var zoneProgress: Double = 0.0 // 0.0–1.0 hold progress for current zone
+    @Published private(set) var zoneProgress: Double = 0.0 // 0.0–1.0 hold progress
     @Published private(set) var readiness: FaceScanReadiness = .searchingFace
-    @Published private(set) var scanTargetZones: [FaceZone] = CapturePose.frontal.zones
-    @Published private(set) var scanInstruction: String = CapturePose.frontal.instruction
+    @Published private(set) var scanInstruction: String = "Posisikan wajah Anda di dalam area oval."
 
     let captureSession = AVCaptureSession()
 
@@ -25,24 +23,16 @@ final class FaceScanViewModel: NSObject, ObservableObject {
 
     private let videoOutput = AVCaptureVideoDataOutput()
     private let sampleQueue = DispatchQueue(label: "suzuran.facescan.videoQueue")
-    private var capturedZoneData: [(zone: FaceZone, imageData: Data)] = []
-    private var currentCapturePose: CapturePose = .frontal
 
     // --- Frame Processing Guards ---
-    private var isProcessingFrame = false          // Prevents overlapping Vision requests
-    private var isCapturingZone = false             // Prevents double-capture
-    private var isScanActive = false                // Ignores frames after the final capture
-    private var lastCaptureTime = Date.distantPast  // Cooldown timer between zones
+    private var isProcessingFrame = false
+    private var isCapturing = false
+    private var isScanActive = false
     private var previousValidatedFace: FaceFrameData?
 
     // --- Hold-to-Capture Logic ---
-    /// User must hold the correct position for this duration before capture
-    private let holdDurationRequired: TimeInterval = 0.8
-    private var holdStartTime: Date?                // When user first held correct position
-    private var lastMatchedZone: FaceZone?          // Which zone was being matched
-
-    /// Cooldown between zone captures (gives user time to read next instruction)
-    private let captureCooldown: TimeInterval = 1.5
+    private let holdDurationRequired: TimeInterval = 1.0
+    private var holdStartTime: Date?
 
     init(
         performScanUseCase: PerformFaceScanUseCase,
@@ -67,14 +57,7 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     }
 
     func retry() {
-        completedZones.removeAll()
-        capturedZoneData.removeAll()
-        currentZone = .forehead
-        currentCapturePose = .frontal
-        scanTargetZones = CapturePose.frontal.zones
-        scanInstruction = CapturePose.frontal.instruction
         holdStartTime = nil
-        lastMatchedZone = nil
         zoneProgress = 0.0
         updateReadiness(.searchingFace)
         previousValidatedFace = nil
@@ -112,7 +95,7 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         isScanActive = true
 
         captureSession.beginConfiguration()
-        captureSession.sessionPreset = .high  // High resolution preview & crisp capture
+        captureSession.sessionPreset = .high
 
         guard let camera = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front),
               let input = try? AVCaptureDeviceInput(device: camera) else {
@@ -126,7 +109,6 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             captureSession.addInput(input)
         }
 
-        // Drop late frames to avoid queue buildup
         videoOutput.alwaysDiscardsLateVideoFrames = true
         if captureSession.canAddOutput(videoOutput) {
             videoOutput.setSampleBufferDelegate(self, queue: sampleQueue)
@@ -139,19 +121,16 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             self?.captureSession.startRunning()
         }
 
-        phase = .scanning(currentZone: .forehead, capturedCount: 0)
+        phase = .capturing
     }
 
     // MARK: - Frame Processing (runs on sampleQueue)
 
-    /// Called from the background sampleQueue — do NOT touch @Published properties directly here
     nonisolated private func processFrameOnBackground(sampleBuffer: CMSampleBuffer) {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else { return }
 
-        // 1. Calculate lighting from EXIF metadata (lightweight)
         let brightness = Self.extractBrightness(from: sampleBuffer)
 
-        // 2. Run Vision face detection on background thread
         let request = VNDetectFaceLandmarksRequest()
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .leftMirrored, options: [:])
 
@@ -162,12 +141,12 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         }
 
         let faceResults = request.results as? [VNFaceObservation]
-        let face = faceResults?.first
+        let faceObs = faceResults?.first
 
-        // 3. Prepare data to send to MainActor
         let faceData: FaceFrameData?
-        if let face = face {
+        if let face = faceObs {
             faceData = FaceFrameData(
+                observation: face,
                 boundingBox: face.boundingBox,
                 yaw: face.yaw?.doubleValue,
                 pitch: face.pitch?.doubleValue,
@@ -177,7 +156,6 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             faceData = nil
         }
 
-        // 4. Send lightweight results to main thread
         Task { @MainActor [weak self] in
             guard let self = self else { return }
             self.handleFaceDetectionResult(faceData: faceData, brightness: brightness, pixelBuffer: pixelBuffer)
@@ -185,8 +163,8 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         }
     }
 
-    /// Lightweight struct passed from background to main thread
     private struct FaceFrameData {
+        let observation: VNFaceObservation
         let boundingBox: CGRect
         let yaw: Double?
         let pitch: Double?
@@ -224,7 +202,6 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     // MARK: - Main Thread Processing
 
     private func handleFaceDetectionResult(faceData: FaceFrameData?, brightness: Double?, pixelBuffer: CVPixelBuffer) {
-        // Update lighting
         if let brightness = brightness {
             if brightness < -1.5 {
                 lightingCondition = .tooLow
@@ -235,7 +212,6 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             }
         }
 
-        // No face detected
         guard let face = faceData else {
             isFaceInPosition = false
             updateReadiness(.searchingFace)
@@ -243,16 +219,29 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             return
         }
 
-        // Check if face is reasonably centered (relaxed thresholds)
         let bb = face.boundingBox
-        let isCentered = bb.midX >= 0.15 && bb.midX <= 0.85 &&
-                         bb.midY >= 0.15 && bb.midY <= 0.85 &&
-                         bb.width >= 0.20  // Face takes at least 20% of frame width
-
+        let isCentered = bb.midX >= 0.25 && bb.midX <= 0.75 &&
+                         bb.midY >= 0.25 && bb.midY <= 0.75
         isFaceInPosition = isCentered
 
         guard isCentered else {
             updateReadiness(.faceOutOfGuide)
+            resetCaptureHold()
+            return
+        }
+        
+        let width = bb.width
+        if width < 0.35 {
+            proximity = .tooFar
+        } else if width > 0.80 {
+            // Unlikely, but if too close
+            proximity = .acceptable
+        } else {
+            proximity = .ideal
+        }
+
+        guard proximity == .ideal else {
+            updateReadiness(.targetNotVisible("Dekatkan wajah ke kamera"))
             resetCaptureHold()
             return
         }
@@ -263,19 +252,18 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             return
         }
 
-        // Check cooldown between captures
-        guard !isCapturingZone && Date().timeIntervalSince(lastCaptureTime) > captureCooldown else {
+        guard !isCapturing else {
             return
         }
 
-        guard isTargetVisible(for: currentCapturePose, landmarks: face.landmarks) else {
-            updateReadiness(.targetNotVisible(targetNotVisibleMessage(for: currentCapturePose)))
+        guard isTargetVisible(landmarks: face.landmarks) else {
+            updateReadiness(.targetNotVisible("Pastikan seluruh bagian wajah terlihat"))
             resetCaptureHold()
             return
         }
 
-        guard isCapturePoseMatch(currentCapturePose, yaw: face.yaw, pitch: face.pitch) else {
-            updateReadiness(.wrongPose(currentCapturePose.instruction))
+        guard isCapturePoseMatch(yaw: face.yaw, pitch: face.pitch) else {
+            updateReadiness(.targetNotVisible("Hadapkan wajah lurus ke depan"))
             resetCaptureHold()
             return
         }
@@ -287,64 +275,34 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         }
 
         updateReadiness(.ready)
-        // Start or continue hold timer
-        if holdStartTime == nil || lastMatchedZone != currentZone {
+        if holdStartTime == nil {
             holdStartTime = Date()
-            lastMatchedZone = currentZone
         }
 
         let holdDuration = Date().timeIntervalSince(holdStartTime!)
         zoneProgress = min(holdDuration / holdDurationRequired, 1.0)
 
-        // Capture only after pose, landmarks, lighting, and stability are valid.
         if holdDuration >= holdDurationRequired {
-            captureCurrentPose(from: pixelBuffer, face: face)
+            captureFrame(from: pixelBuffer, face: face)
         }
     }
 
     // MARK: - Zone Validation
 
-    private func isCapturePoseMatch(_ pose: CapturePose, yaw: Double?, pitch: Double?) -> Bool {
-        // Vision may omit yaw/pitch for a front-facing face. Treat that as a
-        // neutral pose for frontal zones, but require an explicit measurement
-        // for zones that need a pronounced turn or tilt.
+    private func isCapturePoseMatch(yaw: Double?, pitch: Double?) -> Bool {
         let neutralYaw = yaw ?? 0
         let neutralPitch = pitch ?? 0
-
-        switch pose {
-        case .frontal:
-            // One stable frontal frame supplies the forehead, nose, and chin.
-            return abs(neutralYaw) < 0.25 && neutralPitch < 0.10
-        case .rightCheek:
-            guard let yaw else { return false }
-            return yaw < -0.20 && abs(neutralPitch) < 0.20
-        case .leftCheek:
-            guard let yaw else { return false }
-            return yaw > 0.20 && abs(neutralPitch) < 0.20
-        }
+        return abs(neutralYaw) < 0.25 && neutralPitch < 0.15
     }
 
-    private func isTargetVisible(for pose: CapturePose, landmarks: LandmarkAvailability) -> Bool {
+    private func isTargetVisible(landmarks: LandmarkAvailability) -> Bool {
         let hasBothEyes = landmarks.leftEyePoints >= 4 && landmarks.rightEyePoints >= 4
         let hasBothBrows = landmarks.leftEyebrowPoints >= 3 && landmarks.rightEyebrowPoints >= 3
+        let hasNose = landmarks.nosePoints >= 3
+        let hasLips = landmarks.outerLipPoints >= 8
         let hasContour = landmarks.contourPoints >= 8
 
-        switch pose {
-        case .frontal:
-            return hasBothEyes && hasBothBrows
-        case .rightCheek:
-            return landmarks.leftEyePoints >= 4 && landmarks.leftEyebrowPoints >= 3 && hasContour
-        case .leftCheek:
-            return landmarks.rightEyePoints >= 4 && landmarks.rightEyebrowPoints >= 3 && hasContour
-        }
-    }
-
-    private func targetNotVisibleMessage(for pose: CapturePose) -> String {
-        switch pose {
-        case .frontal: return "Pastikan jidat dan kedua alis terlihat"
-        case .rightCheek: return "Pastikan pipi kanan terlihat jelas"
-        case .leftCheek: return "Pastikan pipi kiri terlihat jelas"
-        }
+        return hasBothEyes && hasBothBrows && hasNose && hasLips && hasContour
     }
 
     private func isFaceStable(_ face: FaceFrameData) -> Bool {
@@ -364,7 +322,6 @@ final class FaceScanViewModel: NSObject, ObservableObject {
 
     private func resetCaptureHold(keepingPreviousFace: Bool = false) {
         holdStartTime = nil
-        lastMatchedZone = nil
         zoneProgress = 0.0
         if !keepingPreviousFace {
             previousValidatedFace = nil
@@ -377,151 +334,90 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         logger.info("Face scan validation: \(newValue.message)")
     }
 
-    // MARK: - Canonical Five-Zone Capture
+    // MARK: - Capture & Process
 
-    private func captureCurrentPose(from pixelBuffer: CVPixelBuffer, face: FaceFrameData) {
-        isCapturingZone = true
-        lastCaptureTime = Date()
+    private func captureFrame(from pixelBuffer: CVPixelBuffer, face: FaceFrameData) {
+        isCapturing = true
         holdStartTime = nil
         zoneProgress = 0.0
         updateReadiness(.searchingFace)
         previousValidatedFace = nil
+        
+        stopScan()
+        phase = .processing
 
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
             .oriented(forExifOrientation: Int32(CGImagePropertyOrientation.leftMirrored.rawValue))
         let context = CIContext()
         guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
-            isCapturingZone = false
+            handleError("Gagal mengambil gambar.")
             return
         }
 
         let uiImage = UIImage(cgImage: cgImage)
-        let zones = currentCapturePose.zones
-        let zoneCaptures = zones.compactMap { zone -> (zone: FaceZone, imageData: Data)? in
-            guard let imageData = cropFaceZone(zone, from: uiImage, faceBoundingBox: face.boundingBox) else {
-                return nil
+        guard let fullFaceData = uiImage.jpegData(compressionQuality: 0.82) else {
+            handleError("Gagal memproses gambar.")
+            return
+        }
+
+        // Map zones using FaceLandmarkZoneMapper
+        guard let mappedZones = FaceLandmarkZoneMapper.mapZones(from: face.observation) else {
+            handleError("Gagal memetakan area wajah. Pastikan wajah terlihat jelas.")
+            return
+        }
+
+        var zoneCaptures: [(zone: FaceZone, imageData: Data)] = []
+        for mappedZone in mappedZones {
+            if let zoneImageData = cropFaceZone(normalizedRect: mappedZone.normalizedRect, from: uiImage, faceBoundingBox: face.boundingBox) {
+                zoneCaptures.append((zone: mappedZone.zone, imageData: zoneImageData))
             }
-            return (zone, imageData)
         }
 
-        guard zoneCaptures.count == zones.count else {
-            isCapturingZone = false
-            updateReadiness(.targetNotVisible("Area wajah belum dapat dipetakan — coba lagi"))
+        guard zoneCaptures.count == 5 else { // 5 mapped zones expected
+            handleError("Gagal memproses seluruh area wajah.")
             return
         }
 
-        capturedZoneData.append(contentsOf: zoneCaptures)
-        completedZones.append(contentsOf: zones)
-
-        logger.info("Captured pose: \(currentCapturePose.logName), mapped zones: \(zones.map(\.displayName).joined(separator: ", "))")
-
-        if let nextPose = currentCapturePose.next {
-            currentCapturePose = nextPose
-            currentZone = nextPose.primaryZone
-            scanTargetZones = nextPose.zones
-            scanInstruction = nextPose.instruction
-            phase = .scanning(currentZone: nextPose.primaryZone, capturedCount: completedZones.count)
-        } else {
-            finishAllCaptures()
-            return
+        Task {
+            do {
+                logger.info("Starting ML analysis for full face and \(zoneCaptures.count) mapped zones")
+                let session = try await performScanUseCase.execute(fullFaceImageData: fullFaceData, zoneCaptures: zoneCaptures)
+                let resultModel = mapper.map(session)
+                phase = .completed(resultModel)
+            } catch {
+                logger.error("Face scan processing failed: \(error.localizedDescription)")
+                handleError(FaceScanErrorTextMapper.message(for: error))
+            }
         }
-
-        // Reset for next zone after a short delay
-        isCapturingZone = false
     }
 
-    private func cropFaceZone(_ zone: FaceZone, from image: UIImage, faceBoundingBox: CGRect) -> Data? {
+    private func cropFaceZone(normalizedRect: CGRect, from image: UIImage, faceBoundingBox: CGRect) -> Data? {
         guard let cgImage = image.cgImage else { return nil }
 
-        let region = canonicalRegion(for: zone)
-        let normalizedCrop = CGRect(
-            x: faceBoundingBox.minX + faceBoundingBox.width * region.minX,
-            y: faceBoundingBox.minY + faceBoundingBox.height * region.minY,
-            width: faceBoundingBox.width * region.width,
-            height: faceBoundingBox.height * region.height
+        // normalizedRect is relative to the faceBoundingBox.
+        let actualRect = CGRect(
+            x: faceBoundingBox.minX + faceBoundingBox.width * normalizedRect.minX,
+            y: faceBoundingBox.minY + faceBoundingBox.height * normalizedRect.minY,
+            width: faceBoundingBox.width * normalizedRect.width,
+            height: faceBoundingBox.height * normalizedRect.height
         ).intersection(CGRect(x: 0, y: 0, width: 1, height: 1))
 
-        guard !normalizedCrop.isNull, normalizedCrop.width > 0, normalizedCrop.height > 0 else { return nil }
+        guard !actualRect.isNull, actualRect.width > 0, actualRect.height > 0 else { return nil }
 
         let cropRect = CGRect(
-            x: normalizedCrop.minX * CGFloat(cgImage.width),
-            y: (1 - normalizedCrop.maxY) * CGFloat(cgImage.height),
-            width: normalizedCrop.width * CGFloat(cgImage.width),
-            height: normalizedCrop.height * CGFloat(cgImage.height)
+            x: actualRect.minX * CGFloat(cgImage.width),
+            y: (1 - actualRect.maxY) * CGFloat(cgImage.height),
+            width: actualRect.width * CGFloat(cgImage.width),
+            height: actualRect.height * CGFloat(cgImage.height)
         ).integral
 
         guard let croppedImage = cgImage.cropping(to: cropRect) else { return nil }
         return UIImage(cgImage: croppedImage).jpegData(compressionQuality: 0.82)
     }
-
-    private func canonicalRegion(for zone: FaceZone) -> CGRect {
-        switch zone {
-        case .forehead: return CGRect(x: 0.22, y: 0.65, width: 0.56, height: 0.27)
-        case .rightCheek: return CGRect(x: 0.02, y: 0.25, width: 0.38, height: 0.42)
-        case .leftCheek: return CGRect(x: 0.60, y: 0.25, width: 0.38, height: 0.42)
-        case .nose: return CGRect(x: 0.37, y: 0.34, width: 0.26, height: 0.34)
-        case .chin: return CGRect(x: 0.28, y: 0.05, width: 0.44, height: 0.25)
-        case .jawline: return CGRect(x: 0.12, y: 0.03, width: 0.76, height: 0.32)
-        }
-    }
-
-    private enum CapturePose: CaseIterable {
-        case frontal
-        case rightCheek
-        case leftCheek
-
-        var zones: [FaceZone] {
-            switch self {
-            case .frontal: return [.forehead, .nose, .chin]
-            case .rightCheek: return [.rightCheek]
-            case .leftCheek: return [.leftCheek]
-            }
-        }
-
-        var primaryZone: FaceZone { zones[0] }
-
-        var instruction: String {
-            switch self {
-            case .frontal: return "Hadapkan wajah lurus untuk jidat, hidung, dan dagu"
-            case .rightCheek: return "Putar wajah sedikit ke KIRI agar pipi kanan terlihat"
-            case .leftCheek: return "Putar wajah sedikit ke KANAN agar pipi kiri terlihat"
-            }
-        }
-
-        var next: CapturePose? {
-            switch self {
-            case .frontal: return .rightCheek
-            case .rightCheek: return .leftCheek
-            case .leftCheek: return nil
-            }
-        }
-
-        var logName: String {
-            switch self {
-            case .frontal: return "frontal"
-            case .rightCheek: return "right cheek"
-            case .leftCheek: return "left cheek"
-            }
-        }
-    }
-
-    // MARK: - Finish Scan
-
-    private func finishAllCaptures() {
-        stopScan()
-        phase = .processing
-
-        Task {
-            do {
-                logger.info("Starting ML analysis for \(capturedZoneData.count) face zones")
-                let session = try await performScanUseCase.execute(zoneCaptures: capturedZoneData)
-                let resultModel = mapper.map(session)
-                phase = .completed(resultModel)
-            } catch {
-                logger.error("Face scan processing failed: \(error.localizedDescription)")
-                phase = .error(message: FaceScanErrorTextMapper.message(for: error))
-            }
-        }
+    
+    private func handleError(_ message: String) {
+        phase = .error(message: message)
+        isCapturing = false
     }
 }
 
@@ -533,12 +429,10 @@ extension FaceScanViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
         didOutput sampleBuffer: CMSampleBuffer,
         from connection: AVCaptureConnection
     ) {
-        // Skip frame if still processing previous one (frame throttling)
         Task { @MainActor [weak self] in
             guard let self = self, self.isScanActive, !self.isProcessingFrame else { return }
             self.isProcessingFrame = true
 
-            // Process on background queue — NOT on main thread
             self.sampleQueue.async { [weak self] in
                 self?.processFrameOnBackground(sampleBuffer: sampleBuffer)
             }

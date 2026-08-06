@@ -26,7 +26,7 @@ struct FaceScanView: View {
                     action: viewModel.startScan
                 )
 
-            case .positioningFace, .scanning:
+            case .positioningFace, .capturing:
                 cameraView
 
             case .processing:
@@ -62,10 +62,9 @@ struct FaceScanView: View {
             // Focus Box Overlay (Oval) with hold progress
             FaceGuideOverlayView(
                 isFaceInPosition: viewModel.isFaceInPosition,
-                currentZone: viewModel.currentZone,
+                proximity: viewModel.proximity,
                 holdProgress: viewModel.zoneProgress,
                 readiness: viewModel.readiness,
-                targetZones: viewModel.scanTargetZones,
                 instruction: viewModel.scanInstruction
             )
 
@@ -86,15 +85,6 @@ struct FaceScanView: View {
                 .padding(.top, AppSpacing.lg)
 
                 Spacer()
-
-                // Bottom: Scan Progress for 5 zones with hold indicator
-                ScanProgressView(
-                    completedZones: viewModel.completedZones,
-                    currentZone: viewModel.currentZone,
-                    holdProgress: viewModel.zoneProgress
-                )
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.bottom, AppSpacing.xl)
             }
         }
     }

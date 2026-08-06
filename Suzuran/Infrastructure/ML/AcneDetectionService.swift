@@ -31,7 +31,7 @@ final class AcneDetectionService {
         config.computeUnits = .cpuAndNeuralEngine
 
         do {
-            let coreMLModel = try best_model_coreml(configuration: config).model
+            let coreMLModel = try best(configuration: config).model
             let vnModel = try VNCoreMLModel(for: coreMLModel)
             self.visionModel = vnModel
             print("[AcneDetectionService] ✅ Model loaded with CPU + Neural Engine")
@@ -97,12 +97,18 @@ final class AcneDetectionService {
         return []
     }
 
-    /// Parses VNCoreMLFeatureValueObservation from a YOLO model that doesn't automatically
-    /// produce VNRecognizedObjectObservation. Extracts bounding boxes from the raw MLMultiArray.
+    /// Parses VNCoreMLFeatureValueObservation from a YOLO end2end model.
+    ///
+    /// The new model (best.mlpackage, YOLO26s end2end) outputs shape `[1, 300, 6]`:
+    ///   - Dimension 0: batch (always 1)
+    ///   - Dimension 1: number of candidate detections (300)
+    ///   - Dimension 2: 6 values per detection = [cx, cy, w, h, confidence, class_id]
+    ///
+    /// All bbox values are in pixel coordinates (0–640) and must be normalized to 0–1.
     private static func parseYOLOFeatureObservations(_ observations: [VNCoreMLFeatureValueObservation]) -> [AcneDetectionResult] {
-        // YOLO class labels matching the trained model
         let classLabels = ["blackhead", "cyst", "nodule", "papule", "pustule", "whitehead"]
         let confidenceThreshold: Float = 0.25
+        let imageSize: Float = 640.0  // Model input size
 
         var results: [AcneDetectionResult] = []
 
@@ -112,80 +118,111 @@ final class AcneDetectionService {
             let shape = multiArray.shape.map { $0.intValue }
             print("[AcneDetectionService] 📐 MultiArray shape: \(shape)")
 
-            // YOLO output shape is typically [1, numAttributes, numDetections]
-            // where numAttributes = 4 (bbox) + numClasses
-            guard shape.count >= 2 else { continue }
-
-            let numAttributes: Int
             let numDetections: Int
+            let numAttributes: Int
 
             if shape.count == 3 {
-                // [1, numAttributes, numDetections]
-                numAttributes = shape[1]
-                numDetections = shape[2]
-            } else {
-                // [numAttributes, numDetections]
-                numAttributes = shape[0]
+                // [1, numDetections, numAttributes]  — end2end format
                 numDetections = shape[1]
-            }
-
-            let numClasses = numAttributes - 4 // 4 bbox values (cx, cy, w, h)
-            guard numClasses > 0 && numClasses <= classLabels.count else {
-                print("[AcneDetectionService] ⚠️ Unexpected numClasses: \(numClasses)")
+                numAttributes = shape[2]
+            } else if shape.count == 2 {
+                // [numDetections, numAttributes]
+                numDetections = shape[0]
+                numAttributes = shape[1]
+            } else {
+                print("[AcneDetectionService] ⚠️ Unexpected shape dimensions: \(shape.count)")
                 continue
             }
 
+            // End2end YOLO format: numAttributes == 6 → [cx, cy, w, h, conf, class_id]
+            // Classic YOLO format: numAttributes == 4 + numClasses → [cx, cy, w, h, class_scores...]
+            let isEnd2End = (numAttributes == 6)
+            print("[AcneDetectionService] 📐 numDetections=\(numDetections), numAttributes=\(numAttributes), end2end=\(isEnd2End)")
+
             let pointer = multiArray.dataPointer.assumingMemoryBound(to: Float.self)
 
-            for d in 0..<numDetections {
-                // Find the best class
-                var bestClassIdx = 0
-                var bestScore: Float = 0
+            if isEnd2End {
+                // ── End2End format: [batch?, numDetections, 6] ──
+                // Layout in memory (row-major): detection[d] starts at d * 6
+                for d in 0..<numDetections {
+                    let baseIdx = d * numAttributes
+                    let cx   = pointer[baseIdx + 0]
+                    let cy   = pointer[baseIdx + 1]
+                    let w    = pointer[baseIdx + 2]
+                    let h    = pointer[baseIdx + 3]
+                    let conf = pointer[baseIdx + 4]
+                    let classId = Int(pointer[baseIdx + 5])
 
-                for c in 0..<numClasses {
-                    let score = pointer[(4 + c) * numDetections + d]
-                    if score > bestScore {
-                        bestScore = score
-                        bestClassIdx = c
-                    }
+                    guard conf >= confidenceThreshold else { continue }
+                    guard classId >= 0 && classId < classLabels.count else { continue }
+
+                    // Normalize pixel coords to 0–1
+                    let rect = CGRect(
+                        x: CGFloat((cx - w / 2) / imageSize),
+                        y: CGFloat((cy - h / 2) / imageSize),
+                        width: CGFloat(w / imageSize),
+                        height: CGFloat(h / imageSize)
+                    )
+
+                    results.append(AcneDetectionResult(
+                        label: classLabels[classId],
+                        confidence: conf,
+                        boundingBox: rect
+                    ))
+                }
+            } else {
+                // ── Classic YOLO format: [batch?, numAttributes, numDetections] ──
+                // numAttributes = 4 + numClasses, data laid out as attribute-major
+                let numClasses = numAttributes - 4
+                guard numClasses > 0 && numClasses <= classLabels.count else {
+                    print("[AcneDetectionService] ⚠️ Unexpected numClasses: \(numClasses)")
+                    continue
                 }
 
-                guard bestScore >= confidenceThreshold else { continue }
+                for d in 0..<numDetections {
+                    var bestClassIdx = 0
+                    var bestScore: Float = 0
 
-                // Extract bounding box (center x, center y, width, height) — all normalized 0–1
-                let cx = CGFloat(pointer[0 * numDetections + d])
-                let cy = CGFloat(pointer[1 * numDetections + d])
-                let w  = CGFloat(pointer[2 * numDetections + d])
-                let h  = CGFloat(pointer[3 * numDetections + d])
+                    for c in 0..<numClasses {
+                        let score = pointer[(4 + c) * numDetections + d]
+                        if score > bestScore {
+                            bestScore = score
+                            bestClassIdx = c
+                        }
+                    }
 
-                let rect = CGRect(
-                    x: cx - w / 2,
-                    y: cy - h / 2,
-                    width: w,
-                    height: h
-                )
+                    guard bestScore >= confidenceThreshold else { continue }
 
-                let label = bestClassIdx < classLabels.count ? classLabels[bestClassIdx] : "unknown"
-                results.append(AcneDetectionResult(
-                    label: label,
-                    confidence: bestScore,
-                    boundingBox: rect
-                ))
+                    let cx = CGFloat(pointer[0 * numDetections + d])
+                    let cy = CGFloat(pointer[1 * numDetections + d])
+                    let w  = CGFloat(pointer[2 * numDetections + d])
+                    let h  = CGFloat(pointer[3 * numDetections + d])
+
+                    let rect = CGRect(
+                        x: cx - w / 2,
+                        y: cy - h / 2,
+                        width: w,
+                        height: h
+                    )
+
+                    let label = bestClassIdx < classLabels.count ? classLabels[bestClassIdx] : "unknown"
+                    results.append(AcneDetectionResult(
+                        label: label,
+                        confidence: bestScore,
+                        boundingBox: rect
+                    ))
+                }
             }
         }
 
-        // A raw YOLO head can emit thousands of candidates. Running NMS against every
-        // candidate is quadratic and made a five-zone scan appear to hang. Keep only
-        // the strongest candidates; it is more than enough for acne detections.
-        let maximumCandidatesForNMS = 300
+        // NMS: keep strongest non-overlapping detections
         let maximumDetections = 100
         let sorted = results.sorted { $0.confidence > $1.confidence }
-        let candidates = sorted.prefix(maximumCandidatesForNMS)
         var kept: [AcneDetectionResult] = []
-        kept.reserveCapacity(min(candidates.count, maximumDetections))
+        kept.reserveCapacity(min(sorted.count, maximumDetections))
         let iouThreshold: CGFloat = 0.45
 
-        for candidate in candidates {
+        for candidate in sorted {
             let dominated = kept.contains { existing in
                 Self.iou(existing.boundingBox, candidate.boundingBox) > iouThreshold
             }
@@ -197,6 +234,7 @@ final class AcneDetectionService {
             }
         }
 
+        print("[AcneDetectionService] 📊 After NMS: \(kept.count) detections from \(results.count) candidates")
         return kept
     }
 

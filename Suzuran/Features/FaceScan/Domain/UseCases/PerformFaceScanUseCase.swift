@@ -7,17 +7,20 @@ struct PerformFaceScanUseCase {
         self.repository = repository
     }
 
-    func execute(zoneCaptures: [(zone: FaceZone, imageData: Data)]) async throws -> FaceScanSession {
+    func execute(fullFaceImageData: Data, zoneCaptures: [(zone: FaceZone, imageData: Data)]) async throws -> FaceScanSession {
         guard !zoneCaptures.isEmpty else {
             throw FaceScanDomainError.emptyScanData
         }
+        
+        // Detect acne on the overall face
+        let overallDetections = try await repository.detectAcne(in: fullFaceImageData)
+        let totalAcneCount = overallDetections.count
 
+        // Process zones
         var zoneResults: [FaceZoneScanResult] = []
-        var totalAcneCount = 0
 
         for capture in zoneCaptures {
             let detections = try await repository.detectAcne(in: capture.imageData)
-            totalAcneCount += detections.count
 
             let zoneResult = FaceZoneScanResult(
                 zone: capture.zone,
@@ -41,6 +44,8 @@ struct PerformFaceScanUseCase {
 
         let session = FaceScanSession(
             capturedAt: Date(),
+            overallImageData: fullFaceImageData,
+            overallDetections: overallDetections,
             zoneResults: zoneResults,
             totalAcneCount: totalAcneCount,
             overallSeverity: overallSeverity

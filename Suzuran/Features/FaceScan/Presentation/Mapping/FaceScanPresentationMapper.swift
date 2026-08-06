@@ -13,23 +13,41 @@ struct FaceScanPresentationMapper {
         var acneTypeCounts: [AcneType: Int] = [:]
         var faceMarkers: [FaceMaskMarkerModel] = []
 
+        // Map overall detections to markers and counts
+        for det in session.overallDetections {
+            acneTypeCounts[det.acneType, default: 0] += 1
+            
+            // Vision coordinates are bottom-left origin, UI is top-left
+            let normalizedX = min(max(det.boundingBox.midX, 0), 1)
+            let normalizedY = min(max(1 - det.boundingBox.midY, 0), 1)
+            
+            faceMarkers.append(
+                FaceMaskMarkerModel(
+                    id: det.id,
+                    acneType: det.acneType,
+                    confidence: det.confidence,
+                    normalizedPosition: CGPoint(x: normalizedX, y: normalizedY)
+                )
+            )
+        }
+
         let zoneSummaries = session.zoneResults.map { zoneResult in
             let count = zoneResult.detections.count
 
-            // Group detections by type
             var typeCounts: [String: Int] = [:]
+            var zoneMarkers: [FaceMaskMarkerModel] = []
+            
             for det in zoneResult.detections {
                 typeCounts[det.acneType.displayName, default: 0] += 1
-                acneTypeCounts[det.acneType, default: 0] += 1
-                faceMarkers.append(
+                
+                let normalizedX = min(max(det.boundingBox.midX, 0), 1)
+                let normalizedY = min(max(1 - det.boundingBox.midY, 0), 1)
+                zoneMarkers.append(
                     FaceMaskMarkerModel(
                         id: det.id,
                         acneType: det.acneType,
                         confidence: det.confidence,
-                        normalizedPosition: mapToFaceMask(
-                            zone: zoneResult.zone,
-                            boundingBox: det.boundingBox
-                        )
+                        normalizedPosition: CGPoint(x: normalizedX, y: normalizedY)
                     )
                 )
             }
@@ -48,7 +66,9 @@ struct FaceScanPresentationMapper {
                 id: zoneResult.id,
                 zoneName: zoneResult.zone.displayName,
                 acneCount: count,
-                detailText: detailText
+                detailText: detailText,
+                imageData: zoneResult.capturedImageData,
+                markers: zoneMarkers
             )
         }
 
@@ -63,39 +83,12 @@ struct FaceScanPresentationMapper {
         return FaceScanResultModel(
             id: session.id,
             dateText: dateFormatter.string(from: session.capturedAt),
+            overallImageData: session.overallImageData,
             overallSeverityText: session.overallSeverity.rawValue.capitalized,
             totalAcneCountText: "\(session.totalAcneCount) jerawat terdeteksi",
             zoneSummaries: zoneSummaries,
             acneTypeSummaries: acneTypeSummaries,
             faceMarkers: faceMarkers
-        )
-    }
-
-    private func mapToFaceMask(zone: FaceZone, boundingBox: CGRect) -> CGPoint {
-        let localX = min(max(boundingBox.midX, 0), 1)
-        // Vision's normalized coordinate system starts at the lower-left;
-        // SwiftUI's drawing space starts at the upper-left.
-        let localY = min(max(1 - boundingBox.midY, 0), 1)
-
-        let region: CGRect
-        switch zone {
-        case .forehead:
-            region = CGRect(x: 0.28, y: 0.10, width: 0.44, height: 0.22)
-        case .rightCheek:
-            region = CGRect(x: 0.10, y: 0.34, width: 0.30, height: 0.34)
-        case .leftCheek:
-            region = CGRect(x: 0.60, y: 0.34, width: 0.30, height: 0.34)
-        case .nose:
-            region = CGRect(x: 0.42, y: 0.31, width: 0.16, height: 0.30)
-        case .chin:
-            region = CGRect(x: 0.32, y: 0.69, width: 0.36, height: 0.16)
-        case .jawline:
-            region = CGRect(x: 0.18, y: 0.68, width: 0.64, height: 0.18)
-        }
-
-        return CGPoint(
-            x: region.minX + region.width * localX,
-            y: region.minY + region.height * localY
         )
     }
 }

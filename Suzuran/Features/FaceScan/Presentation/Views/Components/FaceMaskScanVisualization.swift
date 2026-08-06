@@ -2,51 +2,76 @@ import SwiftUI
 
 struct FaceMaskScanVisualization: View {
     let markers: [FaceMaskMarkerModel]
+    var imageData: Data? = nil
 
     var body: some View {
         AppCard {
             VStack(spacing: AppSpacing.sm) {
-                GeometryReader { geometry in
-                    let size = min(geometry.size.width, geometry.size.height)
-
-                    ZStack {
-                        FaceMaskShape()
-                            .fill(
-                                RadialGradient(
-                                    colors: [Color(red: 0.98, green: 0.82, blue: 0.70), Color(red: 0.73, green: 0.47, blue: 0.36)],
-                                    center: .init(x: 0.42, y: 0.34),
-                                    startRadius: size * 0.05,
-                                    endRadius: size * 0.66
-                                )
-                            )
-                            .overlay {
-                                FaceMaskShape()
-                                    .stroke(AppColor.textPrimary.opacity(0.22), lineWidth: 1.2)
+                if let data = imageData, let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
+                        .overlay {
+                            GeometryReader { geo in
+                                let width = geo.size.width
+                                let height = geo.size.height
+                                let canvasSize = min(width, height)
+                                
+                                ForEach(markers) { marker in
+                                    AcneMarker(marker: marker, canvasSize: canvasSize)
+                                        .position(
+                                            x: width * marker.normalizedPosition.x,
+                                            y: height * marker.normalizedPosition.y
+                                        )
+                                }
                             }
-
-                        FaceFeaturesShape()
-                            .stroke(AppColor.textPrimary.opacity(0.25), lineWidth: 1)
-
-                        ForEach(markers) { marker in
-                            AcneMarker(marker: marker, canvasSize: size)
-                                .position(
-                                    x: size * marker.normalizedPosition.x,
-                                    y: size * marker.normalizedPosition.y
-                                )
                         }
+                        .accessibilityElement(children: .ignore)
+                        .accessibilityLabel("Peta wajah dengan \(markers.count) jerawat terdeteksi")
+                } else {
+                    GeometryReader { geometry in
+                        let size = min(geometry.size.width, geometry.size.height)
+
+                        ZStack {
+                            FaceMaskShape()
+                                .fill(
+                                    RadialGradient(
+                                        colors: [Color(red: 0.98, green: 0.82, blue: 0.70), Color(red: 0.73, green: 0.47, blue: 0.36)],
+                                        center: .init(x: 0.42, y: 0.34),
+                                        startRadius: size * 0.05,
+                                        endRadius: size * 0.66
+                                    )
+                                )
+                                .overlay {
+                                    FaceMaskShape()
+                                        .stroke(AppColor.textPrimary.opacity(0.22), lineWidth: 1.2)
+                                }
+
+                            FaceFeaturesShape()
+                                .stroke(AppColor.textPrimary.opacity(0.25), lineWidth: 1)
+
+                            ForEach(markers) { marker in
+                                AcneMarker(marker: marker, canvasSize: size)
+                                    .position(
+                                        x: size * marker.normalizedPosition.x,
+                                        y: size * marker.normalizedPosition.y
+                                    )
+                            }
+                        }
+                        .frame(width: size, height: size)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
                     }
-                    .frame(width: size, height: size)
-                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .frame(height: 300)
+                    .accessibilityElement(children: .ignore)
+                    .accessibilityLabel("Peta wajah dengan \(markers.count) jerawat terdeteksi")
                 }
-                .frame(height: 300)
-                .accessibilityElement(children: .ignore)
-                .accessibilityLabel("Peta wajah dengan \(markers.count) jerawat terdeteksi")
 
                 HStack(spacing: AppSpacing.sm) {
                     Circle()
                         .fill(AppColor.accentDanger)
                         .frame(width: 10, height: 10)
-                    Text("Titik menunjukkan perkiraan posisi jerawat dari tiap zona scan.")
+                    Text("Titik menunjukkan posisi jerawat pada wajah.")
                         .font(AppTypography.caption)
                         .foregroundStyle(AppColor.textSecondary)
                 }

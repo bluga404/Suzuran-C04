@@ -4,10 +4,16 @@ enum FaceScanPhase: Equatable {
     case requestingPermission
     case permissionDenied
     case positioningFace
-    case scanning(currentZone: FaceZone, capturedCount: Int)
+    case capturing
     case processing
     case completed(FaceScanResultModel)
     case error(message: String)
+}
+
+enum FaceProximity: Equatable {
+    case tooFar
+    case acceptable
+    case ideal
 }
 
 enum FaceScanReadiness: Equatable {
@@ -15,7 +21,6 @@ enum FaceScanReadiness: Equatable {
     case faceOutOfGuide
     case insufficientLighting
     case targetNotVisible(String)
-    case wrongPose(String)
     case unstable
     case ready
 
@@ -27,7 +32,7 @@ enum FaceScanReadiness: Equatable {
             return "Posisikan wajah di dalam panduan"
         case .insufficientLighting:
             return "Pencahayaan terlalu rendah"
-        case let .targetNotVisible(message), let .wrongPose(message):
+        case let .targetNotVisible(message):
             return message
         case .unstable:
             return "Tahan wajah tetap stabil"

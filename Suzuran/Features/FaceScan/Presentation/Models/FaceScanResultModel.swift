@@ -4,6 +4,7 @@ import CoreGraphics
 struct FaceScanResultModel: Identifiable, Equatable {
     let id: UUID
     let dateText: String
+    let overallImageData: Data?
     let overallSeverityText: String
     let totalAcneCountText: String
     let zoneSummaries: [ZoneSummaryModel]
@@ -16,6 +17,8 @@ struct ZoneSummaryModel: Identifiable, Equatable {
     let zoneName: String
     let acneCount: Int
     let detailText: String
+    let imageData: Data?
+    let markers: [FaceMaskMarkerModel]
 }
 
 struct AcneTypeSummaryModel: Identifiable, Equatable {

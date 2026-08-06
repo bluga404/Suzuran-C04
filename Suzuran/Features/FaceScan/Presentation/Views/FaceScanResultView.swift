@@ -53,12 +53,12 @@ struct FaceScanResultView: View {
                     }
                 }
 
-                Text("Peta Jerawat Wajah")
+                Text("Peta Jerawat Keseluruhan")
                     .font(AppTypography.subtitle)
                     .foregroundStyle(AppColor.textPrimary)
                     .padding(.top, AppSpacing.xs)
 
-                FaceMaskScanVisualization(markers: result.faceMarkers)
+                FaceMaskScanVisualization(markers: result.faceMarkers, imageData: result.overallImageData)
 
                 Text("Jenis Jerawat")
                     .font(AppTypography.subtitle)
@@ -77,14 +77,14 @@ struct FaceScanResultView: View {
                     }
                 }
 
-                Text("Rincian Per Zona Wajah")
+                Text("Detail Per Area Wajah")
                     .font(AppTypography.subtitle)
                     .foregroundStyle(AppColor.textPrimary)
                     .padding(.top, AppSpacing.xs)
 
                 ForEach(result.zoneSummaries) { zone in
                     AppCard {
-                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                        VStack(alignment: .leading, spacing: AppSpacing.sm) {
                             HStack {
                                 Text(zone.zoneName)
                                     .font(AppTypography.bodyBold)
@@ -101,6 +101,32 @@ struct FaceScanResultView: View {
                                             .fill(zone.acneCount > 0 ? AppColor.accentDanger.opacity(0.15) : AppColor.accentPrimary.opacity(0.15))
                                     )
                                     .foregroundStyle(zone.acneCount > 0 ? AppColor.accentDanger : AppColor.accentPrimary)
+                            }
+
+                            if let data = zone.imageData, let uiImage = UIImage(data: data) {
+                                Image(uiImage: uiImage)
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(maxHeight: 250)
+                                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
+                                    .overlay {
+                                        // Plot zone markers
+                                        GeometryReader { geo in
+                                            let width = geo.size.width
+                                            let height = geo.size.height
+                                            
+                                            ForEach(zone.markers) { marker in
+                                                Circle()
+                                                    .fill(Color.red.opacity(0.5))
+                                                    .overlay(Circle().stroke(Color.red, lineWidth: 1))
+                                                    .frame(width: 14, height: 14)
+                                                    .position(
+                                                        x: width * marker.normalizedPosition.x,
+                                                        y: height * marker.normalizedPosition.y
+                                                    )
+                                            }
+                                        }
+                                    }
                             }
 
                             Text(zone.detailText)

@@ -6,7 +6,8 @@ enum FaceZone: String, CaseIterable, Equatable, Codable {
     case leftCheek
     case nose
     case chin
-    case jawline
+
+    static let scanZones: [FaceZone] = [.forehead, .rightCheek, .leftCheek, .nose, .chin]
 
     var displayName: String {
         switch self {
@@ -15,25 +16,12 @@ enum FaceZone: String, CaseIterable, Equatable, Codable {
         case .leftCheek: return "Pipi Kiri"
         case .nose: return "Hidung"
         case .chin: return "Dagu"
-        case .jawline: return "Garis Rahang"
         }
     }
 
     var instruction: String {
-        switch self {
-        case .forehead:
-            return "Tundukkan kepala sedikit agar jidat terlihat"
-        case .rightCheek:
-            return "Putar wajah sedikit ke KIRI agar pipi kanan terlihat"
-        case .leftCheek:
-            return "Putar wajah sedikit ke KANAN agar pipi kiri terlihat"
-        case .nose:
-            return "Hadapkan wajah lurus agar hidung terlihat jelas"
-        case .chin:
-            return "Dongakkan wajah sedikit agar dagu terlihat jelas"
-        case .jawline:
-            return "Miringkan kepala agar garis rahang terlihat"
-        }
+        // Obsolete in new flow, but kept for compatibility or fallback
+        return "Posisikan wajah Anda di tengah layar"
     }
 
     var order: Int {
@@ -43,7 +31,6 @@ enum FaceZone: String, CaseIterable, Equatable, Codable {
         case .leftCheek: return 3
         case .nose: return 4
         case .chin: return 5
-        case .jawline: return 6
         }
     }
 }
