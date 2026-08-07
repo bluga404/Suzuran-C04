@@ -7,14 +7,16 @@ enum AcneLabelColor {
     /// - Returns: A SwiftUI `Color` corresponding to the label.
     static func color(for label: String) -> Color {
         switch label.lowercased() {
-        case "comedo":
+        case "blackhead", "comedo":
             return .yellow
         case "papule":
             return .orange
         case "pustule":
             return .red
-        case "nodule/cystic":
+        case "nodule", "cyst", "nodule/cystic":
             return .purple
+        case "whitehead":
+            return .blue
         default:
             return .gray
         }

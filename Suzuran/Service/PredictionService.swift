@@ -4,7 +4,8 @@ import CoreML
 import Vision
 
 nonisolated final class PredictionService: @unchecked Sendable {
-    private static let classNames = ["comedo", "nodule/cystic", "papule", "pustule"]
+    private static let classNames = ["blackhead", "cyst", "nodule", "papule", "pustule", "whitehead"]
+    private static let minimumDetectionColumns = 6
     private let confidenceThreshold = 0.05
 
     private let model: MLModel?
@@ -13,7 +14,7 @@ nonisolated final class PredictionService: @unchecked Sendable {
 
     init() {
         guard
-            let url = Bundle.main.url(forResource: "best", withExtension: "mlmodelc"),
+            let url = Bundle.main.url(forResource: "yolov26s_67_4", withExtension: "mlmodelc"),
             let model = try? MLModel(contentsOf: url),
             let visionModel = try? VNCoreMLModel(for: model)
         else {
@@ -60,26 +61,49 @@ nonisolated final class PredictionService: @unchecked Sendable {
     }
 
     nonisolated static func parseDetections(_ array: MLMultiArray, threshold: Double) -> [AcneDetection] {
-        guard array.shape.count == 3, array.shape[1].intValue > 0 else { return [] }
+        guard array.shape.count == 3 else { return [] }
 
-        let rowCount = array.shape[1].intValue
-        let rowStride = array.strides[1].intValue
-        let colStride = array.strides[2].intValue
+        let dimensionOne = array.shape[1].intValue
+        let dimensionTwo = array.shape[2].intValue
 
-        let pointer = array.dataPointer.assumingMemoryBound(to: Float32.self)
+        let rowAxis: Int
+        let columnAxis: Int
+        let rowCount: Int
+        let columnCount: Int
+
+        if dimensionTwo >= minimumDetectionColumns {
+            rowAxis = 1
+            columnAxis = 2
+            rowCount = dimensionOne
+            columnCount = dimensionTwo
+        } else if dimensionOne >= minimumDetectionColumns {
+            rowAxis = 2
+            columnAxis = 1
+            rowCount = dimensionTwo
+            columnCount = dimensionOne
+        } else {
+            return []
+        }
+
+        let rowStride = array.strides[rowAxis].intValue
+        let colStride = array.strides[columnAxis].intValue
 
         var detections: [AcneDetection] = []
         for row in 0..<rowCount {
             let base = row * rowStride
 
-            let confidence = Double(pointer[base + 4 * colStride])
+            let confidence = value(in: array, flatIndex: base + 4 * colStride)
             guard confidence >= threshold else { continue }
 
-            let x1 = pointer[base]
-            let y1 = pointer[base + colStride]
-            let x2 = pointer[base + 2 * colStride]
-            let y2 = pointer[base + 3 * colStride]
-            let classIndex = Int(pointer[base + 5 * colStride])
+            let x1 = value(in: array, flatIndex: base)
+            let y1 = value(in: array, flatIndex: base + colStride)
+            let x2 = value(in: array, flatIndex: base + 2 * colStride)
+            let y2 = value(in: array, flatIndex: base + 3 * colStride)
+
+            let classIndex = normalizedClassIndex(
+                from: value(in: array, flatIndex: base + 5 * colStride),
+                columnCount: columnCount
+            )
 
             let label = (classIndex >= 0 && classIndex < classNames.count) ? classNames[classIndex] : "Unknown"
             let box = CGRect(
@@ -97,6 +121,38 @@ nonisolated final class PredictionService: @unchecked Sendable {
         return detections.sorted { $0.confidence > $1.confidence }
     }
 
+    private nonisolated static func normalizedClassIndex(from rawValue: Double, columnCount: Int) -> Int {
+        let rounded = Int(rawValue.rounded())
+
+        if (0..<classNames.count).contains(rounded) {
+            return rounded
+        }
+
+        // Some exports report class ids as 1-based values. Keep that compatible too.
+        if (1...classNames.count).contains(rounded) {
+            return rounded - 1
+        }
+
+        return -1
+    }
+
+    private nonisolated static func value(in array: MLMultiArray, flatIndex: Int) -> Double {
+        switch array.dataType {
+        case .float32:
+            return Double(array.dataPointer.assumingMemoryBound(to: Float32.self)[flatIndex])
+        case .float16:
+            return Double(array.dataPointer.assumingMemoryBound(to: Float16.self)[flatIndex])
+        case .double:
+            return array.dataPointer.assumingMemoryBound(to: Double.self)[flatIndex]
+        case .int32:
+            return Double(array.dataPointer.assumingMemoryBound(to: Int32.self)[flatIndex])
+        case .int8:
+            return Double(array.dataPointer.assumingMemoryBound(to: Int8.self)[flatIndex])
+        @unknown default:
+            return 0
+        }
+    }
+
     nonisolated static func cgOrientation(from orientation: UIImage.Orientation) -> CGImagePropertyOrientation {
         switch orientation {
         case .up: return .up
@@ -111,7 +167,8 @@ nonisolated final class PredictionService: @unchecked Sendable {
         }
     }
 
-    nonisolated static func debugPrintMultiArray(_ array: MLMultiArray) {        guard array.shape.count == 3, array.shape[1].intValue > 0 else {
+    nonisolated static func debugPrintMultiArray(_ array: MLMultiArray) {
+        guard array.shape.count == 3, array.shape[1].intValue > 0 else {
             print("[PredictionService] unexpected output shape: \(array.shape)")
             return
         }
@@ -120,15 +177,14 @@ nonisolated final class PredictionService: @unchecked Sendable {
         let colCount = array.shape[2].intValue
         let rowStride = array.strides[1].intValue
         let colStride = array.strides[2].intValue
-        let pointer = array.dataPointer.assumingMemoryBound(to: Float32.self)
 
-        print("[PredictionService] shape=\(array.shape) strides=\(array.strides)")
+        print("[PredictionService] shape=\(array.shape) strides=\(array.strides) dataType=\(array.dataType)")
 
-        var maxConfidence: Float = 0
+        var maxConfidence: Double = 0
         var rowsAboveThreshold = 0
         for row in 0..<rowCount {
             let base = row * rowStride
-            let confidence = pointer[base + 4 * colStride]
+            let confidence = value(in: array, flatIndex: base + 4 * colStride)
             if confidence > maxConfidence { maxConfidence = confidence }
             if confidence > 0.005 { rowsAboveThreshold += 1 }
         }
@@ -136,7 +192,7 @@ nonisolated final class PredictionService: @unchecked Sendable {
 
         for row in 0..<min(rowCount, 10) {
             let base = row * rowStride
-            let values = (0..<colCount).map { pointer[base + $0 * colStride] }
+            let values = (0..<colCount).map { value(in: array, flatIndex: base + $0 * colStride) }
             print("[PredictionService] row \(row): \(values)")
         }
     }
