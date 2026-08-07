@@ -104,29 +104,33 @@ struct FaceScanResultView: View {
                             }
 
                             if let data = zone.imageData, let uiImage = UIImage(data: data) {
-                                Image(uiImage: uiImage)
-                                    .resizable()
-                                    .scaledToFit()
-                                    .frame(maxHeight: 250)
-                                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
-                                    .overlay {
-                                        // Plot zone markers
-                                        GeometryReader { geo in
-                                            let width = geo.size.width
-                                            let height = geo.size.height
-                                            
-                                            ForEach(zone.markers) { marker in
-                                                Circle()
-                                                    .fill(Color.red.opacity(0.5))
-                                                    .overlay(Circle().stroke(Color.red, lineWidth: 1))
-                                                    .frame(width: 14, height: 14)
-                                                    .position(
-                                                        x: width * marker.normalizedPosition.x,
-                                                        y: height * marker.normalizedPosition.y
-                                                    )
+                                HStack {
+                                    Spacer(minLength: 0)
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFit()
+                                        .frame(maxHeight: 250)
+                                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
+                                        .overlay {
+                                            // Plot zone markers
+                                            GeometryReader { geo in
+                                                let width = geo.size.width
+                                                let height = geo.size.height
+                                                
+                                                ForEach(zone.markers) { marker in
+                                                    Circle()
+                                                        .fill(Color.red.opacity(0.5))
+                                                        .overlay(Circle().stroke(Color.red, lineWidth: 1))
+                                                        .frame(width: 14, height: 14)
+                                                        .position(
+                                                            x: width * marker.normalizedPosition.x,
+                                                            y: height * marker.normalizedPosition.y
+                                                        )
+                                                }
                                             }
                                         }
-                                    }
+                                    Spacer(minLength: 0)
+                                }
                             }
 
                             Text(zone.detailText)

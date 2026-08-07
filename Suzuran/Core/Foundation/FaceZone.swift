@@ -1,16 +1,24 @@
 import Foundation
 
 enum FaceZone: String, CaseIterable, Equatable, Codable {
+    case front
+    case leftAngle
+    case rightAngle
+    
+    // Obsolete for backwards compatibility
     case forehead
     case rightCheek
     case leftCheek
     case nose
     case chin
 
-    static let scanZones: [FaceZone] = [.forehead, .rightCheek, .leftCheek, .nose, .chin]
+    static let scanZones: [FaceZone] = [.front, .leftAngle, .rightAngle]
 
     var displayName: String {
         switch self {
+        case .front: return "Depan"
+        case .leftAngle: return "Kiri"
+        case .rightAngle: return "Kanan"
         case .forehead: return "Jidat"
         case .rightCheek: return "Pipi Kanan"
         case .leftCheek: return "Pipi Kiri"
@@ -20,17 +28,24 @@ enum FaceZone: String, CaseIterable, Equatable, Codable {
     }
 
     var instruction: String {
-        // Obsolete in new flow, but kept for compatibility or fallback
-        return "Posisikan wajah Anda di tengah layar"
+        switch self {
+        case .front: return "Posisi Lurus ke Depan"
+        case .leftAngle: return "Putar Wajah ke Kiri"
+        case .rightAngle: return "Putar Wajah ke Kanan"
+        default: return "Posisikan wajah Anda"
+        }
     }
 
     var order: Int {
         switch self {
-        case .forehead: return 1
-        case .rightCheek: return 2
-        case .leftCheek: return 3
-        case .nose: return 4
-        case .chin: return 5
+        case .front: return 1
+        case .leftAngle: return 2
+        case .rightAngle: return 3
+        case .forehead: return 4
+        case .rightCheek: return 5
+        case .leftCheek: return 6
+        case .nose: return 7
+        case .chin: return 8
         }
     }
 }

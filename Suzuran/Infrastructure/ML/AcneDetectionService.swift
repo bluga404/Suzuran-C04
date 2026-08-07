@@ -31,7 +31,7 @@ final class AcneDetectionService {
         config.computeUnits = .cpuAndNeuralEngine
 
         do {
-            let coreMLModel = try best(configuration: config).model
+            let coreMLModel = try v11s_62_6(configuration: config).model
             let vnModel = try VNCoreMLModel(for: coreMLModel)
             self.visionModel = vnModel
             print("[AcneDetectionService] ✅ Model loaded with CPU + Neural Engine")

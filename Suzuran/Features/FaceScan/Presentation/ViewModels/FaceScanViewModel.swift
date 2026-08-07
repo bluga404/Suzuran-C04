@@ -13,7 +13,14 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     @Published private(set) var isFaceInPosition: Bool = false
     @Published private(set) var zoneProgress: Double = 0.0 // 0.0–1.0 hold progress
     @Published private(set) var readiness: FaceScanReadiness = .searchingFace
-    @Published private(set) var scanInstruction: String = "Posisikan wajah Anda di dalam area oval."
+    @Published private(set) var scanInstruction: String = FaceZone.front.instruction
+    @Published private(set) var currentAngleTarget: FaceZone = .front
+
+    private var frontFullData: Data?
+    private var frontTZoneData: Data?
+    private var frontTZoneRect: CGRect?
+    private var leftFullData: Data?
+    private var rightFullData: Data?
 
     let captureSession = AVCaptureSession()
 
@@ -59,9 +66,17 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     func retry() {
         holdStartTime = nil
         zoneProgress = 0.0
+        currentAngleTarget = .front
+        scanInstruction = currentAngleTarget.instruction
+        frontFullData = nil
+        frontTZoneData = nil
+        frontTZoneRect = nil
+        leftFullData = nil
+        rightFullData = nil
         updateReadiness(.searchingFace)
         previousValidatedFace = nil
         phase = .positioningFace
+        isCapturing = false
         startScan()
     }
 
@@ -231,9 +246,9 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         }
         
         let width = bb.width
-        if width < 0.35 {
+        if width < 0.55 {
             proximity = .tooFar
-        } else if width > 0.80 {
+        } else if width > 0.95 {
             // Unlikely, but if too close
             proximity = .acceptable
         } else {
@@ -263,7 +278,12 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         }
 
         guard isCapturePoseMatch(yaw: face.yaw, pitch: face.pitch) else {
-            updateReadiness(.targetNotVisible("Hadapkan wajah lurus ke depan"))
+            switch currentAngleTarget {
+            case .front: updateReadiness(.targetNotVisible("Hadapkan wajah lurus ke depan"))
+            case .leftAngle: updateReadiness(.targetNotVisible("Putar wajah Anda ke kiri"))
+            case .rightAngle: updateReadiness(.targetNotVisible("Putar wajah Anda ke kanan"))
+            default: updateReadiness(.targetNotVisible("Sesuaikan posisi wajah Anda"))
+            }
             resetCaptureHold()
             return
         }
@@ -292,7 +312,17 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     private func isCapturePoseMatch(yaw: Double?, pitch: Double?) -> Bool {
         let neutralYaw = yaw ?? 0
         let neutralPitch = pitch ?? 0
-        return abs(neutralYaw) < 0.25 && neutralPitch < 0.15
+        
+        switch currentAngleTarget {
+        case .front:
+            return abs(neutralYaw) < 0.25 && neutralPitch < 0.15
+        case .leftAngle:
+            return neutralYaw > 0.40 && neutralPitch < 0.15
+        case .rightAngle:
+            return neutralYaw < -0.40 && neutralPitch < 0.15
+        default:
+            return false
+        }
     }
 
     private func isTargetVisible(landmarks: LandmarkAvailability) -> Bool {
@@ -338,14 +368,7 @@ final class FaceScanViewModel: NSObject, ObservableObject {
 
     private func captureFrame(from pixelBuffer: CVPixelBuffer, face: FaceFrameData) {
         isCapturing = true
-        holdStartTime = nil
-        zoneProgress = 0.0
-        updateReadiness(.searchingFace)
-        previousValidatedFace = nil
         
-        stopScan()
-        phase = .processing
-
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
             .oriented(forExifOrientation: Int32(CGImagePropertyOrientation.leftMirrored.rawValue))
         let context = CIContext()
@@ -360,34 +383,68 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             return
         }
 
-        // Map zones using FaceLandmarkZoneMapper
-        guard let mappedZones = FaceLandmarkZoneMapper.mapZones(from: face.observation) else {
-            handleError("Gagal memetakan area wajah. Pastikan wajah terlihat jelas.")
-            return
-        }
-
-        var zoneCaptures: [(zone: FaceZone, imageData: Data)] = []
-        for mappedZone in mappedZones {
-            if let zoneImageData = cropFaceZone(normalizedRect: mappedZone.normalizedRect, from: uiImage, faceBoundingBox: face.boundingBox) {
-                zoneCaptures.append((zone: mappedZone.zone, imageData: zoneImageData))
+        switch currentAngleTarget {
+        case .front:
+            frontFullData = fullFaceData
+            
+            // Map T-Zone using FaceLandmarkZoneMapper
+            if let tZoneNormalized = FaceLandmarkZoneMapper.mapTZone(from: face.observation),
+               let tZoneCropData = cropFaceZone(normalizedRect: tZoneNormalized, from: uiImage, faceBoundingBox: face.boundingBox) {
+                frontTZoneData = tZoneCropData
+                frontTZoneRect = tZoneNormalized
+            } else {
+                handleError("Gagal memetakan T-Zone wajah. Pastikan wajah terlihat jelas.")
+                return
             }
-        }
-
-        guard zoneCaptures.count == 5 else { // 5 mapped zones expected
-            handleError("Gagal memproses seluruh area wajah.")
-            return
-        }
-
-        Task {
-            do {
-                logger.info("Starting ML analysis for full face and \(zoneCaptures.count) mapped zones")
-                let session = try await performScanUseCase.execute(fullFaceImageData: fullFaceData, zoneCaptures: zoneCaptures)
-                let resultModel = mapper.map(session)
-                phase = .completed(resultModel)
-            } catch {
-                logger.error("Face scan processing failed: \(error.localizedDescription)")
-                handleError(FaceScanErrorTextMapper.message(for: error))
+            
+            currentAngleTarget = .leftAngle
+            resetCaptureHold(keepingPreviousFace: false)
+            scanInstruction = currentAngleTarget.instruction
+            isCapturing = false
+            
+        case .leftAngle:
+            leftFullData = fullFaceData
+            
+            currentAngleTarget = .rightAngle
+            resetCaptureHold(keepingPreviousFace: false)
+            scanInstruction = currentAngleTarget.instruction
+            isCapturing = false
+            
+        case .rightAngle:
+            rightFullData = fullFaceData
+            
+            guard let frontFull = frontFullData,
+                  let frontTZone = frontTZoneData,
+                  let frontTZoneRect = frontTZoneRect,
+                  let leftFull = leftFullData,
+                  let rightFull = rightFullData else {
+                handleError("Data gambar tidak lengkap.")
+                return
             }
+            
+            stopScan()
+            phase = .processing
+            
+            Task {
+                do {
+                    logger.info("Starting ML analysis for 3 angles")
+                    let session = try await performScanUseCase.execute(
+                        frontFullImageData: frontFull,
+                        frontTZoneImageData: frontTZone,
+                        frontTZoneRect: frontTZoneRect,
+                        leftImageData: leftFull,
+                        rightImageData: rightFull
+                    )
+                    let resultModel = mapper.map(session)
+                    phase = .completed(resultModel)
+                } catch {
+                    logger.error("Face scan processing failed: \(error.localizedDescription)")
+                    handleError(FaceScanErrorTextMapper.message(for: error))
+                }
+            }
+            
+        default:
+            break
         }
     }
 

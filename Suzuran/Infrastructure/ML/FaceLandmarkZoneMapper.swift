@@ -111,6 +111,24 @@ struct FaceLandmarkZoneMapper {
         
         return zones
     }
+
+    /// Maps a VNFaceObservation to a single T-Zone rectangle (Forehead + Nose + Chin)
+    static func mapTZone(from observation: VNFaceObservation) -> CGRect? {
+        guard let zones = mapZones(from: observation) else { return nil }
+        
+        var tZoneRect: CGRect?
+        for zoneRegion in zones {
+            if zoneRegion.zone == .forehead || zoneRegion.zone == .nose || zoneRegion.zone == .chin {
+                if let current = tZoneRect {
+                    tZoneRect = current.union(zoneRegion.normalizedRect)
+                } else {
+                    tZoneRect = zoneRegion.normalizedRect
+                }
+            }
+        }
+        
+        return tZoneRect?.clamped(to: CGRect(x: 0, y: 0, width: 1, height: 1))
+    }
 }
 
 extension CGRect {

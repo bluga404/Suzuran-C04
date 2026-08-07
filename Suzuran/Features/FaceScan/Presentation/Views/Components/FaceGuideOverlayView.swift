@@ -11,8 +11,8 @@ struct FaceGuideOverlayView: View {
         GeometryReader { geometry in
             let frameWidth = geometry.size.width
             let frameHeight = geometry.size.height
-            let ovalWidth = frameWidth * 0.72
-            let ovalHeight = frameHeight * 0.48
+            let ovalWidth = frameWidth * 0.85
+            let ovalHeight = frameHeight * 0.60
 
             ZStack {
                 // Dimmed background with oval cutout

@@ -8,27 +8,31 @@ struct FaceMaskScanVisualization: View {
         AppCard {
             VStack(spacing: AppSpacing.sm) {
                 if let data = imageData, let uiImage = UIImage(data: data) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
-                        .overlay {
-                            GeometryReader { geo in
-                                let width = geo.size.width
-                                let height = geo.size.height
-                                let canvasSize = min(width, height)
-                                
-                                ForEach(markers) { marker in
-                                    AcneMarker(marker: marker, canvasSize: canvasSize)
-                                        .position(
-                                            x: width * marker.normalizedPosition.x,
-                                            y: height * marker.normalizedPosition.y
-                                        )
+                    HStack {
+                        Spacer(minLength: 0)
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFit()
+                            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
+                            .overlay {
+                                GeometryReader { geo in
+                                    let width = geo.size.width
+                                    let height = geo.size.height
+                                    let canvasSize = min(width, height)
+                                    
+                                    ForEach(markers) { marker in
+                                        AcneMarker(marker: marker, canvasSize: canvasSize)
+                                            .position(
+                                                x: width * marker.normalizedPosition.x,
+                                                y: height * marker.normalizedPosition.y
+                                            )
+                                    }
                                 }
                             }
-                        }
-                        .accessibilityElement(children: .ignore)
-                        .accessibilityLabel("Peta wajah dengan \(markers.count) jerawat terdeteksi")
+                            .accessibilityElement(children: .ignore)
+                            .accessibilityLabel("Peta wajah dengan \(markers.count) jerawat terdeteksi")
+                        Spacer(minLength: 0)
+                    }
                 } else {
                     GeometryReader { geometry in
                         let size = min(geometry.size.width, geometry.size.height)
