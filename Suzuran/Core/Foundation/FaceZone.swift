@@ -1,16 +1,10 @@
 import Foundation
 
+/// Represents the three face scanning angles used in the 3-angle capture flow.
 enum FaceZone: String, CaseIterable, Equatable, Codable {
     case front
     case leftAngle
     case rightAngle
-    
-    // Obsolete for backwards compatibility
-    case forehead
-    case rightCheek
-    case leftCheek
-    case nose
-    case chin
 
     static let scanZones: [FaceZone] = [.front, .leftAngle, .rightAngle]
 
@@ -19,11 +13,6 @@ enum FaceZone: String, CaseIterable, Equatable, Codable {
         case .front: return "Depan"
         case .leftAngle: return "Kiri"
         case .rightAngle: return "Kanan"
-        case .forehead: return "Jidat"
-        case .rightCheek: return "Pipi Kanan"
-        case .leftCheek: return "Pipi Kiri"
-        case .nose: return "Hidung"
-        case .chin: return "Dagu"
         }
     }
 
@@ -32,7 +21,6 @@ enum FaceZone: String, CaseIterable, Equatable, Codable {
         case .front: return "Posisi Lurus ke Depan"
         case .leftAngle: return "Putar Wajah ke Kiri"
         case .rightAngle: return "Putar Wajah ke Kanan"
-        default: return "Posisikan wajah Anda"
         }
     }
 
@@ -41,11 +29,6 @@ enum FaceZone: String, CaseIterable, Equatable, Codable {
         case .front: return 1
         case .leftAngle: return 2
         case .rightAngle: return 3
-        case .forehead: return 4
-        case .rightCheek: return 5
-        case .leftCheek: return 6
-        case .nose: return 7
-        case .chin: return 8
         }
     }
 }

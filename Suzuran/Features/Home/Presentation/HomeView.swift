@@ -33,7 +33,7 @@ struct HomeView: View {
                                     .font(AppTypography.subtitle)
                                     .foregroundStyle(AppColor.textPrimary)
 
-                                Text("Pindai 5 zona wajah (Jidat, Pipi, Hidung, Dagu)")
+                                Text("Pindai 3 sudut wajah (Depan, Kiri, Kanan)")
                                     .font(AppTypography.caption)
                                     .foregroundStyle(AppColor.textSecondary)
                             }

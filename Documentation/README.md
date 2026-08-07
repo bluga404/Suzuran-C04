@@ -1,30 +1,33 @@
-# Suzuran Base Project Documentation
+# Dokumentasi Teknis Suzuran
 
-This folder defines the baseline engineering standards for the Suzuran app.
+Panduan arsitektur dan standar pengembangan untuk tim iOS Suzuran.
 
-## Goals
+## Dokumen
 
-- Keep feature code scalable as the codebase grows.
-- Enforce Clean Architecture dependency direction.
-- Use SwiftUI + MVVM for presentation concerns.
-- Provide reusable base UI components and edge-state handling.
-- Keep startup flow aligned with Apple HIG launch guidance.
+| No | Dokumen | Isi |
+|----|---------|-----|
+| 01 | [Architecture](./01_Architecture.md) | Arsitektur MVVM + Feature-based, struktur folder, alur data |
+| 02 | [Coding Standards](./02_Coding_Standards.md) | Naming conventions, patterns, aturan penulisan kode |
+| 03 | [Design System](./03_Design_System.md) | Tokens (spacing, color, typography), komponen reusable, Liquid Glass |
+| 04 | [New Feature Guide](./04_New_Feature_Guide.md) | Langkah-langkah membuat fitur baru dengan template dan checklist |
+| 05 | [HIG Checklist](./05_HIG_Checklist.md) | Checklist Apple Human Interface Guidelines per screen |
+| 06 | [Project Setup](./06_Project_Setup.md) | Setup environment, build, git workflow, troubleshooting |
+| 07 | [SwiftUI & iOS 26 Reference](./07_SwiftUI_iOS26_Reference.md) | Quick reference API, patterns, dan Apple documentation links |
 
-## Documentation Index
+## Referensi Apple (Wajib Dibaca)
 
-- `Architecture/01_Architecture_Overview.md`
-- `Architecture/02_Project_Structure.md`
-- `Architecture/03_Layer_Rules_And_Violations.md`
-- `Architecture/04_Naming_Conventions.md`
-- `Architecture/05_Launch_Screen_and_App_Flow.md`
-- `Architecture/06_Feature_Implementation_Checklist.md`
-- `BaseProject/01_Base_UI_And_Edge_States.md`
-- `ExampleFeature/01_Example_Feature_Acne_Detection.md`
-- `References/Research_References.md`
+| Topik | URL |
+|-------|-----|
+| Human Interface Guidelines | https://developer.apple.com/design/human-interface-guidelines/ |
+| SwiftUI Documentation | https://developer.apple.com/documentation/swiftui |
+| SF Symbols | https://developer.apple.com/sf-symbols/ |
+| Swift API Design Guidelines | https://www.swift.org/documentation/api-design-guidelines/ |
+| WWDC25 — Meet Liquid Glass | https://developer.apple.com/videos/play/wwdc2025/219/ |
+| WWDC25 — What's New in SwiftUI | https://developer.apple.com/videos/play/wwdc2025/256/ |
+| WWDC25 — Build with New Design | https://developer.apple.com/videos/play/wwdc2025/323/ |
 
-## How To Use This Folder
+## Prinsip Dokumentasi
 
-1. Read Architecture overview and layer rules first.
-2. Follow naming conventions before adding new files.
-3. Use the feature checklist for every new module.
-4. Keep the references file updated when architecture decisions change.
+1. **Tulis yang diperlukan** — dokumentasi harus membantu developer bekerja
+2. **Update saat ada perubahan** — dokumen usang lebih berbahaya dari tidak ada dokumentasi
+3. **Referensikan ke Apple** — untuk detail mendalam, selalu arahkan ke docs resmi Apple

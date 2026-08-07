@@ -32,3 +32,9 @@ Pods/
 
 # Local config
 *.pbxproj
+
+# MISC
+.kiro
+# Documentation/
+# SuzuranTests/
+PRD/
