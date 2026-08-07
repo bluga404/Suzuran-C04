@@ -181,13 +181,9 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             captureSession.addOutput(videoOutput)
         }
 
-        // Configure the video data output connection for portrait orientation.
-        // On iOS 17+, videoRotationAngle on data output connections reliably rotates
-        // the pixel buffer data itself, so downstream code can treat it as .up orientation.
         if let connection = videoOutput.connection(with: .video) {
-            // Rotate buffer to portrait (90° from landscape sensor)
-            if connection.isVideoRotationAngleSupported(90) {
-                connection.videoRotationAngle = 90
+            if connection.isVideoOrientationSupported {
+                connection.videoOrientation = .portrait
             }
             // Mirror for front camera (selfie-style)
             if connection.isVideoMirroringSupported {
