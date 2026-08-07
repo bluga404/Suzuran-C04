@@ -14,7 +14,7 @@ nonisolated final class PredictionService: @unchecked Sendable {
 
     init() {
         guard
-            let url = Bundle.main.url(forResource: "yolov26s_67_4", withExtension: "mlmodelc"),
+            let url = Bundle.main.url(forResource: "best", withExtension: "mlmodelc"),
             let model = try? MLModel(contentsOf: url),
             let visionModel = try? VNCoreMLModel(for: model)
         else {
