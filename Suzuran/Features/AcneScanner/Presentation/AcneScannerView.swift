@@ -83,8 +83,9 @@ struct AcneScannerView: View {
     @ViewBuilder
     private var detectionOverlay: some View {
         GeometryReader { geometry in
+            let imageSize = viewModel.displayImage?.size ?? .zero
             ForEach(viewModel.detections) { detection in
-                let rect = visionToView(detection.boundingBox, in: geometry.size)
+                let rect = visionToView(detection.boundingBox, in: geometry.size, imageSize: imageSize)
 
                 Rectangle()
                     .stroke(detection.acneType.color, lineWidth: 2)
@@ -289,12 +290,40 @@ struct AcneScannerView: View {
     // MARK: - Helpers
 
     /// Converts Vision normalized coordinates (origin bottom-left, 0–1)
-    /// to view coordinates (origin top-left, pixel values)
-    private func visionToView(_ box: CGRect, in viewSize: CGSize) -> CGRect {
-        let x = box.origin.x * viewSize.width
-        let y = (1.0 - box.origin.y - box.height) * viewSize.height
-        let width = box.width * viewSize.width
-        let height = box.height * viewSize.height
+    /// to view coordinates (origin top-left, pixel values), accounting for aspect ratio scaling (scaledToFit).
+    private func visionToView(_ box: CGRect, in viewSize: CGSize, imageSize: CGSize) -> CGRect {
+        guard imageSize.width > 0, imageSize.height > 0, viewSize.width > 0, viewSize.height > 0 else {
+            let x = box.origin.x * viewSize.width
+            let y = (1.0 - box.origin.y - box.height) * viewSize.height
+            let width = box.width * viewSize.width
+            let height = box.height * viewSize.height
+            return CGRect(x: x, y: y, width: width, height: height)
+        }
+
+        let imageAspect = imageSize.width / imageSize.height
+        let viewAspect = viewSize.width / viewSize.height
+
+        let scale: CGFloat
+        let offsetX: CGFloat
+        let offsetY: CGFloat
+
+        if imageAspect > viewAspect {
+            // Image is wider than container view -> letterboxed top & bottom
+            scale = viewSize.width / imageSize.width
+            offsetX = 0
+            offsetY = (viewSize.height - imageSize.height * scale) / 2.0
+        } else {
+            // Image is taller than container view -> pillarboxed left & right
+            scale = viewSize.height / imageSize.height
+            offsetX = (viewSize.width - imageSize.width * scale) / 2.0
+            offsetY = 0
+        }
+
+        let width = box.width * imageSize.width * scale
+        let height = box.height * imageSize.height * scale
+        let x = offsetX + box.origin.x * imageSize.width * scale
+        let y = offsetY + (1.0 - box.origin.y - box.height) * imageSize.height * scale
+
         return CGRect(x: x, y: y, width: width, height: height)
     }
 

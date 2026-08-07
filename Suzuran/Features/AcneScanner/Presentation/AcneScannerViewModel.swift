@@ -40,10 +40,12 @@ final class AcneScannerViewModel: ObservableObject {
 
         state = .analyzing
 
+        let orientation = CGImagePropertyOrientation(displayImage.imageOrientation)
+
         Task {
             do {
                 let (foundDetections, score) = try await Task.detached(priority: .userInitiated) {
-                    let dets = try AcneDetectionService.detect(in: cgImage)
+                    let dets = try AcneDetectionService.detect(in: cgImage, orientation: orientation)
                     let score = SkinHealthScore.calculate(from: dets)
                     return (dets, score)
                 }.value
@@ -63,5 +65,23 @@ final class AcneScannerViewModel: ObservableObject {
         detections = []
         scoreResult = nil
         state = .idle
+    }
+}
+
+// MARK: - UIImage.Orientation Helper
+
+extension CGImagePropertyOrientation {
+    init(_ uiOrientation: UIImage.Orientation) {
+        switch uiOrientation {
+        case .up: self = .up
+        case .upMirrored: self = .upMirrored
+        case .down: self = .down
+        case .downMirrored: self = .downMirrored
+        case .left: self = .left
+        case .leftMirrored: self = .leftMirrored
+        case .right: self = .right
+        case .rightMirrored: self = .rightMirrored
+        @unknown default: self = .up
+        }
     }
 }
