@@ -2,29 +2,29 @@ import CoreML
 import Vision
 import Foundation
 
-/// Runs YOLO object detection on face images to detect acne
+/// Runs YOLO object detection on face images to detect acne.
 enum AcneDetectionService {
 
-    // HARDCODE active model name here (corresponds to .mlpackage name added to target)
+    /// Active CoreML model name (bundle resource without extension)
     nonisolated static let activeModelName = "yolov11s_62_6"
 
-    // Singleton model instance loaded safely once
+    /// Cached VNCoreMLModel instance loaded safely once on thread startup.
     nonisolated(unsafe) private static let cachedVisionModel: VNCoreMLModel? = {
-        print("🔍 [AcneDetectionService] Attempting to load model: \(activeModelName)...")
+        print("[AcneDetectionService] Loading model: \(activeModelName)...")
         do {
             let modelURL = try findModelURL(for: activeModelName)
-            print("📍 [AcneDetectionService] Found model URL: \(modelURL.path)")
+            print("[AcneDetectionService] Model URL resolved: \(modelURL.path)")
             
             let configuration = MLModelConfiguration()
-            // FIX: Force CPU execution to prevent Metal Performance Shaders (MPSGraph) assertion crash
+            // Force CPU execution to prevent Metal Performance Shaders (MPSGraph) assertion crashes on simulator/devices
             configuration.computeUnits = .cpuOnly
             
             let mlModel = try MLModel(contentsOf: modelURL, configuration: configuration)
             let visionModel = try VNCoreMLModel(for: mlModel)
-            print("✅ [AcneDetectionService] VNCoreMLModel initialized successfully (CPU Mode).")
+            print("[AcneDetectionService] VNCoreMLModel initialized successfully.")
             return visionModel
         } catch {
-            print("❌ [AcneDetectionService] Failed to initialize model: \(error)")
+            print("[AcneDetectionService] Failed to initialize model '\(activeModelName)': \(error)")
             return nil
         }
     }()
@@ -33,18 +33,19 @@ enum AcneDetectionService {
     ///
     /// - Parameters:
     ///   - cgImage: The image to analyze
-    ///   - confidenceThreshold: Minimum confidence to include a detection (default: 0.25)
+    ///   - orientation: CGImagePropertyOrientation to correctly handle EXIF camera orientations
+    ///   - confidenceThreshold: Minimum confidence to include a detection (default: 0.25, matches PyTorch .pt default)
     /// - Returns: Array of detected acne lesions
     nonisolated static func detect(
         in cgImage: CGImage,
         orientation: CGImagePropertyOrientation = .up,
-        confidenceThreshold: Float = 0.1
+        confidenceThreshold: Float = 0.25
     ) throws -> [AcneDetection] {
-        print("🚀 [AcneDetectionService] Starting detection on image (\(cgImage.width)x\(cgImage.height))...")
+        print("[AcneDetectionService] Starting detection on image (\(cgImage.width)x\(cgImage.height))...")
         
         guard let visionModel = cachedVisionModel else {
-            print("❌ [AcneDetectionService] Cached model is nil.")
-            throw AppError.unknown(message: "Failed to initialize ML model '\(activeModelName)'. Check bundle resource.")
+            print("[AcneDetectionService] Cached model is nil.")
+            throw AppError.unknown(message: "Failed to initialize ML model '\(activeModelName)'. Make sure it is added to the app target.")
         }
 
         var detections: [AcneDetection] = []
@@ -52,29 +53,28 @@ enum AcneDetectionService {
 
         let request = VNCoreMLRequest(model: visionModel) { request, error in
             if let error = error {
-                print("❌ [AcneDetectionService] VNCoreMLRequest completion error: \(error)")
+                print("[AcneDetectionService] VNCoreMLRequest error: \(error)")
                 executionError = error
                 return
             }
 
             guard let results = request.results else {
-                print("⚠️ [AcneDetectionService] Request completed with empty results.")
+                print("[AcneDetectionService] Request completed with empty results.")
                 return
             }
 
-            print("📊 [AcneDetectionService] Request returned \(results.count) observation items.")
-
-            // 1. Standard Vision Object Observations
+            // 1. Vision Recognized Object Observations (NMS = True pipeline models)
             if let observations = results as? [VNRecognizedObjectObservation], !observations.isEmpty {
-                print("🔹 [AcneDetectionService] Parsing \(observations.count) VNRecognizedObjectObservations...")
+                print("[AcneDetectionService] Parsing \(observations.count) VNRecognizedObjectObservations...")
                 for (index, observation) in observations.enumerated() {
                     guard let topLabel = observation.labels.first else { continue }
-                    print("   [\(index)] Label: \(topLabel.identifier), Confidence: \(topLabel.confidence)")
                     
                     guard topLabel.confidence >= confidenceThreshold,
                           let acneType = AcneType.from(label: topLabel.identifier) else {
                         continue
                     }
+
+                    print("[AcneDetectionService] Detection [\(index)]: \(acneType.displayName) (\(Int(topLabel.confidence * 100))%)")
 
                     detections.append(
                         AcneDetection(
@@ -85,11 +85,11 @@ enum AcneDetectionService {
                     )
                 }
             }
-            // 2. Fallback: Parsing Raw YOLO MLMultiArray Output
+            // 2. Raw MLMultiArray Feature Observations (Fallback for raw multiarray outputs)
             else if let features = results as? [VNCoreMLFeatureValueObservation] {
-                print("🔹 [AcneDetectionService] Received \(features.count) raw MLMultiArray features.")
+                print("[AcneDetectionService] Parsing \(features.count) raw MLMultiArray features...")
                 
-                // Check if NMS outputs exist
+                // Check for separate NMS outputs (confidence & coordinates)
                 if let confidenceFeature = features.first(where: { $0.featureName == "confidence" }),
                    let coordinatesFeature = features.first(where: { $0.featureName == "coordinates" }),
                    let confidenceMultiArray = confidenceFeature.featureValue.multiArrayValue,
@@ -98,22 +98,16 @@ enum AcneDetectionService {
                     let confShape = confidenceMultiArray.shape.map { $0.intValue }
                     let coordShape = coordinatesMultiArray.shape.map { $0.intValue }
                     
-                    print("   [AcneDetectionService] Parsing NMS outputs. confidence shape: \(confShape), coordinates shape: \(coordShape)")
-                    
-                    guard confShape.count >= 2, coordShape.count >= 2 else {
-                        print("⚠️ [AcneDetectionService] NMS shapes are invalid.")
-                        return
-                    }
+                    guard confShape.count >= 2, coordShape.count >= 2 else { return }
                     
                     let numDetections = confShape[0]
                     let numClasses = confShape[1]
+                    let classesToCheck = min(numClasses, 6)
                     
                     for i in 0..<numDetections {
-                        // Find class with maximum confidence
                         var maxConfidence: Float = 0.0
                         var bestClassId = 0
-                        // Only check up to the 6 custom classes we care about
-                        let classesToCheck = min(numClasses, 6)
+                        
                         for classId in 0..<classesToCheck {
                             let confIndex = [i, classId] as [NSNumber]
                             let conf = confidenceMultiArray[confIndex].floatValue
@@ -124,26 +118,19 @@ enum AcneDetectionService {
                         }
                         
                         guard maxConfidence >= confidenceThreshold else { continue }
-                        
-                        // Class label mapping
-                        guard let acneType = AcneType.from(label: String(bestClassId)) else {
-                            continue
-                        }
+                        guard let acneType = AcneType.from(label: String(bestClassId)) else { continue }
                         
                         let cx = coordinatesMultiArray[[i, 0] as [NSNumber]].floatValue
                         let cy = coordinatesMultiArray[[i, 1] as [NSNumber]].floatValue
                         let w = coordinatesMultiArray[[i, 2] as [NSNumber]].floatValue
                         let h = coordinatesMultiArray[[i, 3] as [NSNumber]].floatValue
                         
-                        // Determine coordinate scale (0..1 normalized or 0..640 pixel coordinates)
                         let scale: Float = (cx > 1.0 || cy > 1.0 || w > 1.0 || h > 1.0) ? 640.0 : 1.0
-                        
                         let val0 = cx / scale
                         let val1 = cy / scale
                         let val2 = w / scale
                         let val3 = h / scale
                         
-                        // Convert to Vision rect (origin bottom-left, y goes up)
                         let rectX = val0 - val2 / 2.0
                         let rectY = 1.0 - (val1 + val3 / 2.0)
                         
@@ -162,25 +149,17 @@ enum AcneDetectionService {
                             )
                         )
                     }
-                } else if let firstFeature = features.first,
-                           let multiArray = firstFeature.featureValue.multiArrayValue {
-                    // Legacy NMS = False raw model fallback
-                    let shape = multiArray.shape.map { $0.intValue }
-                    print("🔹 [AcneDetectionService] Parsing raw MLMultiArray output with legacy shape: \(shape)...")
+                }
+                // Single MultiArray legacy fallback (e.g. var_1441)
+                else if let firstFeature = features.first,
+                        let multiArray = firstFeature.featureValue.multiArrayValue {
                     
-                    guard shape.count >= 2 else {
-                        print("⚠️ [AcneDetectionService] MLMultiArray shape count too small.")
-                        return
-                    }
+                    let shape = multiArray.shape.map { $0.intValue }
+                    guard shape.count >= 2 else { return }
 
                     let numDetections = shape[shape.count - 2]
                     let numFeatures = shape.last ?? 0
-                    print("   [AcneDetectionService] numDetections: \(numDetections), numFeatures: \(numFeatures)")
-
-                    guard numFeatures >= 5 else {
-                        print("⚠️ [AcneDetectionService] MLMultiArray numFeatures < 5.")
-                        return
-                    }
+                    guard numFeatures >= 5 else { return }
 
                     for i in 0..<numDetections {
                         let makeIndex: (Int) -> [NSNumber] = { featIndex in
@@ -194,16 +173,10 @@ enum AcneDetectionService {
                         let confidence = multiArray[makeIndex(4)].floatValue
 
                         guard confidence >= confidenceThreshold else { continue }
-
                         let classId = numFeatures > 5 ? multiArray[makeIndex(5)].intValue : 0
+                        guard let acneType = AcneType.from(label: String(classId)) else { continue }
 
-                        guard let acneType = AcneType.from(label: String(classId)) else {
-                            continue
-                        }
-
-                        // Determine coordinate scale
                         let scale: Float = (x > 1.0 || y > 1.0 || w > 1.0 || h > 1.0) ? 640.0 : 1.0
-
                         let val0 = x / scale
                         let val1 = y / scale
                         let val2 = w / scale
@@ -246,7 +219,7 @@ enum AcneDetectionService {
                     }
                 }
             } else {
-                print("⚠️ [AcneDetectionService] Unrecognized or empty request result type: \(type(of: results))")
+                print("[AcneDetectionService] Unrecognized or empty request result type: \(type(of: results))")
             }
         }
 
@@ -255,11 +228,9 @@ enum AcneDetectionService {
         let handler = VNImageRequestHandler(cgImage: cgImage, orientation: orientation, options: [:])
         
         do {
-            print("⏳ [AcneDetectionService] Invoking handler.perform([request])...")
             try handler.perform([request])
-            print("✅ [AcneDetectionService] handler.perform completed.")
         } catch {
-            print("❌ [AcneDetectionService] handler.perform threw an error: \(error)")
+            print("[AcneDetectionService] handler.perform error: \(error)")
             throw error
         }
 
@@ -267,16 +238,15 @@ enum AcneDetectionService {
             throw error
         }
 
-        print("🎉 [AcneDetectionService] Finished detection. Total detections found: \(detections.count)")
+        print("[AcneDetectionService] Detection finished. Total detections: \(detections.count)")
         return detections
     }
 
     private nonisolated static func findModelURL(for name: String) throws -> URL {
-        // Direct exact match
         if let url = Bundle.main.url(forResource: name, withExtension: "mlmodelc") {
             return url
         }
-        // Fallback replacement (hyphen vs underscore)
+        
         let alternativeName = name.replacingOccurrences(of: "_", with: "-")
         if let url = Bundle.main.url(forResource: alternativeName, withExtension: "mlmodelc") {
             return url
