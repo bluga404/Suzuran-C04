@@ -132,15 +132,43 @@ struct FaceScanView: View {
             CameraPreviewView(session: viewModel.captureSession)
                 .ignoresSafeArea()
 
-            // Face guide overlay (centered oval)
-            FaceGuideOverlayView(isReady: viewModel.readiness == .ready)
+            // Top Overlay Bar
+            VStack {
+                HStack(alignment: .center) {
+                    Button {
+                        onDismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundColor(.black)
+                    }
+                    .padding(.trailing, 8)
+                    
+                    Spacer()
+                    
+                    TopLightingIndicatorView(condition: viewModel.lightingCondition)
+                    
+                    Button {
+                        // Info action placeholder
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 20))
+                            .foregroundColor(.black)
+                    }
+                    .padding(.leading, 12)
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.top, 60) // To clear dynamic island in ignoresSafeArea context
+                
+                Spacer()
+            }
 
-            // Scan progress ring around the face guide
-            ScanProgressView(
+            // Face guide overlay (centered oval) and progress ring combined
+            FaceGuideOverlayView(
+                isReady: viewModel.readiness == .ready,
                 holdProgress: viewModel.holdProgress,
                 completedAngles: viewModel.completedAngles
             )
-            .frame(width: 270, height: 370)
 
             // Bottom instruction and controls
             VStack {
@@ -148,24 +176,7 @@ struct FaceScanView: View {
 
                 // Instruction text
                 LightingIndicatorView(readiness: viewModel.readiness)
-                    .padding(.bottom, AppSpacing.sm)
-
-                // Close button with Liquid Glass material
-                HStack {
-                    Spacer()
-
-                    Button {
-                        onDismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 40, height: 40)
-                            .background(Circle().fill(.ultraThinMaterial))
-                    }
-                }
-                .padding(.horizontal, AppSpacing.lg)
-                .padding(.bottom, AppSpacing.xl)
+                    .padding(.bottom, AppSpacing.xl) // adjusted padding since close button is moved
             }
         }
     }

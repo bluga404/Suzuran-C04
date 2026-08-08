@@ -19,6 +19,7 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     @Published private(set) var currentAngleTarget: FaceZone = .front
     @Published private(set) var scanInstruction: String = ""
     @Published private(set) var completedAngles: Int = 0
+    @Published private(set) var lightingCondition: LightingCondition = .good
 
     // MARK: - Dependencies (injected)
 
@@ -500,6 +501,20 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         let uiImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .up)
         return uiImage.jpegData(compressionQuality: jpegCompressionQuality)
     }
+
+    /// Extracts brightness value from the sample buffer metadata.
+    nonisolated private func getBrightness(from sampleBuffer: CMSampleBuffer) -> Double {
+        guard let metadata = CMCopyDictionaryOfAttachments(
+            allocator: kCFAllocatorDefault,
+            target: sampleBuffer,
+            attachmentMode: kCMAttachmentMode_ShouldPropagate
+        ) as? [String: Any],
+              let exif = metadata[kCGImagePropertyExifDictionary as String] as? [String: Any],
+              let brightnessValue = exif[kCGImagePropertyExifBrightnessValue as String] as? Double else {
+            return 0.0
+        }
+        return brightnessValue
+    }
 }
 
 // MARK: - AVCaptureVideoDataOutputSampleBufferDelegate
@@ -520,10 +535,22 @@ extension FaceScanViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
         // so tell Vision the orientation is .up.
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up, options: [:])
 
+        // Determine lighting condition
+        let brightness = getBrightness(from: sampleBuffer)
+        let condition: LightingCondition
+        if brightness < -1.0 { // threshold for too dark
+            condition = .tooDark
+        } else if brightness > 5.0 { // threshold for too bright
+            condition = .tooBright
+        } else {
+            condition = .good
+        }
+
         do {
             try handler.perform([request])
         } catch {
             Task { @MainActor [weak self] in
+                self?.lightingCondition = condition
                 self?.handleNoFaceDetected()
             }
             return
@@ -531,6 +558,7 @@ extension FaceScanViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
 
         guard let faceObservation = request.results?.first else {
             Task { @MainActor [weak self] in
+                self?.lightingCondition = condition
                 self?.handleNoFaceDetected()
             }
             return
@@ -542,6 +570,7 @@ extension FaceScanViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
         let frameData = FaceFrameData(boundingBox: boundingBox, yaw: yaw, pitch: pitch)
 
         Task { @MainActor [weak self] in
+            self?.lightingCondition = condition
             self?.handleFaceDetected(frameData: frameData, sampleBuffer: sampleBuffer)
         }
     }
