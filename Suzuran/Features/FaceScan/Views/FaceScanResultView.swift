@@ -14,6 +14,9 @@ struct FaceScanResultView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.lg) {
                     overallSummaryCard
+                    if let skinHealthResult = result.skinHealthResult {
+                        scoreCard(skinHealthResult)
+                    }
                     frontImageSection
                     perZoneSection
                     acneTypeSummarySection
@@ -73,6 +76,58 @@ struct FaceScanResultView: View {
             }
             .frame(maxWidth: .infinity, alignment: .leading)
         }
+    }
+
+    // MARK: - Score Card
+
+    private func scoreCard(_ score: SkinHealthResult) -> some View {
+        GlassCard {
+            VStack(spacing: AppSpacing.md) {
+                Text("Skin Health Score")
+                    .font(AppTypography.subtitle)
+                    .foregroundStyle(.secondary)
+
+                ZStack {
+                    Circle()
+                        .stroke(Color.gray.opacity(0.2), lineWidth: 12)
+                        .frame(width: 120, height: 120)
+
+                    Circle()
+                        .trim(from: 0, to: CGFloat(score.score) / 100.0)
+                        .stroke(
+                            score.color,
+                            style: StrokeStyle(lineWidth: 12, lineCap: .round)
+                        )
+                        .frame(width: 120, height: 120)
+                        .rotationEffect(.degrees(-90))
+
+                    VStack(spacing: 2) {
+                        Text("\(score.score)")
+                            .font(.system(size: 36, weight: .bold, design: .rounded))
+                            .foregroundStyle(.primary)
+                        Text("/ 100")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(.secondary)
+                    }
+                }
+
+                Text(score.label)
+                    .font(AppTypography.bodyBold)
+                    .foregroundStyle(score.color)
+
+                Text("Weighted Count: \(formatWeight(score.weightedCount)) / 60")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(.secondary)
+            }
+            .frame(maxWidth: .infinity)
+        }
+    }
+
+    private func formatWeight(_ value: Float) -> String {
+        let formatter = NumberFormatter()
+        formatter.minimumFractionDigits = 0
+        formatter.maximumFractionDigits = 1
+        return formatter.string(from: NSNumber(value: value)) ?? "\(value)"
     }
 
     // MARK: - Severity Badge
@@ -312,7 +367,8 @@ struct FaceScanResultView: View {
             AcneTypeSummaryModel(acneType: .cyst, count: 2),
             AcneTypeSummaryModel(acneType: .pustule, count: 2),
             AcneTypeSummaryModel(acneType: .blackhead, count: 1),
-        ]
+        ],
+        skinHealthResult: SkinHealthResult(score: 79, weightedCount: 12.5, label: "Good", color: Color(red: 0.6, green: 0.8, blue: 0.2), breakdown: [.papule: 3, .cyst: 2, .pustule: 2, .blackhead: 1])
     )
 
     FaceScanResultView(result: sampleResult, onDone: {})

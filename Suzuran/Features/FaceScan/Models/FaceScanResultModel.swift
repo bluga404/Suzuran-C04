@@ -10,6 +10,7 @@ struct FaceScanResultModel: Identifiable, Equatable {
     let totalAcneCountText: String
     let zoneSummaries: [ZoneSummaryModel]
     let acneTypeSummaries: [AcneTypeSummaryModel] // Sorted descending by count
+    let skinHealthResult: SkinHealthResult?
 }
 
 // MARK: - ZoneSummaryModel

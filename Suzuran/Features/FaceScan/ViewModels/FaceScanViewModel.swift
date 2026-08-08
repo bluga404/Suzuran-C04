@@ -467,6 +467,8 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         let acneTypeSummaries = typeCounts.map { type, count in
             AcneTypeSummaryModel(acneType: type, count: count)
         }.sorted { $0.count > $1.count }
+        let allDetections = session.zoneResults.flatMap { $0.detections }
+        let skinHealthResult = SkinHealthScore.calculate(from: allDetections)
 
         return FaceScanResultModel(
             id: session.id,
@@ -474,7 +476,8 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             overallSeverityText: session.overallSeverity.rawValue.capitalized,
             totalAcneCountText: "\(session.totalAcneCount) jerawat",
             zoneSummaries: zoneSummaries,
-            acneTypeSummaries: acneTypeSummaries
+            acneTypeSummaries: acneTypeSummaries,
+            skinHealthResult: skinHealthResult
         )
     }
 
