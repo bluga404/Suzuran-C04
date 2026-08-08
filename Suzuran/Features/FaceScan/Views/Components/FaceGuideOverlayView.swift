@@ -28,7 +28,7 @@ struct FaceGuideOverlayView: View {
                         style: StrokeStyle(lineWidth: 4, lineCap: .round)
                     )
             }
-            .frame(width: 340, height: 250) // Swapped dimensions
+            .frame(width: 440, height: 320) // Swapped dimensions
             .rotationEffect(.degrees(-90))
             .scaleEffect(isPulsing ? 1.03 : 1.0) // Pulse them together
             .animation(
@@ -52,7 +52,7 @@ struct FaceGuideOverlayView: View {
                     .offset(y: 35) // Offset below the oval
             }
         }
-        .frame(width: 250, height: 340)
+        .frame(width: 320, height: 440)
         .onChange(of: isReady) { _, newValue in
             isPulsing = newValue
         }

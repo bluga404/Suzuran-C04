@@ -440,15 +440,13 @@ final class FaceScanViewModel: NSObject, ObservableObject {
                     id: UUID(),
                     acneType: detection.acneType,
                     confidence: detection.confidence,
-                    normalizedPosition: CGPoint(
-                        x: detection.normalizedBoundingBox.midX,
-                        y: detection.normalizedBoundingBox.midY
-                    )
+                    normalizedBoundingBox: detection.normalizedBoundingBox
                 )
             }
 
             return ZoneSummaryModel(
                 id: UUID(),
+                zone: zoneResult.zone,
                 zoneName: zoneResult.zone.displayName,
                 acneCount: zoneResult.detections.count,
                 detailText: "\(zoneResult.detections.count) jerawat terdeteksi",
@@ -456,6 +454,9 @@ final class FaceScanViewModel: NSObject, ObservableObject {
                 markers: markers
             )
         }
+
+        // Build 5 sub-zone summaries (Forehead, Nose, Chin, Right Cheek, Left Cheek)
+        let subZoneSummaries = buildSubZoneSummaries(from: session)
 
         // Build acne type summaries sorted descending by count (Requirement 7.4)
         var typeCounts: [AcneType: Int] = [:]
@@ -467,18 +468,129 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         let acneTypeSummaries = typeCounts.map { type, count in
             AcneTypeSummaryModel(acneType: type, count: count)
         }.sorted { $0.count > $1.count }
+
         let allDetections = session.zoneResults.flatMap { $0.detections }
         let skinHealthResult = SkinHealthScore.calculate(from: allDetections)
 
         return FaceScanResultModel(
             id: session.id,
             dateText: dateFormatter.string(from: session.capturedAt),
-            overallSeverityText: session.overallSeverity.rawValue.capitalized,
-            totalAcneCountText: "\(session.totalAcneCount) jerawat",
+            overallSeverity: session.overallSeverity,
+            totalAcneCount: session.totalAcneCount,
             zoneSummaries: zoneSummaries,
+            subZoneSummaries: subZoneSummaries,
             acneTypeSummaries: acneTypeSummaries,
             skinHealthResult: skinHealthResult
         )
+    }
+
+    // MARK: - Sub-Zone Summary Builder
+
+    private var foreheadCrop: CGRect { CGRect(x: 0.15, y: 0.10, width: 0.70, height: 0.25) }
+    private var noseCrop: CGRect     { CGRect(x: 0.25, y: 0.35, width: 0.50, height: 0.30) }
+    private var chinCrop: CGRect     { CGRect(x: 0.25, y: 0.65, width: 0.50, height: 0.25) }
+    private var cheekCrop: CGRect    { CGRect(x: 0.15, y: 0.25, width: 0.70, height: 0.50) }
+
+    private func buildSubZoneSummaries(from session: FaceScanSession) -> [SubZoneSummaryModel] {
+        let frontResult = session.zoneResults.first(where: { $0.zone == .front })
+        let leftResult  = session.zoneResults.first(where: { $0.zone == .leftAngle })
+        let rightResult = session.zoneResults.first(where: { $0.zone == .rightAngle })
+
+        let frontDetections = frontResult?.detections ?? []
+        let foreheadDetections = frontDetections.filter { $0.normalizedBoundingBox.midY < 0.35 }
+        let noseDetections     = frontDetections.filter { $0.normalizedBoundingBox.midY >= 0.35 && $0.normalizedBoundingBox.midY < 0.65 }
+        let chinDetections     = frontDetections.filter { $0.normalizedBoundingBox.midY >= 0.65 }
+        let leftDetections     = leftResult?.detections  ?? []
+        let rightDetections    = rightResult?.detections ?? []
+
+        let frontImageData = frontResult?.capturedImageData ?? Data()
+        let leftImageData  = leftResult?.capturedImageData  ?? Data()
+        let rightImageData = rightResult?.capturedImageData ?? Data()
+
+        return [
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Forehead",
+                imageData: cropImage(from: frontImageData, normalizedRect: foreheadCrop),
+                acneCount: foreheadDetections.count,
+                markers: remapMarkers(foreheadDetections, cropRect: foreheadCrop)
+            ),
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Nose",
+                imageData: cropImage(from: frontImageData, normalizedRect: noseCrop),
+                acneCount: noseDetections.count,
+                markers: remapMarkers(noseDetections, cropRect: noseCrop)
+            ),
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Chin",
+                imageData: cropImage(from: frontImageData, normalizedRect: chinCrop),
+                acneCount: chinDetections.count,
+                markers: remapMarkers(chinDetections, cropRect: chinCrop)
+            ),
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Right Cheek",
+                imageData: cropImage(from: rightImageData, normalizedRect: cheekCrop),
+                acneCount: rightDetections.count,
+                markers: remapMarkers(rightDetections, cropRect: cheekCrop)
+            ),
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Left Cheek",
+                imageData: cropImage(from: leftImageData, normalizedRect: cheekCrop),
+                acneCount: leftDetections.count,
+                markers: remapMarkers(leftDetections, cropRect: cheekCrop)
+            ),
+        ]
+    }
+
+    private func remapMarkers(_ detections: [AcneDetection], cropRect: CGRect) -> [MarkerModel] {
+        detections.compactMap { detection in
+            let box = detection.normalizedBoundingBox
+            let localX = (box.origin.x - cropRect.origin.x) / cropRect.width
+            let localY = (box.origin.y - cropRect.origin.y) / cropRect.height
+            let localW = box.width  / cropRect.width
+            let localH = box.height / cropRect.height
+            let localBox = CGRect(x: localX, y: localY, width: localW, height: localH)
+            return MarkerModel(
+                id: UUID(),
+                acneType: detection.acneType,
+                confidence: detection.confidence,
+                normalizedBoundingBox: localBox
+            )
+        }
+    }
+
+    private func cropImage(from jpegData: Data, normalizedRect rect: CGRect) -> Data? {
+        guard !jpegData.isEmpty,
+              let rawImage = UIImage(data: jpegData) else { return nil }
+
+        let normalised: UIImage
+        if rawImage.imageOrientation == .up {
+            normalised = rawImage
+        } else {
+            let renderer = UIGraphicsImageRenderer(size: rawImage.size)
+            normalised = renderer.image { _ in
+                rawImage.draw(in: CGRect(origin: .zero, size: rawImage.size))
+            }
+        }
+
+        guard let cgImage = normalised.cgImage else { return nil }
+
+        let imgW = CGFloat(cgImage.width)
+        let imgH = CGFloat(cgImage.height)
+
+        let cropRect = CGRect(
+            x: rect.origin.x * imgW,
+            y: rect.origin.y * imgH,
+            width: rect.width  * imgW,
+            height: rect.height * imgH
+        ).integral
+
+        guard let cropped = cgImage.cropping(to: cropRect) else { return nil }
+        return UIImage(cgImage: cropped).jpegData(compressionQuality: jpegCompressionQuality)
     }
 
     // MARK: - Image Extraction

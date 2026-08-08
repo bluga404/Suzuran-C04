@@ -13,7 +13,7 @@ struct FaceValidation {
     static func isPositionValid(boundingBox: CGRect) -> Bool {
         let midX = boundingBox.midX
         let midY = boundingBox.midY
-        return midX >= 0.20 && midX <= 0.80 && midY >= 0.20 && midY <= 0.80
+        return midX >= 0.10 && midX <= 0.90 && midY >= 0.10 && midY <= 0.90
     }
 
     // MARK: - Proximity Validation
@@ -23,7 +23,7 @@ struct FaceValidation {
     /// - Parameter faceWidth: Normalized face width (0–1 range).
     /// - Returns: `true` if width > 0.35.
     static func isProximityValid(faceWidth: CGFloat) -> Bool {
-        return faceWidth > 0.35
+        return faceWidth > 0.40
     }
 
     // MARK: - Pose Matching
@@ -46,11 +46,11 @@ struct FaceValidation {
 
         switch target {
         case .front:
-            return absYaw < 0.30 && absPitch < 0.25
+            return absYaw < 0.45 && absPitch < 0.35
         case .leftAngle:
-            return yaw > 0.25 && absPitch < 0.25
+            return yaw > 0.20 && absPitch < 0.35
         case .rightAngle:
-            return yaw < -0.25 && absPitch < 0.25
+            return yaw < -0.20 && absPitch < 0.35
         }
     }
 
@@ -74,23 +74,23 @@ struct FaceValidation {
         let deltaY = current.boundingBox.midY - previous.boundingBox.midY
         let positionDelta = hypot(deltaX, deltaY)
 
-        guard positionDelta < 0.045 else { return false }
+        guard positionDelta < 0.10 else { return false }
 
         // Size delta
         let sizeDelta = abs(current.boundingBox.width - previous.boundingBox.width)
-        guard sizeDelta < 0.05 else { return false }
+        guard sizeDelta < 0.10 else { return false }
 
         // Yaw delta
         let currentYaw = current.yaw ?? 0.0
         let previousYaw = previous.yaw ?? 0.0
         let yawDelta = abs(currentYaw - previousYaw)
-        guard yawDelta < 0.10 else { return false }
+        guard yawDelta < 0.20 else { return false }
 
         // Pitch delta
         let currentPitch = current.pitch ?? 0.0
         let previousPitch = previous.pitch ?? 0.0
         let pitchDelta = abs(currentPitch - previousPitch)
-        guard pitchDelta < 0.10 else { return false }
+        guard pitchDelta < 0.20 else { return false }
 
         return true
     }

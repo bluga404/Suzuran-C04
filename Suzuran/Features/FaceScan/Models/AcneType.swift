@@ -1,4 +1,5 @@
 import Foundation
+import SwiftUI
 
 enum AcneType: String, CaseIterable, Identifiable, Equatable, Codable {
     case blackhead
@@ -45,6 +46,25 @@ enum AcneType: String, CaseIterable, Identifiable, Equatable, Codable {
         case .nodule: return 3.0
         case .cyst: return 4.0
         case .unknown: return 1.0
+        }
+    }
+
+    var color: Color {
+        switch self {
+        case .blackhead:
+            return .brown
+        case .cyst:
+            return .red
+        case .nodule:
+            return .purple
+        case .papule:
+            return .orange
+        case .pustule:
+            return .yellow
+        case .whitehead:
+            return .white
+        case .unknown:
+            return .gray
         }
     }
 }
