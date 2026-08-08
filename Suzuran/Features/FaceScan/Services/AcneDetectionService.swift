@@ -104,13 +104,12 @@ final class AcneDetectionService {
 
     /// Parses end2end YOLO output of shape [1, 300, 6].
     /// Each row: [x1, y1, x2, y2, confidence, class_id] in pixel coords (0–640).
-    /// Filters confidence ≥ 0.05, class_id ∈ [0, 5].
-    /// Uses CoordinateNormalizer — NO Y-axis flip.
+    /// Filters confidence ≥ 0.05, class_id ∈ [0, 5], then applies per-class IoU NMS (threshold 0.35).
     private static func parseEnd2EndOutput(
         _ observations: [VNCoreMLFeatureValueObservation]
     ) -> [AcneDetection] {
         let confidenceThreshold: Float = 0.05
-        var detections: [AcneDetection] = []
+        var raw: [AcneDetection] = []
 
         for observation in observations {
             guard let multiArray = observation.featureValue.multiArrayValue else { continue }
@@ -149,29 +148,23 @@ final class AcneDetectionService {
                 guard conf >= confidenceThreshold else { continue }
                 guard classId >= 0, classId <= 5 else { continue }
 
-                // Use CoordinateNormalizer: computes midpoint, divides by 640, NO Y-flip.
                 let midpoint = CoordinateNormalizer.normalize(
-                    x1: CGFloat(x1),
-                    y1: CGFloat(y1),
-                    x2: CGFloat(x2),
-                    y2: CGFloat(y2)
+                    x1: CGFloat(x1), y1: CGFloat(y1),
+                    x2: CGFloat(x2), y2: CGFloat(y2)
                 )
-
-                // Build normalized bounding box in [0, 1] space (top-left origin)
                 let modelSize = CoordinateNormalizer.modelInputSize
-                let normWidth = CGFloat(x2 - x1) / modelSize
+                let normWidth  = CGFloat(x2 - x1) / modelSize
                 let normHeight = CGFloat(y2 - y1) / modelSize
-                let normX = midpoint.x - normWidth / 2.0
+                let normX = midpoint.x - normWidth  / 2.0
                 let normY = midpoint.y - normHeight / 2.0
 
                 let normalizedBBox = CGRect(
                     x: CoordinateNormalizer.clamp(normX),
                     y: CoordinateNormalizer.clamp(normY),
-                    width: CoordinateNormalizer.clamp(normWidth),
+                    width:  CoordinateNormalizer.clamp(normWidth),
                     height: CoordinateNormalizer.clamp(normHeight)
                 )
-
-                detections.append(AcneDetection(
+                raw.append(AcneDetection(
                     acneType: AcneType(classId: classId),
                     confidence: Double(conf),
                     normalizedBoundingBox: normalizedBBox
@@ -179,7 +172,43 @@ final class AcneDetectionService {
             }
         }
 
-        return detections
+        // Apply per-class NMS to remove stacked/overlapping boxes.
+        return nms(raw, iouThreshold: 0.35)
+    }
+
+    // MARK: - NMS
+
+    /// Per-class, confidence-sorted IoU Non-Maximum Suppression.
+    /// - Parameters:
+    ///   - detections: Raw detections (may contain heavy overlap).
+    ///   - iouThreshold: Boxes with IoU ≥ this value relative to a kept box are suppressed. 0.35 is aggressive.
+    /// - Returns: Deduplicated detections.
+    private static func nms(_ detections: [AcneDetection], iouThreshold: Double) -> [AcneDetection] {
+        // Group by class, then run greedy NMS inside each group.
+        let byClass = Dictionary(grouping: detections, by: \.acneType)
+        var kept: [AcneDetection] = []
+
+        for (_, group) in byClass {
+            // Sort descending by confidence
+            var sorted = group.sorted { $0.confidence > $1.confidence }
+            while !sorted.isEmpty {
+                let best = sorted.removeFirst()
+                kept.append(best)
+                // Suppress all remaining boxes that overlap too much with `best`
+                sorted = sorted.filter { iou(best.normalizedBoundingBox, $0.normalizedBoundingBox) < iouThreshold }
+            }
+        }
+        return kept
+    }
+
+    /// Intersection-over-Union for two CGRects in normalised 0–1 space.
+    private static func iou(_ a: CGRect, _ b: CGRect) -> Double {
+        let intersection = a.intersection(b)
+        guard !intersection.isNull else { return 0 }
+        let intersectionArea = Double(intersection.width * intersection.height)
+        let unionArea = Double(a.width * a.height) + Double(b.width * b.height) - intersectionArea
+        guard unionArea > 0 else { return 0 }
+        return intersectionArea / unionArea
     }
 
     // MARK: - Testable Parsing
