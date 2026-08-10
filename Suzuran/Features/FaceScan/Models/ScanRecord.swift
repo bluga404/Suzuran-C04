@@ -17,10 +17,63 @@ struct ScanRecord: Identifiable, Codable, Equatable {
     let severity: AcneSeverity
     /// Per-type acne counts (Codable-friendly version of AcneTypeSummaryModel)
     let acneTypeCounts: [AcneTypeCount]
+    /// Per-area acne counts. Stored alongside type counts for Compare view.
+    let acneAreaCounts: [AcneAreaCount]
 
     /// Codable wrapper for acne type + count pair.
     struct AcneTypeCount: Codable, Equatable {
         let acneType: AcneType
         let count: Int
+    }
+
+    /// Codable wrapper for facial area + count pair.
+    struct AcneAreaCount: Codable, Equatable {
+        let area: FaceArea
+        let count: Int
+    }
+
+    /// Facial areas tracked per scan.
+    enum FaceArea: String, Codable, CaseIterable, Identifiable {
+        case forehead   = "Forehead"
+        case rightCheek = "Right Cheek"
+        case leftCheek  = "Left Cheek"
+        case nose       = "Nose"
+        case chin       = "Chin"
+
+        var id: String { rawValue }
+    }
+
+    // MARK: - Convenience
+
+    /// Returns the count for a given facial area (0 if not recorded).
+    func acneCount(for area: FaceArea) -> Int {
+        acneAreaCounts.first { $0.area == area }?.count ?? 0
+    }
+
+    /// Returns the count for a given acne type (0 if not recorded).
+    func acneCount(for type: AcneType) -> Int {
+        acneTypeCounts.first { $0.acneType == type }?.count ?? 0
+    }
+
+    // MARK: - Initializer (backward-compatible with existing callers)
+
+    init(
+        id: UUID = UUID(),
+        date: Date,
+        frontImageData: Data?,
+        skinScore: Int,
+        totalAcneCount: Int,
+        severity: AcneSeverity,
+        acneTypeCounts: [AcneTypeCount],
+        acneAreaCounts: [AcneAreaCount] = []
+    ) {
+        self.id = id
+        self.date = date
+        self.frontImageData = frontImageData
+        self.skinScore = skinScore
+        self.totalAcneCount = totalAcneCount
+        self.severity = severity
+        self.acneTypeCounts = acneTypeCounts
+        self.acneAreaCounts = acneAreaCounts
     }
 }

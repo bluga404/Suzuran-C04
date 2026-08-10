@@ -25,6 +25,13 @@ enum DummyScanData {
                 ScanRecord.AcneTypeCount(acneType: .pustule, count: 4),
                 ScanRecord.AcneTypeCount(acneType: .blackhead, count: 3),
                 ScanRecord.AcneTypeCount(acneType: .whitehead, count: 2)
+            ],
+            acneAreaCounts: [
+                ScanRecord.AcneAreaCount(area: .forehead, count: 7),
+                ScanRecord.AcneAreaCount(area: .rightCheek, count: 3),
+                ScanRecord.AcneAreaCount(area: .leftCheek, count: 2),
+                ScanRecord.AcneAreaCount(area: .nose, count: 2),
+                ScanRecord.AcneAreaCount(area: .chin, count: 1)
             ]
         )
     }

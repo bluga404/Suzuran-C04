@@ -5,7 +5,7 @@ import SwiftUI
 struct HistoryView: View {
     @ObservedObject private var viewModel: HistoryViewModel
 
-    @State private var showCompare = false
+    @State private var navigateToCompare = false
 
     init(viewModel: HistoryViewModel) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
@@ -40,12 +40,14 @@ struct HistoryView: View {
                     compareButton
                 }
             }
-            .fullScreenCover(isPresented: $showCompare) {
+            .navigationDestination(isPresented: $navigateToCompare) {
+                // selectedPair is guaranteed when navigateToCompare=true.
+                // Use a fallback EmptyView to satisfy type system safely.
                 if let (first, second) = viewModel.selectedPair {
                     CompareView(
                         recordA: first,
                         recordB: second,
-                        onDismiss: { showCompare = false }
+                        allRecords: viewModel.records
                     )
                 }
             }
@@ -59,7 +61,7 @@ struct HistoryView: View {
             if !viewModel.isCompareMode {
                 viewModel.toggleCompareMode()
             } else if viewModel.canCompare {
-                showCompare = true
+                navigateToCompare = true
             }
         } label: {
             if viewModel.isCompareMode {
