@@ -17,6 +17,21 @@ struct FaceScanResultView: View {
     /// Sub-zone selected for full-screen display (nil = none shown).
     @State private var selectedSubZone: SubZoneSummaryModel? = nil
 
+    /// The authoritative skin health score, computed using HomeScoreCalculator (Double precision,
+    /// PRD-approved weighted formula). Falls back to skinHealthResult if available.
+    private var displayScore: Int {
+        if let healthResult = result.skinHealthResult {
+            return healthResult.score
+        }
+        // Fallback: recalculate using HomeScoreCalculator from breakdown
+        let calculator = HomeScoreCalculator()
+        let counts = result.acneTypeSummaries.reduce(into: [AcneType: Int]()) { dict, summary in
+            dict[summary.acneType] = summary.count
+        }
+        let weighted = calculator.calculateWeightedAcneCount(counts: counts)
+        return calculator.calculateSkinHealthScore(weightedCount: weighted)
+    }
+
     var body: some View {
         NavigationStack {
             ScrollView {
@@ -59,7 +74,7 @@ struct FaceScanResultView: View {
                     .foregroundStyle(.primary)
 
                 HStack(spacing: 4) {
-                    Text("Skin-Score \(result.skinScore)")
+                    Text("Skin-Score \(displayScore)")
                         .font(.system(size: 15, weight: .regular))
                         .foregroundStyle(.secondary)
                     Image(systemName: "info.circle")
@@ -67,7 +82,7 @@ struct FaceScanResultView: View {
                         .foregroundStyle(.secondary)
                 }
 
-                Text("\(result.skinScore)%")
+                Text("\(displayScore)%")
                     .font(.system(size: 56, weight: .bold))
                     .foregroundStyle(.primary)
                     .lineLimit(1)

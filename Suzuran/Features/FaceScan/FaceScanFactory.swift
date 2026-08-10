@@ -1,15 +1,21 @@
 import SwiftUI
 
 /// Simplified factory for the Face Scan feature.
-/// Directly instantiates AcneDetectionService → FaceScanViewModel → FaceScanView.
-/// No UseCase, Repository, DataSource, or Mapper abstractions.
+/// Uses an autoclosure for the ViewModel so it can be lazily constructed by
+/// `@StateObject` inside `FaceScanView`, ensuring only ONE instance exists
+/// per view lifecycle.
 ///
 /// Requirements: 1.3, 1.5
 enum FaceScanFactory {
     @MainActor
-    static func makeView(onDismiss: @escaping () -> Void = {}) -> some View {
-        let acneDetectionService = AcneDetectionService()
-        let viewModel = FaceScanViewModel(acneDetectionService: acneDetectionService)
-        return FaceScanView(viewModel: viewModel, onDismiss: onDismiss)
+    static func makeView(
+        onScanSaved: @escaping (FaceScanSession) -> Void = { _ in },
+        onDismiss: @escaping () -> Void = {}
+    ) -> some View {
+        FaceScanView(
+            viewModel: FaceScanViewModel(acneDetectionService: AcneDetectionService()),
+            onScanSaved: onScanSaved,
+            onDismiss: onDismiss
+        )
     }
 }

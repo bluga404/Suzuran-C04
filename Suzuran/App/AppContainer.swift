@@ -24,8 +24,8 @@ final class AppContainer: ObservableObject {
         let bootstrapper = AppBootstrapper(environment: environment)
         let rootViewModel = RootViewModel(
             bootstrapper: bootstrapper,
-            homeViewModelFactory: {
-                HomeViewModel(welcomeText: AppConstants.homeWelcomeTitle)
+            homeSummaryViewModelFactory: {
+                HomeFactory.makeViewModel()
             }
         )
 
@@ -34,9 +34,5 @@ final class AppContainer: ObservableObject {
             bootstrapper: bootstrapper,
             rootViewModel: rootViewModel
         )
-    }
-
-    func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(welcomeText: AppConstants.homeWelcomeTitle)
     }
 }

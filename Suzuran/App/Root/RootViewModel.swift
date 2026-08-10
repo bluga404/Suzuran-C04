@@ -11,19 +11,19 @@ final class RootViewModel: ObservableObject {
     @Published private(set) var phase: Phase = .home
 
     private let bootstrapper: AppBootstrapping
-    private let homeViewModelFactory: () -> HomeViewModel
+    private let homeSummaryViewModelFactory: () -> HomeSummaryViewModel
     private var hasStarted = false
 
     init(
         bootstrapper: AppBootstrapping,
-        homeViewModelFactory: @escaping () -> HomeViewModel
+        homeSummaryViewModelFactory: @escaping () -> HomeSummaryViewModel
     ) {
         self.bootstrapper = bootstrapper
-        self.homeViewModelFactory = homeViewModelFactory
+        self.homeSummaryViewModelFactory = homeSummaryViewModelFactory
     }
 
-    func makeHomeViewModel() -> HomeViewModel {
-        homeViewModelFactory()
+    func makeHomeSummaryViewModel() -> HomeSummaryViewModel {
+        homeSummaryViewModelFactory()
     }
 
     func start() {

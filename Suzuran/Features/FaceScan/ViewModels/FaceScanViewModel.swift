@@ -20,6 +20,7 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     @Published private(set) var scanInstruction: String = ""
     @Published private(set) var completedAngles: Int = 0
     @Published private(set) var lightingCondition: LightingCondition = .good
+    @Published private(set) var lastSession: FaceScanSession?
 
     // MARK: - Dependencies (injected)
 
@@ -378,6 +379,9 @@ final class FaceScanViewModel: NSObject, ObservableObject {
                     totalAcneCount: totalCount,
                     overallSeverity: severity
                 )
+
+                // Store session for persistence
+                self.lastSession = session
 
                 // Map to presentation model
                 let resultModel = mapToResultModel(session: session)

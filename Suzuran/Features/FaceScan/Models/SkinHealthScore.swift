@@ -19,6 +19,7 @@ struct SkinHealthResult: Sendable, Equatable {
 // MARK: - Skin Health Score Calculator
 
 /// Implements the scoring formula from PRD §2.2.4
+/// Uses HomeScoreCalculator as the single source of truth for score computation.
 enum SkinHealthScore {
     /// MaxExpected calibration value from PRD
     private nonisolated static let maxExpected: Double = 60.0
@@ -33,44 +34,30 @@ enum SkinHealthScore {
             breakdown[detection.acneType, default: 0] += 1
         }
 
-        // Step 1: Weighted Acne Count
-        var weightedCount: Float = 0.0
-        for (type, count) in breakdown {
-            weightedCount += Float(count) * type.severityWeight
-        }
-
-        // Step 2: Normalize
-        //   raw_score = min(weighted_count, MaxExpected) / MaxExpected × 100
-        let rawScore = min(Double(weightedCount), maxExpected) / maxExpected * 100.0
-
-        // Step 3: Invert to "health" perspective
-        //   skin_health_score = 100 - raw_score
-        let skinHealthScore = max(0, min(100, Int(round(100.0 - rawScore))))
-
-        let (label, color) = severityLabel(for: skinHealthScore)
+        // Use HomeScoreCalculator for consistent scoring (Double precision)
+        let calculator = HomeScoreCalculator()
+        let weightedCount = calculator.calculateWeightedAcneCount(counts: breakdown)
+        let skinHealthScore = calculator.calculateSkinHealthScore(weightedCount: weightedCount)
+        let label = calculator.scoreLabel(for: skinHealthScore)
+        let color = scoreColor(for: skinHealthScore)
 
         return SkinHealthResult(
             score: skinHealthScore,
-            weightedCount: weightedCount,
+            weightedCount: Float(weightedCount),
             label: label,
             color: color,
             breakdown: breakdown
         )
     }
 
-    /// Severity labels from PRD §2.2.4
-    private nonisolated static func severityLabel(for score: Int) -> (String, Color) {
+    /// Score colors matching the updated 5-tier severity labels.
+    private nonisolated static func scoreColor(for score: Int) -> Color {
         switch score {
-        case 85...100:
-            return ("Excellent", .green)
-        case 70...84:
-            return ("Good", Color(red: 0.6, green: 0.8, blue: 0.2))
-        case 50...69:
-            return ("Moderate", .orange)
-        case 25...49:
-            return ("Needs Attention", .red)
-        default:
-            return ("Severe", Color(red: 0.55, green: 0.0, blue: 0.0))
+        case 100: return .green
+        case 55...99: return Color(red: 0.6, green: 0.8, blue: 0.2)
+        case 25...54: return .orange
+        case 5...24: return .red
+        default: return Color(red: 0.55, green: 0.0, blue: 0.0)
         }
     }
 }
