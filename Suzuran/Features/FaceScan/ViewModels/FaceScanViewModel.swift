@@ -1,6 +1,7 @@
 import AVFoundation
 import Combine
 import CoreImage
+import ImageIO
 import SwiftUI
 import UIKit
 import Vision
@@ -19,7 +20,6 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     @Published private(set) var currentAngleTarget: FaceZone = .front
     @Published private(set) var scanInstruction: String = ""
     @Published private(set) var completedAngles: Int = 0
-    @Published private(set) var lightingCondition: LightingCondition = .good
 
     // MARK: - Dependencies (injected)
 
@@ -182,9 +182,13 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             captureSession.addOutput(videoOutput)
         }
 
+        // Configure the video data output connection for portrait orientation.
+        // On iOS 17+, videoRotationAngle on data output connections reliably rotates
+        // the pixel buffer data itself, so downstream code can treat it as .up orientation.
         if let connection = videoOutput.connection(with: .video) {
-            if connection.isVideoOrientationSupported {
-                connection.videoOrientation = .portrait
+            // Rotate buffer to portrait (90° from landscape sensor)
+            if connection.isVideoRotationAngleSupported(90) {
+                connection.videoRotationAngle = 90
             }
             // Mirror for front camera (selfie-style)
             if connection.isVideoMirroringSupported {
@@ -433,22 +437,20 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         dateFormatter.timeStyle = .short
         dateFormatter.locale = Locale(identifier: "id_ID")
 
-        // Build zone summaries
+        // MARK: Build full-angle zone summaries (front / left / right)
         let zoneSummaries: [ZoneSummaryModel] = session.zoneResults.map { zoneResult in
             let markers = zoneResult.detections.map { detection in
                 MarkerModel(
                     id: UUID(),
                     acneType: detection.acneType,
                     confidence: detection.confidence,
-                    normalizedPosition: CGPoint(
-                        x: detection.normalizedBoundingBox.midX,
-                        y: detection.normalizedBoundingBox.midY
-                    )
+                    normalizedBoundingBox: detection.normalizedBoundingBox
                 )
             }
 
             return ZoneSummaryModel(
                 id: UUID(),
+                zone: zoneResult.zone,
                 zoneName: zoneResult.zone.displayName,
                 acneCount: zoneResult.detections.count,
                 detailText: "\(zoneResult.detections.count) jerawat terdeteksi",
@@ -457,66 +459,192 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             )
         }
 
-        // Build acne type summaries sorted descending by count (Requirement 7.4)
+        // MARK: Build sub-zone summaries (5 cropped thumbnails)
+        // Front scan → Forehead, Nose, Chin (attributed by Y-coordinate)
+        // Left scan  → Left Cheek
+        // Right scan → Right Cheek
+        let subZoneSummaries = buildSubZoneSummaries(from: session)
+
+        // MARK: Build acne type summaries — always include all 6 classes, sorted by count desc
         var typeCounts: [AcneType: Int] = [:]
         for zoneResult in session.zoneResults {
             for detection in zoneResult.detections {
                 typeCounts[detection.acneType, default: 0] += 1
             }
         }
-        let acneTypeSummaries = typeCounts.map { type, count in
-            AcneTypeSummaryModel(acneType: type, count: count)
+        // Fixed display order (all 6 YOLO classes), sort by count descending
+        let allDisplayTypes: [AcneType] = [.papule, .pustule, .whitehead, .blackhead, .nodule, .cyst]
+        let acneTypeSummaries = allDisplayTypes.map { type in
+            AcneTypeSummaryModel(acneType: type, count: typeCounts[type, default: 0])
         }.sorted { $0.count > $1.count }
-        let allDetections = session.zoneResults.flatMap { $0.detections }
-        let skinHealthResult = SkinHealthScore.calculate(from: allDetections)
 
         return FaceScanResultModel(
             id: session.id,
             dateText: dateFormatter.string(from: session.capturedAt),
-            overallSeverityText: session.overallSeverity.rawValue.capitalized,
-            totalAcneCountText: "\(session.totalAcneCount) jerawat",
+            overallSeverity: session.overallSeverity,
+            totalAcneCount: session.totalAcneCount,
             zoneSummaries: zoneSummaries,
-            acneTypeSummaries: acneTypeSummaries,
-            skinHealthResult: skinHealthResult
+            subZoneSummaries: subZoneSummaries,
+            acneTypeSummaries: acneTypeSummaries
         )
+    }
+
+    // MARK: - Sub-Zone Building
+
+    /// Builds the 5 cropped sub-zone thumbnails from the 3 captured angle images.
+    /// Marker coordinates are remapped from full-image space into each crop's local space.
+    private func buildSubZoneSummaries(from session: FaceScanSession) -> [SubZoneSummaryModel] {
+        let frontResult = session.zoneResults.first { $0.zone == .front }
+        let leftResult  = session.zoneResults.first { $0.zone == .leftAngle }
+        let rightResult = session.zoneResults.first { $0.zone == .rightAngle }
+
+        // Crop rects in the source image's normalised coordinate space
+        let foreheadCrop = CGRect(x: 0.10, y: 0.02, width: 0.80, height: 0.32)
+        let noseCrop     = CGRect(x: 0.25, y: 0.34, width: 0.50, height: 0.28)
+        let chinCrop     = CGRect(x: 0.15, y: 0.63, width: 0.70, height: 0.30)
+        let cheekCrop    = CGRect(x: 0.10, y: 0.25, width: 0.80, height: 0.50)
+
+        // Front detections attributed by normalised Y midpoint
+        let frontDetections    = frontResult?.detections ?? []
+        let foreheadDetections = frontDetections.filter { $0.normalizedBoundingBox.midY < 0.35 }
+        let noseDetections     = frontDetections.filter { $0.normalizedBoundingBox.midY >= 0.35 && $0.normalizedBoundingBox.midY < 0.65 }
+        let chinDetections     = frontDetections.filter { $0.normalizedBoundingBox.midY >= 0.65 }
+        let leftDetections     = leftResult?.detections  ?? []
+        let rightDetections    = rightResult?.detections ?? []
+
+        let frontImageData = frontResult?.capturedImageData ?? Data()
+        let leftImageData  = leftResult?.capturedImageData  ?? Data()
+        let rightImageData = rightResult?.capturedImageData ?? Data()
+
+        return [
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Forehead",
+                imageData: cropImage(from: frontImageData, normalizedRect: foreheadCrop),
+                acneCount: foreheadDetections.count,
+                markers: remapMarkers(foreheadDetections, cropRect: foreheadCrop)
+            ),
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Nose",
+                imageData: cropImage(from: frontImageData, normalizedRect: noseCrop),
+                acneCount: noseDetections.count,
+                markers: remapMarkers(noseDetections, cropRect: noseCrop)
+            ),
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Chin",
+                imageData: cropImage(from: frontImageData, normalizedRect: chinCrop),
+                acneCount: chinDetections.count,
+                markers: remapMarkers(chinDetections, cropRect: chinCrop)
+            ),
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Right Cheek",
+                imageData: cropImage(from: rightImageData, normalizedRect: cheekCrop),
+                acneCount: rightDetections.count,
+                markers: remapMarkers(rightDetections, cropRect: cheekCrop)
+            ),
+            SubZoneSummaryModel(
+                id: UUID(),
+                label: "Left Cheek",
+                imageData: cropImage(from: leftImageData, normalizedRect: cheekCrop),
+                acneCount: leftDetections.count,
+                markers: remapMarkers(leftDetections, cropRect: cheekCrop)
+            ),
+        ]
+    }
+
+    // MARK: - Marker Coordinate Remapping
+
+    /// Remaps AcneDetection bounding boxes from full-image normalised space into
+    /// the local coordinate space of a crop rect.
+    /// Detections whose midpoint lies outside the crop rect are discarded.
+    private func remapMarkers(_ detections: [AcneDetection], cropRect: CGRect) -> [MarkerModel] {
+        detections.compactMap { detection in
+            let box = detection.normalizedBoundingBox
+            // Remap origin and size into crop-local 0–1 space
+            let localX = (box.origin.x - cropRect.origin.x) / cropRect.width
+            let localY = (box.origin.y - cropRect.origin.y) / cropRect.height
+            let localW = box.width  / cropRect.width
+            let localH = box.height / cropRect.height
+            let localBox = CGRect(x: localX, y: localY, width: localW, height: localH)
+            return MarkerModel(
+                id: UUID(),
+                acneType: detection.acneType,
+                confidence: detection.confidence,
+                normalizedBoundingBox: localBox
+            )
+        }
+    }
+
+    // MARK: - Image Crop Helper
+
+    /// Crops a JPEG image using a normalized CGRect (0–1 in both axes).
+    /// Normalises UIImage orientation before cropping so the CGImage pixel data
+    /// matches the visual orientation (fixes sideways/upside-down crop bug).
+    private func cropImage(from jpegData: Data, normalizedRect rect: CGRect) -> Data? {
+        guard !jpegData.isEmpty,
+              let rawImage = UIImage(data: jpegData) else { return nil }
+
+        // Step 1: Redraw into a context that bakes in the orientation transform.
+        // UIGraphicsImageRenderer always produces a .up UIImage.
+        let normalised: UIImage
+        if rawImage.imageOrientation == .up {
+            normalised = rawImage
+        } else {
+            let renderer = UIGraphicsImageRenderer(size: rawImage.size)
+            normalised = renderer.image { _ in
+                rawImage.draw(in: CGRect(origin: .zero, size: rawImage.size))
+            }
+        }
+
+        guard let cgImage = normalised.cgImage else { return nil }
+
+        // Step 2: Compute pixel-space crop rect from normalised coordinates.
+        let imgW = CGFloat(cgImage.width)
+        let imgH = CGFloat(cgImage.height)
+
+        let cropRect = CGRect(
+            x: rect.origin.x * imgW,
+            y: rect.origin.y * imgH,
+            width: rect.width  * imgW,
+            height: rect.height * imgH
+        ).integral
+
+        guard let cropped = cgImage.cropping(to: cropRect) else { return nil }
+        // Orientation is .up after normalisation — no need to carry it forward.
+        return UIImage(cgImage: cropped).jpegData(compressionQuality: jpegCompressionQuality)
     }
 
     // MARK: - Image Extraction
 
-    /// Converts a CMSampleBuffer to JPEG Data.
-    /// The pixel buffer is already in portrait orientation (rotated + mirrored by the
-    /// AVCaptureConnection settings), so we simply encode it as-is with .up orientation.
+    /// Converts a CMSampleBuffer to JPEG Data, correcting orientation.
+    ///
+    /// IMPORTANT: `AVCaptureVideoDataOutput.videoRotationAngle` is **metadata-only** —
+    /// it does NOT physically rotate the pixel buffer (unlike photo/movie outputs).
+    /// The raw CIImage from the front camera sensor is always in landscape orientation.
+    /// We correct this by calling `CIImage.oriented(.right)` which applies a 90° CCW
+    /// rotation at the Core Image level, producing an upright portrait image.
     private func extractJPEGData(from sampleBuffer: CMSampleBuffer) -> Data? {
         guard let pixelBuffer = CMSampleBufferGetImageBuffer(sampleBuffer) else {
             return nil
         }
 
+        // Build CIImage and apply portrait correction.
+        // `.right` (EXIF 6) = "rotate 90° CCW to display correctly" — this physically
+        // rotates the pixel data so the resulting CGImage is already portrait/upright.
         let ciImage = CIImage(cvPixelBuffer: pixelBuffer)
-        let context = CIContext()
+            .oriented(CGImagePropertyOrientation.right)
 
+        let context = CIContext()
         guard let cgImage = context.createCGImage(ciImage, from: ciImage.extent) else {
             return nil
         }
 
-        // Buffer is already portrait-oriented thanks to connection's
-        // videoRotationAngle=90 and isVideoMirrored=true.
-        // No additional rotation needed.
+        // CGImage is now portrait and upright — tag .up and encode.
         let uiImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .up)
         return uiImage.jpegData(compressionQuality: jpegCompressionQuality)
-    }
-
-    /// Extracts brightness value from the sample buffer metadata.
-    nonisolated private func getBrightness(from sampleBuffer: CMSampleBuffer) -> Double {
-        guard let metadata = CMCopyDictionaryOfAttachments(
-            allocator: kCFAllocatorDefault,
-            target: sampleBuffer,
-            attachmentMode: kCMAttachmentMode_ShouldPropagate
-        ) as? [String: Any],
-              let exif = metadata[kCGImagePropertyExifDictionary as String] as? [String: Any],
-              let brightnessValue = exif[kCGImagePropertyExifBrightnessValue as String] as? Double else {
-            return 0.0
-        }
-        return brightnessValue
     }
 }
 
@@ -538,22 +666,10 @@ extension FaceScanViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
         // so tell Vision the orientation is .up.
         let handler = VNImageRequestHandler(cvPixelBuffer: pixelBuffer, orientation: .up, options: [:])
 
-        // Determine lighting condition
-        let brightness = getBrightness(from: sampleBuffer)
-        let condition: LightingCondition
-        if brightness < -1.0 { // threshold for too dark
-            condition = .tooDark
-        } else if brightness > 5.0 { // threshold for too bright
-            condition = .tooBright
-        } else {
-            condition = .good
-        }
-
         do {
             try handler.perform([request])
         } catch {
             Task { @MainActor [weak self] in
-                self?.lightingCondition = condition
                 self?.handleNoFaceDetected()
             }
             return
@@ -561,7 +677,6 @@ extension FaceScanViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
 
         guard let faceObservation = request.results?.first else {
             Task { @MainActor [weak self] in
-                self?.lightingCondition = condition
                 self?.handleNoFaceDetected()
             }
             return
@@ -573,7 +688,6 @@ extension FaceScanViewModel: AVCaptureVideoDataOutputSampleBufferDelegate {
         let frameData = FaceFrameData(boundingBox: boundingBox, yaw: yaw, pitch: pitch)
 
         Task { @MainActor [weak self] in
-            self?.lightingCondition = condition
             self?.handleFaceDetected(frameData: frameData, sampleBuffer: sampleBuffer)
         }
     }
