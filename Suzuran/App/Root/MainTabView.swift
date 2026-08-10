@@ -5,13 +5,11 @@ enum AppTab: Hashable {
     case summary
     case skincare
     case history
-    case profile
+    case report
 }
 
 /// Root TabView with iOS 26 Liquid Glass styling (applied automatically).
 /// Uses the `Tab` initializer for native tab bar appearance.
-/// The HomeSummaryViewModel is owned as @StateObject to prevent recreation
-/// on every SwiftUI body re-evaluation.
 struct MainTabView: View {
     @ObservedObject var viewModel: RootViewModel
     @State private var selectedTab: AppTab = .summary
@@ -32,15 +30,15 @@ struct MainTabView: View {
             }
 
             Tab("Skincare", systemImage: "leaf.fill", value: .skincare) {
-                SkincareView()
+                SkincareTabView()
             }
 
             Tab("History", systemImage: "chart.line.uptrend.xyaxis", value: .history) {
-                HistoryView()
+                HistoryFactory.makeView(historyStore: viewModel.scanHistoryStore)
             }
 
-            Tab("Profile", systemImage: "person.fill", value: .profile) {
-                ProfileView()
+            Tab("Report", systemImage: "chart.xyaxis.line", value: .report) {
+                ReportTabView()
             }
         }
         .tint(AppColor.accentPrimary)
@@ -51,6 +49,7 @@ struct MainTabView: View {
     MainTabView(
         viewModel: RootViewModel(
             bootstrapper: PreviewBootstrapper(),
+            scanHistoryStore: ScanHistoryStore(),
             homeSummaryViewModelFactory: { HomeFactory.makeViewModel() }
         )
     )

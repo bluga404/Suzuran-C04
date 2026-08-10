@@ -26,6 +26,7 @@ struct RootView: View {
     RootView(
         viewModel: RootViewModel(
             bootstrapper: PreviewBootstrapper(),
+            scanHistoryStore: ScanHistoryStore(),
             homeSummaryViewModelFactory: { HomeFactory.makeViewModel() }
         )
     )

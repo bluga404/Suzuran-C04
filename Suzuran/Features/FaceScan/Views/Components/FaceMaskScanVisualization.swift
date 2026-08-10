@@ -1,58 +1,57 @@
 import SwiftUI
 
-/// Acne marker overlay that positions detection markers on a captured face image.
+/// Acne detection overlay that renders YOLO bounding-box rectangles on a captured face image.
 ///
 /// Uses `GeometryReader` to obtain the actual rendered dimensions, then scales
-/// each marker's normalized position via `CoordinateNormalizer.displayPosition`
-/// to place colored circles at the correct display coordinates.
+/// each marker's `normalizedBoundingBox` to display-space coordinates and draws
+/// a coloured stroke rectangle — matching the YOLO detection output exactly.
 struct FaceMaskScanVisualization: View {
     let markers: [MarkerModel]
 
     var body: some View {
         GeometryReader { geometry in
-            let width = geometry.size.width
+            let width  = geometry.size.width
             let height = geometry.size.height
 
             ForEach(markers) { marker in
-                let position = CoordinateNormalizer.displayPosition(
-                    normalizedPoint: marker.normalizedPosition,
+                let box = displayRect(
+                    normalized: marker.normalizedBoundingBox,
                     displayWidth: width,
                     displayHeight: height
                 )
 
-                Circle()
-                    .fill(markerColor(for: marker.acneType))
-                    .frame(width: 10, height: 10)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(0.8), lineWidth: 1)
+                Rectangle()
+                    .stroke(markerColor(for: marker.acneType), lineWidth: 1.5)
+                    .frame(width: box.width, height: box.height)
+                    .position(x: box.midX, y: box.midY)
+                    .accessibilityLabel(
+                        "\(marker.acneType.displayName), confidence \(Int(marker.confidence * 100))%"
                     )
-                    .position(x: position.x, y: position.y)
-                    .accessibilityLabel("\(marker.acneType.displayName), confidence \(Int(marker.confidence * 100))%")
             }
         }
     }
 
-    // MARK: - Color Mapping
+    // MARK: - Coordinate Conversion
 
-    /// Maps acne type to a distinct marker color for visual differentiation.
+    /// Converts a normalised bounding box (0–1, top-left origin) to display-space CGRect.
+    private func displayRect(
+        normalized rect: CGRect,
+        displayWidth: CGFloat,
+        displayHeight: CGFloat
+    ) -> CGRect {
+        CGRect(
+            x: rect.origin.x * displayWidth,
+            y: rect.origin.y * displayHeight,
+            width: rect.width  * displayWidth,
+            height: rect.height * displayHeight
+        )
+    }
+
+    // MARK: - Color
+
+    /// Uses the shared `AcneType.color` so bounding boxes match the Type list.
     private func markerColor(for acneType: AcneType) -> Color {
-        switch acneType {
-        case .blackhead:
-            return .brown
-        case .cyst:
-            return .red
-        case .nodule:
-            return .purple
-        case .papule:
-            return .orange
-        case .pustule:
-            return .yellow
-        case .whitehead:
-            return .white
-        case .unknown:
-            return .gray
-        }
+        acneType.color
     }
 }
 
@@ -62,19 +61,19 @@ struct FaceMaskScanVisualization: View {
             id: UUID(),
             acneType: .papule,
             confidence: 0.85,
-            normalizedPosition: CGPoint(x: 0.3, y: 0.4)
+            normalizedBoundingBox: CGRect(x: 0.20, y: 0.30, width: 0.12, height: 0.10)
         ),
         MarkerModel(
             id: UUID(),
             acneType: .cyst,
             confidence: 0.72,
-            normalizedPosition: CGPoint(x: 0.6, y: 0.5)
+            normalizedBoundingBox: CGRect(x: 0.55, y: 0.45, width: 0.10, height: 0.08)
         ),
         MarkerModel(
             id: UUID(),
             acneType: .blackhead,
             confidence: 0.55,
-            normalizedPosition: CGPoint(x: 0.5, y: 0.7)
+            normalizedBoundingBox: CGRect(x: 0.40, y: 0.65, width: 0.08, height: 0.06)
         ),
     ]
 

@@ -125,12 +125,17 @@ struct FaceScanResultView: View {
         }
     }
 
+    /// Derives the colour based on overall severity.
     private var severityColor: Color {
+        if let healthResult = result.skinHealthResult {
+            return healthResult.color
+        }
+        
         switch result.overallSeverity {
-        case .clear:    return .green
-        case .mild:     return .gray
-        case .moderate: return .orange
-        case .severe:   return .red
+        case .clear: return AppColor.scoreGood
+        case .mild: return AppColor.scoreGood
+        case .moderate: return AppColor.scoreModerate
+        case .severe: return AppColor.scoreLow
         }
     }
 

@@ -49,6 +49,7 @@ struct FaceScanResultModel: Identifiable, Equatable {
 
 struct ZoneSummaryModel: Identifiable, Equatable {
     let id: UUID
+    /// The capture angle this zone corresponds to.
     let zone: FaceZone
     let zoneName: String
     let acneCount: Int
@@ -73,6 +74,18 @@ struct ZoneSummaryModel: Identifiable, Equatable {
         self.imageData = imageData
         self.markers = markers
     }
+}
+
+// MARK: - SubZoneSummaryModel
+
+/// Represents one of the 5 cropped face sub-zones shown in the result grid:
+/// Forehead, Nose, Chin (cropped from front scan) and Left/Right Cheek (from side scans).
+struct SubZoneSummaryModel: Identifiable, Equatable {
+    let id: UUID
+    let label: String          // Display name shown above the thumbnail
+    let imageData: Data?       // Cropped JPEG for thumbnail
+    let acneCount: Int         // Attributed acne count for this sub-zone
+    let markers: [MarkerModel] // Attributed markers (for potential overlay)
 }
 
 // MARK: - SubZoneSummaryModel
@@ -130,6 +143,7 @@ struct MarkerModel: Identifiable, Equatable {
         )
     }
 }
+
 
 // MARK: - AcneTypeSummaryModel
 

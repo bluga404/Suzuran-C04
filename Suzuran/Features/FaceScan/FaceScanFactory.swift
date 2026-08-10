@@ -10,12 +10,16 @@ enum FaceScanFactory {
     @MainActor
     static func makeView(
         onScanSaved: @escaping (FaceScanSession) -> Void = { _ in },
+        onSave: @escaping (FaceScanResultModel) -> Void = { _ in },
         onDismiss: @escaping () -> Void = {}
     ) -> some View {
-        FaceScanView(
-            viewModel: FaceScanViewModel(acneDetectionService: AcneDetectionService()),
+        let acneDetectionService = AcneDetectionService()
+        let viewModel = FaceScanViewModel(acneDetectionService: acneDetectionService)
+        return FaceScanView(
+            viewModel: viewModel,
+            onDismiss: onDismiss,
             onScanSaved: onScanSaved,
-            onDismiss: onDismiss
+            onSave: onSave
         )
     }
 }
