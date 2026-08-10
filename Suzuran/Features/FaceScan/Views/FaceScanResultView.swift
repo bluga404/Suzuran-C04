@@ -328,14 +328,11 @@ struct FaceScanResultView: View {
     private var saveButton: some View {
         Button(action: onDone) {
             Text("Save")
-                .font(.custom("AvenirNext-Bold", size: 17, relativeTo: .headline))
-                .foregroundStyle(.white)
+                .font(AppTypography.bodyBold)
+                .foregroundStyle(Color(uiColor: .systemBackground))
                 .frame(maxWidth: .infinity, minHeight: 44)
-                .padding(.vertical, AppSpacing.md)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                        .fill(AppColor.accentPrimary)
-                )
+                .background(Color.primary)
+                .clipShape(Capsule())
         }
     }
 }

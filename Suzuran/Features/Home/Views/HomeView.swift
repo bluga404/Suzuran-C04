@@ -73,15 +73,16 @@ struct HomeView: View {
                 .padding(.horizontal, AppSpacing.md)
 
                 if summary.state != .empty {
-                    DominantAcneSection(acneType: summary.dominantAcne)
-                }
-
-                if summary.state != .empty && summary.state != .faceOnly {
-                    RecommendationSection(
-                        recommendations: summary.recommendations,
-                        showEmptyState: summary.recommendations.isEmpty
+                    MostDetectedSection(
+                        acneType: summary.dominantAcne,
+                        count: dominantCount(in: summary)
                     )
-                    TrackSkincareButton(onTap: { switchToTab(.skincare) })
+
+                    IngredientSection(
+                        recommendations: summary.recommendations,
+                        showEmptyState: summary.recommendations.isEmpty,
+                        onTrackTap: { switchToTab(.skincare) }
+                    )
                 }
             }
             .padding(.vertical, AppSpacing.md)
@@ -103,5 +104,11 @@ struct HomeView: View {
         .sheet(item: $detailScanID) { scanID in
             HomeFactory.makeDetailView(scanID: scanID)
         }
+    }
+
+    /// Returns the detection count of the dominant acne type from the latest scan, if available.
+    private func dominantCount(in summary: HomeSummary) -> Int? {
+        guard let dominant = summary.dominantAcne, let scan = summary.latestScan else { return nil }
+        return scan.acneCounts[dominant]
     }
 }

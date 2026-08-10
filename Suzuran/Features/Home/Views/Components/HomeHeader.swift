@@ -18,14 +18,14 @@ struct HomeHeader: View {
             Spacer()
             if showCameraButton {
                 Button(action: onScanTap) {
-                    Image(systemName: "viewfinder")
+                    Image(systemName: "camera")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(.primary)
                         .padding(AppSpacing.sm)
                         .background(AppColor.surfacePrimary)
                         .clipShape(Circle())
                 }
-                .accessibilityLabel("Mulai pindai wajah")
+                .accessibilityLabel("Start face scan")
             }
         }
         .padding(.horizontal, AppSpacing.md)
