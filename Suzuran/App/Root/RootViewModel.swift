@@ -10,15 +10,18 @@ final class RootViewModel: ObservableObject {
 
     @Published private(set) var phase: Phase = .home
 
+    let scanHistoryStore: ScanHistoryStore
     private let bootstrapper: AppBootstrapping
     private let homeViewModelFactory: () -> HomeViewModel
     private var hasStarted = false
 
     init(
         bootstrapper: AppBootstrapping,
+        scanHistoryStore: ScanHistoryStore,
         homeViewModelFactory: @escaping () -> HomeViewModel
     ) {
         self.bootstrapper = bootstrapper
+        self.scanHistoryStore = scanHistoryStore
         self.homeViewModelFactory = homeViewModelFactory
     }
 

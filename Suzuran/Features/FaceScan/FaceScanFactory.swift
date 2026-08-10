@@ -7,9 +7,12 @@ import SwiftUI
 /// Requirements: 1.3, 1.5
 enum FaceScanFactory {
     @MainActor
-    static func makeView(onDismiss: @escaping () -> Void = {}) -> some View {
+    static func makeView(
+        onDismiss: @escaping () -> Void = {},
+        onSave: @escaping (FaceScanResultModel) -> Void = { _ in }
+    ) -> some View {
         let acneDetectionService = AcneDetectionService()
         let viewModel = FaceScanViewModel(acneDetectionService: acneDetectionService)
-        return FaceScanView(viewModel: viewModel, onDismiss: onDismiss)
+        return FaceScanView(viewModel: viewModel, onDismiss: onDismiss, onSave: onSave)
     }
 }

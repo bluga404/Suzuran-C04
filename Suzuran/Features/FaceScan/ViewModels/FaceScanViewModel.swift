@@ -1,10 +1,12 @@
-import AVFoundation
+@preconcurrency import AVFoundation
 import Combine
-import CoreImage
+@preconcurrency import CoreImage
 import ImageIO
 import SwiftUI
 import UIKit
-import Vision
+@preconcurrency import Vision
+
+// Rest of imports...
 
 /// Single orchestrator for the face scan lifecycle.
 /// Manages camera session, face detection, validation, capture state machine,
@@ -198,19 +200,19 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     }
 
     private func startSession() {
-        videoProcessingQueue.async { [weak self] in
-            guard let self else { return }
-            if !self.captureSession.isRunning {
-                self.captureSession.startRunning()
+        let session = captureSession
+        videoProcessingQueue.async {
+            if !session.isRunning {
+                session.startRunning()
             }
         }
     }
 
     private func stopSession() {
-        videoProcessingQueue.async { [weak self] in
-            guard let self else { return }
-            if self.captureSession.isRunning {
-                self.captureSession.stopRunning()
+        let session = captureSession
+        videoProcessingQueue.async {
+            if session.isRunning {
+                session.stopRunning()
             }
         }
     }

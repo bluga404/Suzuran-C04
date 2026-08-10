@@ -8,7 +8,7 @@ struct RootView: View {
         Group {
             switch viewModel.phase {
             case .home:
-                HomeView(viewModel: viewModel.makeHomeViewModel())
+                MainTabView(historyStore: viewModel.scanHistoryStore)
             case let .failed(error):
                 ErrorStateView(
                     title: "Startup Failed",
@@ -27,6 +27,7 @@ struct RootView: View {
     RootView(
         viewModel: RootViewModel(
             bootstrapper: PreviewBootstrapper(),
+            scanHistoryStore: ScanHistoryStore(),
             homeViewModelFactory: { HomeViewModel(welcomeText: AppConstants.homeWelcomeTitle) }
         )
     )

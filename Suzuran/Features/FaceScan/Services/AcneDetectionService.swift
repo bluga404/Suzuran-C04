@@ -1,11 +1,11 @@
 import Foundation
 import CoreML
-import Vision
+@preconcurrency import Vision
 import CoreGraphics
 
 /// Encapsulates CoreML model loading and YOLO inference for acne detection.
 /// Returns `[AcneDetection]` with normalized bounding boxes (top-left origin, no Y-flip).
-final class AcneDetectionService {
+final class AcneDetectionService: @unchecked Sendable {
 
     // MARK: - Properties
 
@@ -50,7 +50,7 @@ final class AcneDetectionService {
     /// Run inference on a CGImage, returns detections with normalized coordinates.
     /// Uses scaleFill to resize input to 640×640.
     func detect(in cgImage: CGImage) async throws -> [AcneDetection] {
-        guard let visionModel = visionModel else {
+        guard let model = visionModel else {
             let message = modelLoadError?.localizedDescription ?? "Model tidak dimuat."
             throw AppError.unknown(message: "CoreML model gagal dimuat: \(message)")
         }
@@ -58,7 +58,7 @@ final class AcneDetectionService {
         return try await withCheckedThrowingContinuation { continuation in
             inferenceQueue.async {
                 do {
-                    let request = VNCoreMLRequest(model: visionModel)
+                    let request = VNCoreMLRequest(model: model)
                     request.imageCropAndScaleOption = .scaleFill
 
                     let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])

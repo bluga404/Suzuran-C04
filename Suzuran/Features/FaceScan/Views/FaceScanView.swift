@@ -9,6 +9,7 @@ import UIKit
 struct FaceScanView: View {
     @ObservedObject private var viewModel: FaceScanViewModel
     let onDismiss: () -> Void
+    let onSave: (FaceScanResultModel) -> Void
 
     /// Tracks completedAngles changes to trigger haptic feedback on zone capture.
     @State private var lastCompletedAngles: Int = 0
@@ -16,9 +17,14 @@ struct FaceScanView: View {
     /// Haptic feedback generator for zone capture completion.
     private let hapticGenerator = UIImpactFeedbackGenerator(style: .medium)
 
-    init(viewModel: FaceScanViewModel, onDismiss: @escaping () -> Void) {
+    init(
+        viewModel: FaceScanViewModel,
+        onDismiss: @escaping () -> Void,
+        onSave: @escaping (FaceScanResultModel) -> Void = { _ in }
+    ) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
         self.onDismiss = onDismiss
+        self.onSave = onSave
     }
 
     var body: some View {
@@ -60,7 +66,10 @@ struct FaceScanView: View {
             processingView
 
         case .completed(let result):
-            FaceScanResultView(result: result, onDone: onDismiss)
+            FaceScanResultView(result: result, onDone: {
+                onSave(result)
+                onDismiss()
+            })
 
         case .error(let message):
             errorView(message: message)
@@ -132,43 +141,15 @@ struct FaceScanView: View {
             CameraPreviewView(session: viewModel.captureSession)
                 .ignoresSafeArea()
 
-            // Top Overlay Bar
-            VStack {
-                HStack(alignment: .center) {
-                    Button {
-                        onDismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.system(size: 20, weight: .medium))
-                            .foregroundColor(.black)
-                    }
-                    .padding(.trailing, 8)
-                    
-                    Spacer()
-                    
-                    TopLightingIndicatorView(condition: viewModel.lightingCondition)
-                    
-                    Button {
-                        // Info action placeholder
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 20))
-                            .foregroundColor(.black)
-                    }
-                    .padding(.leading, 12)
-                }
-                .padding(.horizontal, AppSpacing.lg)
-                .padding(.top, 60) // To clear dynamic island in ignoresSafeArea context
-                
-                Spacer()
-            }
+            // Face guide overlay (centered oval)
+            FaceGuideOverlayView(isReady: viewModel.readiness == .ready)
 
-            // Face guide overlay (centered oval) and progress ring combined
-            FaceGuideOverlayView(
-                isReady: viewModel.readiness == .ready,
+            // Scan progress ring around the face guide
+            ScanProgressView(
                 holdProgress: viewModel.holdProgress,
                 completedAngles: viewModel.completedAngles
             )
+            .frame(width: 270, height: 370)
 
             // Bottom instruction and controls
             VStack {
@@ -176,7 +157,24 @@ struct FaceScanView: View {
 
                 // Instruction text
                 LightingIndicatorView(readiness: viewModel.readiness)
-                    .padding(.bottom, AppSpacing.xl) // adjusted padding since close button is moved
+                    .padding(.bottom, AppSpacing.sm)
+
+                // Close button with Liquid Glass material
+                HStack {
+                    Spacer()
+
+                    Button {
+                        onDismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .frame(width: 40, height: 40)
+                            .background(Circle().fill(.ultraThinMaterial))
+                    }
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.bottom, AppSpacing.xl)
             }
         }
     }
