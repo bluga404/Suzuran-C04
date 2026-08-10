@@ -6,17 +6,23 @@ struct RecommendationSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Rekomendasi Bahan")
-                .font(AppTypography.bodyBold)
-                .foregroundStyle(.primary)
-                .padding(.horizontal, AppSpacing.md)
-
             if recommendations.isEmpty && showEmptyState {
-                Text("Scan produk skincaremu untuk melihat rekomendasi bahan")
-                    .font(AppTypography.body)
-                    .foregroundStyle(.secondary)
-                    .padding(.horizontal, AppSpacing.md)
+                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                    Text("Scan to get recommendations")
+                        .font(AppTypography.bodyBold)
+                        .foregroundStyle(.primary)
+                    Text("Scan your face to see ingredients that may suit your skin condition.")
+                        .font(AppTypography.body)
+                        .italic()
+                        .foregroundStyle(.primary)
+                }
+                .padding(.horizontal, AppSpacing.md)
             } else {
+                Text("Recommended Ingredients")
+                    .font(AppTypography.bodyBold)
+                    .foregroundStyle(.primary)
+                    .padding(.horizontal, AppSpacing.md)
+
                 ForEach(recommendations.prefix(5)) { recommendation in
                     IngredientRecommendationCard(recommendation: recommendation)
                 }

@@ -9,21 +9,46 @@ struct SkinScoreCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            // Score label title (only shown when score exists)
-            if let score = score {
-                Text(score.title)
+            // Score label title
+            HStack(spacing: AppSpacing.xxs) {
+                Text(state == .improvement || state == .degradation ? "Skin Score" : "Skin Condition")
                     .font(AppTypography.bodyBold)
                     .foregroundStyle(.primary)
+                Image(systemName: "info.circle")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
             }
 
-            // Score value
-            HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
-                Text(score != nil ? "\(score!.value)" : "—")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
-                    .foregroundStyle(scoreColor)
-                Text(score != nil ? "/100" : "—/100")
-                    .font(AppTypography.subtitle)
-                    .foregroundStyle(.secondary)
+            if let score = score {
+                // Score title
+                Text(score.title)
+                    .font(.system(size: 48, weight: .bold, design: .default))
+                    .foregroundStyle(.primary)
+                    .padding(.bottom, -AppSpacing.xs)
+
+                // Score value
+                HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
+                    Text("\(score.value)")
+                        .font(.system(size: 24, weight: .bold, design: .default))
+                        .foregroundStyle(.primary)
+                    Text("/100")
+                        .font(AppTypography.body)
+                        .foregroundStyle(.primary)
+                }
+            } else {
+                Text("—")
+                    .font(.system(size: 48, weight: .bold, design: .default))
+                    .foregroundStyle(.primary)
+                    .padding(.bottom, -AppSpacing.xs)
+
+                HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
+                    Text("—")
+                        .font(.system(size: 24, weight: .bold, design: .default))
+                        .foregroundStyle(.primary)
+                    Text("/100")
+                        .font(AppTypography.body)
+                        .foregroundStyle(.primary)
+                }
             }
 
             // Contextual message
@@ -31,6 +56,8 @@ struct SkinScoreCard: View {
                 .font(AppTypography.body)
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
+                .padding(.top, AppSpacing.xxs)
+                .padding(.bottom, AppSpacing.xs)
 
             // Action button
             Button(action: onAction) {
@@ -38,29 +65,16 @@ struct SkinScoreCard: View {
                     .font(AppTypography.bodyBold)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppSpacing.sm)
-                    .background(AppColor.accentPrimary)
+                    .padding(.vertical, 16)
+                    .background(Color.black)
                     .clipShape(Capsule())
             }
-            .accessibilityLabel(state == .empty ? "Start face scan" : "View scan details")
+            .accessibilityLabel(state == .empty ? "Mulai scan wajah" : "Lihat detail hasil scan")
         }
-        .padding(AppSpacing.md)
+        .padding(AppSpacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial)
+        .background(Color(uiColor: .systemGray6))
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
-    }
-
-    // MARK: - Score color based on severity
-
-    private var scoreColor: Color {
-        guard let score = score else { return AppColor.textSecondary }
-        switch score.value {
-        case 100: return AppColor.scoreVeryGood
-        case 55...99: return AppColor.scoreGood
-        case 25...54: return AppColor.scoreModerate
-        case 5...24: return AppColor.scoreLow
-        default: return AppColor.scoreVeryLow
-        }
     }
 
     // MARK: - State-specific messages in Bahasa Indonesia
@@ -68,17 +82,17 @@ struct SkinScoreCard: View {
     private var messageText: String {
         switch state {
         case .empty:
-            return "Scan wajahmu untuk lihat kondisi kulit"
+            return "Scan your face to see skin condition"
         case .faceOnly:
             return score?.message ?? ""
         case .complete:
-            return "Scan lagi besok untuk lihat perubahan kondisi kulitmu!"
+            return "Scan again tomorrow to see your skin condition change!"
         case .improvement:
-            return "Yeay! Skormu lebih tinggi dari kemarin!"
+            return "Yeay! your score is higher than yesterday!"
         case .degradation:
-            return "Skormu lebih rendah dari kemarin, jangan khawatir, ini bagian dari prosesnya!"
+            return "Your score is lower than yesterday, don't worry, it's part of the process!"
         case .unchanged:
-            return "Skormu tidak berubah sejak scan terakhir"
+            return "Your score hasn't changed since the last scan"
         }
     }
 }

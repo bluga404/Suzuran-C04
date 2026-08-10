@@ -6,12 +6,18 @@ struct DominantAcneSection: View {
     var body: some View {
         if let type = acneType {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Text("Jenis Jerawat Dominan")
-                    .font(AppTypography.bodyBold)
-                    .foregroundStyle(.primary)
+                HStack(spacing: AppSpacing.xxs) {
+                    Text("Most Detected Acne Type")
+                        .font(AppTypography.bodyBold)
+                        .foregroundStyle(.primary)
+                    Image(systemName: "info.circle")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                }
+                
                 Text(type.displayName)
-                    .font(AppTypography.body)
-                    .foregroundStyle(.secondary)
+                    .font(.title2.weight(.bold))
+                    .foregroundStyle(.primary)
             }
             .padding(.horizontal, AppSpacing.md)
         }

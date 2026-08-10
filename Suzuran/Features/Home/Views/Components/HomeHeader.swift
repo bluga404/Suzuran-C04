@@ -9,20 +9,23 @@ struct HomeHeader: View {
         HStack {
             VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                 Text("Summary")
-                    .font(AppTypography.title)
+                    .font(.largeTitle.weight(.bold))
                     .foregroundStyle(.primary)
                 Text(formattedDate)
-                    .font(AppTypography.caption)
+                    .font(AppTypography.body)
                     .foregroundStyle(.secondary)
             }
             Spacer()
             if showCameraButton {
                 Button(action: onScanTap) {
-                    Image(systemName: "camera")
-                        .font(.title2)
-                        .foregroundStyle(AppColor.accentPrimary)
+                    Image(systemName: "viewfinder")
+                        .font(.system(size: 20, weight: .semibold))
+                        .foregroundStyle(.primary)
+                        .padding(12)
+                        .background(Color(uiColor: .systemGray6))
+                        .clipShape(Circle())
                 }
-                .accessibilityLabel("Start face scan")
+                .accessibilityLabel("Mulai pindai wajah")
             }
         }
         .padding(.horizontal, AppSpacing.md)
@@ -31,7 +34,7 @@ struct HomeHeader: View {
 
     private var formattedDate: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d"
+        formatter.dateFormat = "d MMMM, yyyy"
         return formatter.string(from: date)
     }
 }

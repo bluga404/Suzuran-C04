@@ -4,21 +4,23 @@ struct IngredientRecommendationCard: View {
     let recommendation: IngredientRecommendation
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text(recommendation.ingredient.displayName)
-                .font(AppTypography.bodyBold)
-                .foregroundStyle(AppColor.textPrimary)
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                Text(recommendation.ingredient.displayName)
+                    .font(AppTypography.bodyBold)
+                    .foregroundStyle(AppColor.textPrimary)
 
-            Text(recommendation.explanation)
-                .font(AppTypography.body)
-                .foregroundStyle(AppColor.textSecondary)
+                Text(recommendation.explanation)
+                    .font(AppTypography.body)
+                    .foregroundStyle(AppColor.textPrimary)
+            }
 
             statusPill
         }
-        .padding(AppSpacing.md)
+        .padding(16)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
+        .background(Color(uiColor: .systemGray6))
+        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
         .padding(.horizontal, AppSpacing.md)
     }
 
@@ -27,18 +29,18 @@ struct IngredientRecommendationCard: View {
         let text: String = {
             switch recommendation.status {
             case .notFound:
-                return "Belum ditemukan di produk yang kamu scan"
+                return "Not found in your scanned product"
             case .found(let productName):
-                return "Sudah ada di rutinmu - \(productName)"
+                return "Already in your routine - \(productName)"
             }
         }()
 
         Text(text)
-            .font(AppTypography.caption)
-            .foregroundStyle(AppColor.textSecondary)
-            .padding(.horizontal, AppSpacing.xs)
-            .padding(.vertical, AppSpacing.xxs)
-            .background(AppColor.borderSubtle.opacity(0.5))
+            .font(.system(size: 13, weight: .regular, design: .default))
+            .foregroundStyle(AppColor.textPrimary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(Color(uiColor: .systemGray4))
             .clipShape(Capsule())
     }
 }
