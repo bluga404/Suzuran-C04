@@ -6,7 +6,7 @@ struct ProfileView: View {
             Image(systemName: "person.fill")
                 .font(.system(size: 48))
                 .foregroundStyle(AppColor.accentPrimary)
-            Text("Halo Profile")
+            Text("Halo Report")
                 .font(AppTypography.title)
                 .foregroundStyle(.primary)
             Text("Profil pengguna akan segera hadir")
