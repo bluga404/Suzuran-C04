@@ -41,8 +41,8 @@ struct FaceScanResultView: View {
                     zoneGridSection
                     acneTypeSummarySection
                 }
-                .padding(.horizontal, 20)
-                .padding(.bottom, 32)
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.bottom, AppSpacing.xl)
             }
             .scrollEdgeEffectStyle(.soft, for: .top)
             .navigationTitle("Result")
@@ -51,8 +51,8 @@ struct FaceScanResultView: View {
             .background(Color(.systemBackground))
             .safeAreaInset(edge: .bottom) {
                 saveButton
-                    .padding(.horizontal, 20)
-                    .padding(.bottom, 16)
+                    .padding(.horizontal, AppSpacing.lg)
+                    .padding(.bottom, AppSpacing.md)
                     .background(Color(.systemBackground))
             }
             // Full-screen zone detail
@@ -67,23 +67,23 @@ struct FaceScanResultView: View {
     // MARK: - Header Section
 
     private var headerSection: some View {
-        HStack(alignment: .top, spacing: 12) {
-            VStack(alignment: .leading, spacing: 6) {
+        HStack(alignment: .top, spacing: AppSpacing.sm) {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text("Overall Condition")
-                    .font(.system(size: 22, weight: .bold))
+                    .font(.custom("AvenirNext-Bold", size: 22, relativeTo: .title2))
                     .foregroundStyle(.primary)
 
-                HStack(spacing: 4) {
+                HStack(spacing: AppSpacing.xxs) {
                     Text("Skin-Score \(displayScore)")
-                        .font(.system(size: 15, weight: .regular))
+                        .font(AppTypography.body)
                         .foregroundStyle(.secondary)
                     Image(systemName: "info.circle")
-                        .font(.system(size: 12))
+                        .font(AppTypography.caption)
                         .foregroundStyle(.secondary)
                 }
 
                 Text("\(displayScore)%")
-                    .font(.system(size: 56, weight: .bold))
+                    .font(.custom("AvenirNext-Bold", size: 56, relativeTo: .largeTitle))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
@@ -95,22 +95,22 @@ struct FaceScanResultView: View {
 
             frontSmallThumbnail
         }
-        .padding(.top, 8)
+        .padding(.top, AppSpacing.xs)
     }
 
     // MARK: - Severity Hearts Row
 
     private var severityHeartsRow: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.xxs) {
             ForEach(0..<4, id: \.self) { index in
                 Image(systemName: index < filledHearts ? "heart.fill" : "heart")
-                    .font(.system(size: 18))
+                    .font(.custom("AvenirNext-Regular", size: 18, relativeTo: .headline))
                     .foregroundStyle(severityColor)
             }
             Text(result.overallSeverity.rawValue.uppercased())
-                .font(.system(size: 11, weight: .bold))
+                .font(.custom("AvenirNext-Bold", size: 11, relativeTo: .caption2))
                 .foregroundStyle(.white)
-                .padding(.horizontal, 8)
+                .padding(.horizontal, AppSpacing.xs)
                 .padding(.vertical, 3)
                 .background(Capsule().fill(severityColor))
         }
@@ -127,10 +127,10 @@ struct FaceScanResultView: View {
 
     private var severityColor: Color {
         switch result.overallSeverity {
-        case .clear:    return .green
-        case .mild:     return .gray
-        case .moderate: return .orange
-        case .severe:   return .red
+        case .clear:    return AppColor.scoreVeryGood
+        case .mild:     return AppColor.scoreGood
+        case .moderate: return AppColor.scoreModerate
+        case .severe:   return AppColor.scoreVeryLow
         }
     }
 
@@ -145,18 +145,18 @@ struct FaceScanResultView: View {
                     .resizable()
                     .scaledToFill()
                     .frame(width: 110, height: 140)
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color(.systemGray4), lineWidth: 0.5)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                            .stroke(AppColor.borderSubtle, lineWidth: 0.5)
                     )
             } else {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemGray5))
+                RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                    .fill(AppColor.surfacePrimary)
                     .frame(width: 110, height: 140)
                     .overlay(
                         Image(systemName: "person.crop.rectangle")
-                            .font(.system(size: 32))
+                            .font(.custom("AvenirNext-Regular", size: 32, relativeTo: .largeTitle))
                             .foregroundStyle(.secondary)
                     )
             }
@@ -177,22 +177,22 @@ struct FaceScanResultView: View {
                     .overlay(
                         FaceMaskScanVisualization(markers: frontZone.markers)
                     )
-                    .clipShape(RoundedRectangle(cornerRadius: 16))
+                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
                     .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .stroke(Color(.systemGray4), lineWidth: 0.5)
+                        RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                            .stroke(AppColor.borderSubtle, lineWidth: 0.5)
                     )
             } else {
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(.systemGray5))
+                RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                    .fill(AppColor.surfacePrimary)
                     .frame(maxWidth: .infinity, minHeight: 200)
                     .overlay(
-                        VStack(spacing: 8) {
+                        VStack(spacing: AppSpacing.xs) {
                             Image(systemName: "person.crop.rectangle")
-                                .font(.system(size: 44))
+                                .font(.custom("AvenirNext-Regular", size: 44, relativeTo: .largeTitle))
                                 .foregroundStyle(.secondary)
                             Text("Foto belum tersedia")
-                                .font(.system(size: 13))
+                                .font(AppTypography.caption)
                                 .foregroundStyle(.secondary)
                         }
                     )
@@ -238,7 +238,7 @@ struct FaceScanResultView: View {
         } label: {
             VStack(spacing: 5) {
                 Text(subZone.label)
-                    .font(.system(size: 11, weight: .bold))
+                    .font(.custom("AvenirNext-Bold", size: 11, relativeTo: .caption2))
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
@@ -250,13 +250,13 @@ struct FaceScanResultView: View {
                             .resizable()
                             .scaledToFit()
                             .frame(maxWidth: .infinity)
-                            .background(Color(.systemGray5))
+                            .background(AppColor.surfacePrimary)
                             .overlay(
                                 FaceMaskScanVisualization(markers: subZone.markers)
                             )
                     } else {
                         Rectangle()
-                            .fill(Color(.systemGray4))
+                            .fill(AppColor.surfacePrimary)
                             .aspectRatio(1.0, contentMode: .fit)
                             .overlay(
                                 Image(systemName: "photo")
@@ -264,15 +264,15 @@ struct FaceScanResultView: View {
                             )
                     }
                 }
-                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
 
                 Text("\(subZone.acneCount) Jerawat")
-                    .font(.system(size: 11, weight: .regular))
+                    .font(.custom("AvenirNext-Regular", size: 11, relativeTo: .caption2))
                     .foregroundStyle(.primary)
             }
-            .padding(8)
+            .padding(AppSpacing.xs)
             .background(Color(.systemGray6))
-            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
         }
         .buttonStyle(.plain)
     }
@@ -282,38 +282,38 @@ struct FaceScanResultView: View {
     private var acneTypeSummarySection: some View {
         VStack(alignment: .leading, spacing: 0) {
             Text("Type & Number of Acne")
-                .font(.system(size: 20, weight: .semibold))
+                .font(.custom("AvenirNext-DemiBold", size: 20, relativeTo: .title3))
                 .foregroundStyle(.primary)
-                .padding(.bottom, 14)
+                .padding(.bottom, AppSpacing.md)
 
             VStack(spacing: 0) {
                 ForEach(Array(result.acneTypeSummaries.enumerated()), id: \.element.id) { index, summary in
-                    HStack(spacing: 10) {
+                    HStack(spacing: AppSpacing.sm) {
                         // Colour dot matching bounding box colour
                         Circle()
                             .fill(summary.acneType.color)
                             .frame(width: 10, height: 10)
 
                         Text(summary.acneType.displayName)
-                            .font(.system(size: 12, weight: .regular))
+                            .font(.custom("AvenirNext-Regular", size: 12, relativeTo: .caption))
                             .foregroundStyle(.primary)
 
                         Spacer()
 
                         // Count number (not percentage)
                         Text("\(summary.count)")
-                            .font(.system(size: 13, weight: .semibold))
+                            .font(.custom("AvenirNext-DemiBold", size: 13, relativeTo: .caption))
                             .foregroundStyle(summary.count > 0 ? summary.acneType.color : .secondary)
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 4)
+                            .padding(.horizontal, AppSpacing.sm)
+                            .padding(.vertical, AppSpacing.xxs)
                             .background(
-                                RoundedRectangle(cornerRadius: 20)
+                                RoundedRectangle(cornerRadius: AppCornerRadius.lg)
                                     .fill(summary.count > 0
                                           ? summary.acneType.color.opacity(0.15)
-                                          : Color(.systemGray5))
+                                          : AppColor.surfacePrimary)
                             )
                     }
-                    .padding(.vertical, 14)
+                    .padding(.vertical, AppSpacing.sm)
 
                     if index < result.acneTypeSummaries.count - 1 {
                         Divider()
@@ -328,13 +328,13 @@ struct FaceScanResultView: View {
     private var saveButton: some View {
         Button(action: onDone) {
             Text("Save")
-                .font(.system(size: 17, weight: .bold))
-                .foregroundStyle(.black)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 18)
+                .font(.custom("AvenirNext-Bold", size: 17, relativeTo: .headline))
+                .foregroundStyle(.white)
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .padding(.vertical, AppSpacing.md)
                 .background(
-                    RoundedRectangle(cornerRadius: 50)
-                        .fill(Color(red: 0.961, green: 0.784, blue: 0.259)) // #F5C842
+                    RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                        .fill(AppColor.accentPrimary)
                 )
         }
     }

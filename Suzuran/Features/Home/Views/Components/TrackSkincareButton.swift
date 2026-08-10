@@ -7,10 +7,10 @@ struct TrackSkincareButton: View {
         Button(action: onTap) {
             Text("Track your Skincare")
                 .font(AppTypography.bodyBold)
-                .foregroundStyle(.white)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 16)
-                .background(Color.black)
+                .foregroundStyle(Color(uiColor: .systemBackground))
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .padding(.vertical, AppSpacing.sm)
+                .background(Color.primary)
                 .clipShape(Capsule())
         }
         .padding(.horizontal, AppSpacing.md)

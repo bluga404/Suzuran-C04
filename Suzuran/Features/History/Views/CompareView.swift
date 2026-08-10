@@ -7,18 +7,12 @@ import SwiftUI
 
 struct CompareView: View {
 
-    @StateObject private var viewModel: CompareViewModel
+    @ObservedObject private var viewModel: CompareViewModel
 
     // MARK: - Init
 
-    init(recordA: ScanRecord, recordB: ScanRecord, allRecords: [ScanRecord]) {
-        _viewModel = StateObject(
-            wrappedValue: CompareViewModel(
-                recordA: recordA,
-                recordB: recordB,
-                allRecords: allRecords
-            )
-        )
+    init(viewModel: CompareViewModel) {
+        self.viewModel = viewModel
     }
 
     // MARK: - Body
@@ -144,33 +138,33 @@ struct CompareView: View {
 
     private var skinScoreSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            HStack(spacing: 4) {
+            HStack(spacing: AppSpacing.xxs) {
                 Text("Skin Score")
-                    .font(.system(size: 18, weight: .bold))
+                    .font(.custom("AvenirNext-DemiBold", size: 18, relativeTo: .headline))
                     .foregroundStyle(.primary)
                 Image(systemName: "info.circle")
-                    .font(.system(size: 13))
+                    .font(AppTypography.caption)
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
             }
 
             HStack {
                 Text("\(viewModel.recordA.skinScore)")
-                    .font(.system(size: 52, weight: .bold, design: .rounded))
+                    .font(.custom("AvenirNext-Bold", size: 52, relativeTo: .largeTitle))
                     .foregroundStyle(.primary)
                     .monospacedDigit()
 
                 Spacer()
 
                 Image(systemName: "arrow.right")
-                    .font(.system(size: 20, weight: .semibold))
+                    .font(.custom("AvenirNext-DemiBold", size: 20, relativeTo: .title3))
                     .foregroundStyle(.secondary)
                     .accessibilityHidden(true)
 
                 Spacer()
 
                 Text("\(viewModel.recordB.skinScore)")
-                    .font(.system(size: 52, weight: .bold, design: .rounded))
+                    .font(.custom("AvenirNext-Bold", size: 52, relativeTo: .largeTitle))
                     .foregroundStyle(.primary)
                     .monospacedDigit()
             }
@@ -188,15 +182,15 @@ struct CompareView: View {
             HStack(alignment: .top, spacing: AppSpacing.sm) {
                 VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                     Text("Summary Insight")
-                        .font(.system(size: 12, weight: .medium))
+                        .font(.custom("AvenirNext-Medium", size: 12, relativeTo: .caption))
                         .foregroundStyle(.secondary)
 
                     Text(viewModel.insightHeadline)
-                        .font(.system(size: 17, weight: .bold))
+                        .font(.custom("AvenirNext-Bold", size: 17, relativeTo: .headline))
                         .foregroundStyle(.primary)
 
                     Text(viewModel.insightBody)
-                        .font(.system(size: 13))
+                        .font(AppTypography.caption)
                         .foregroundStyle(.secondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -205,12 +199,12 @@ struct CompareView: View {
 
                 // Score delta badge — visible in area-specific modes only
                 if viewModel.selectedArea != nil {
-                    VStack(spacing: 2) {
+                    VStack(spacing: AppSpacing.xxs) {
                         Text("Score")
-                            .font(.system(size: 11))
+                            .font(.custom("AvenirNext-Regular", size: 11, relativeTo: .caption2))
                             .foregroundStyle(.secondary)
                         Text("\(diff >= 0 ? "+" : "")\(diff)")
-                            .font(.system(size: 22, weight: .bold))
+                            .font(.custom("AvenirNext-Bold", size: 22, relativeTo: .title2))
                             .foregroundStyle(diff >= 0 ? AppColor.accentPrimary : AppColor.accentDanger)
                             .monospacedDigit()
                             .padding(.horizontal, AppSpacing.sm)
@@ -238,49 +232,49 @@ struct CompareView: View {
                 // Title
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
                     Text("Total Acne")
-                        .font(.system(size: 18, weight: .bold))
+                        .font(.custom("AvenirNext-Bold", size: 18, relativeTo: .headline))
                         .foregroundStyle(.primary)
                     if let area = viewModel.selectedArea {
                         Text("· \(area.rawValue)")
-                            .font(.system(size: 14, weight: .medium))
+                            .font(.custom("AvenirNext-Medium", size: 14, relativeTo: .subheadline))
                             .foregroundStyle(.secondary)
                     }
                 }
 
                 HStack(alignment: .center) {
                     Text("\(viewModel.filteredAcneA)")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.custom("AvenirNext-Bold", size: 28, relativeTo: .title))
                         .foregroundStyle(.primary)
                         .monospacedDigit()
 
                     Image(systemName: "arrow.right")
-                        .font(.system(size: 16, weight: .semibold))
+                        .font(.custom("AvenirNext-DemiBold", size: 16, relativeTo: .callout))
                         .foregroundStyle(.secondary)
                         .padding(.horizontal, AppSpacing.xs)
                         .accessibilityHidden(true)
 
                     Text("\(viewModel.filteredAcneB)")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .font(.custom("AvenirNext-Bold", size: 28, relativeTo: .title))
                         .foregroundStyle(.primary)
                         .monospacedDigit()
 
                     Spacer()
 
                     // Delta badge
-                    VStack(spacing: 2) {
+                    VStack(spacing: AppSpacing.xxs) {
                         Text("\(diff > 0 ? "+" : "")\(diff)")
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.custom("AvenirNext-Bold", size: 20, relativeTo: .title3))
                             .foregroundStyle(diff <= 0 ? AppColor.accentPrimary : AppColor.accentDanger)
                             .monospacedDigit()
                         Text("Acne spots")
-                            .font(.system(size: 11, weight: .medium))
+                            .font(.custom("AvenirNext-Medium", size: 11, relativeTo: .caption2))
                             .foregroundStyle(.secondary)
                     }
                     .padding(.horizontal, AppSpacing.sm)
                     .padding(.vertical, AppSpacing.xs)
                     .background(
                         RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                            .fill(Color(.systemGray5))
+                            .fill(AppColor.surfacePrimary)
                     )
                     .accessibilityLabel("\(diff > 0 ? "plus" : "")\(diff) acne spots")
                 }
@@ -328,21 +322,21 @@ private struct CompareAreaChip: View {
     var body: some View {
         Button(action: action) {
             Text(label)
-                .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
-                .foregroundStyle(isSelected ? Color.white : Color.primary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
+                .font(.custom(isSelected ? "AvenirNext-DemiBold" : "AvenirNext-Regular", size: 14, relativeTo: .subheadline))
+                .foregroundStyle(isSelected ? Color(uiColor: .systemBackground) : .primary)
+                .padding(.horizontal, AppSpacing.md)
+                .padding(.vertical, AppSpacing.xs)
                 .background(
                     Capsule().fill(
                         isSelected
-                            ? Color(.systemGray)
-                            : Color(.secondarySystemGroupedBackground)
+                            ? Color.primary
+                            : AppColor.surfacePrimary
                     )
                 )
                 .overlay(
                     Capsule()
                         .stroke(
-                            isSelected ? Color.clear : Color(.systemGray4),
+                            isSelected ? Color.clear : AppColor.borderSubtle,
                             lineWidth: 1
                         )
                 )
@@ -359,17 +353,17 @@ private struct CompareDateChip: View {
     let formatter: DateFormatter
 
     var body: some View {
-        HStack(spacing: 4) {
+        HStack(spacing: AppSpacing.xxs) {
             Text(formatter.string(from: date))
-                .font(.system(size: 13, weight: .medium))
+                .font(AppTypography.caption)
                 .foregroundStyle(.primary)
                 .lineLimit(1)
             Image(systemName: "chevron.down")
-                .font(.system(size: 10))
+                .font(.custom("AvenirNext-Regular", size: 10, relativeTo: .caption2))
                 .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 9)
+        .padding(.horizontal, AppSpacing.md)
+        .padding(.vertical, AppSpacing.xs)
         .frame(maxWidth: .infinity)
         .background(
             RoundedRectangle(cornerRadius: 20)
@@ -391,14 +385,14 @@ private struct CompareFaceImage: View {
                     .scaledToFill()
             } else {
                 Rectangle()
-                    .fill(Color(.systemGray5))
+                    .fill(AppColor.surfacePrimary)
                     .overlay(
                         VStack(spacing: AppSpacing.xs) {
                             Image(systemName: "person.crop.rectangle")
-                                .font(.system(size: 36))
+                                .font(.custom("AvenirNext-Regular", size: 36, relativeTo: .largeTitle))
                                 .foregroundStyle(.secondary)
                             Text("No Image")
-                                .font(.system(size: 11))
+                                .font(.custom("AvenirNext-Regular", size: 11, relativeTo: .caption2))
                                 .foregroundStyle(.secondary)
                         }
                     )
@@ -423,42 +417,42 @@ private struct CompareBreakdownRow: View {
     var body: some View {
         HStack(spacing: AppSpacing.xs) {
             Text(row.label)
-                .font(.system(size: 15))
+                .font(AppTypography.body)
                 .foregroundStyle(.primary)
                 .frame(minWidth: 90, alignment: .leading)
 
             Spacer()
 
             Text("\(row.valueA)")
-                .font(.system(size: 15, weight: .medium))
+                .font(.custom("AvenirNext-Medium", size: 15, relativeTo: .subheadline))
                 .foregroundStyle(.secondary)
                 .monospacedDigit()
 
             Image(systemName: "arrow.right")
-                .font(.system(size: 11))
+                .font(.custom("AvenirNext-Regular", size: 11, relativeTo: .caption2))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
 
             Text("\(row.valueB)")
-                .font(.system(size: 15, weight: .medium))
+                .font(.custom("AvenirNext-Medium", size: 15, relativeTo: .subheadline))
                 .foregroundStyle(.primary)
                 .monospacedDigit()
 
             // Delta badge
             let diff = row.delta
             Text("\(diff >= 0 ? "+" : "")\(diff)")
-                .font(.system(size: 13, weight: .semibold))
+                .font(.custom("AvenirNext-DemiBold", size: 13, relativeTo: .caption))
                 .foregroundStyle(diff <= 0 ? AppColor.accentPrimary : AppColor.accentDanger)
                 .monospacedDigit()
                 .frame(minWidth: 44)
                 .padding(.horizontal, AppSpacing.xs)
-                .padding(.vertical, 5)
+                .padding(.vertical, AppSpacing.xxs)
                 .background(
                     RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                        .fill(Color(.systemGray5))
+                        .fill(AppColor.surfacePrimary)
                 )
         }
-        .padding(.vertical, 3)
+        .padding(.vertical, AppSpacing.xxs)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(row.label): \(row.valueA) before, \(row.valueB) after, difference \(row.delta)")
     }

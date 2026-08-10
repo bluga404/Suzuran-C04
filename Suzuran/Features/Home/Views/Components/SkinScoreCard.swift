@@ -15,21 +15,21 @@ struct SkinScoreCard: View {
                     .font(AppTypography.bodyBold)
                     .foregroundStyle(.primary)
                 Image(systemName: "info.circle")
-                    .font(.caption)
+                    .font(AppTypography.caption)
                     .foregroundStyle(.secondary)
             }
 
             if let score = score {
                 // Score title
                 Text(score.title)
-                    .font(.system(size: 48, weight: .bold, design: .default))
+                    .font(.custom("AvenirNext-Bold", size: 48, relativeTo: .largeTitle))
                     .foregroundStyle(.primary)
                     .padding(.bottom, -AppSpacing.xs)
 
                 // Score value
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
                     Text("\(score.value)")
-                        .font(.system(size: 24, weight: .bold, design: .default))
+                        .font(.custom("AvenirNext-Bold", size: 24, relativeTo: .title2))
                         .foregroundStyle(.primary)
                     Text("/100")
                         .font(AppTypography.body)
@@ -37,13 +37,13 @@ struct SkinScoreCard: View {
                 }
             } else {
                 Text("—")
-                    .font(.system(size: 48, weight: .bold, design: .default))
+                    .font(.custom("AvenirNext-Bold", size: 48, relativeTo: .largeTitle))
                     .foregroundStyle(.primary)
                     .padding(.bottom, -AppSpacing.xs)
 
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
                     Text("—")
-                        .font(.system(size: 24, weight: .bold, design: .default))
+                        .font(.custom("AvenirNext-Bold", size: 24, relativeTo: .title2))
                         .foregroundStyle(.primary)
                     Text("/100")
                         .font(AppTypography.body)
@@ -63,17 +63,17 @@ struct SkinScoreCard: View {
             Button(action: onAction) {
                 Text(state == .empty ? "Scan" : "Details")
                     .font(AppTypography.bodyBold)
-                    .foregroundStyle(.white)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 16)
-                    .background(Color.black)
+                    .foregroundStyle(Color(uiColor: .systemBackground))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .padding(.vertical, AppSpacing.sm)
+                    .background(Color.primary)
                     .clipShape(Capsule())
             }
             .accessibilityLabel(state == .empty ? "Mulai scan wajah" : "Lihat detail hasil scan")
         }
         .padding(AppSpacing.lg)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(uiColor: .systemGray6))
+        .background(AppColor.surfacePrimary)
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
     }
 

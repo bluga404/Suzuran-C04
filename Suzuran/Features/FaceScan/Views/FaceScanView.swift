@@ -98,7 +98,7 @@ struct FaceScanView: View {
                         onDismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 20, weight: .medium))
+                            .font(.custom("AvenirNext-Medium", size: 20, relativeTo: .title3))
                             .foregroundStyle(.white)
                             .padding(AppSpacing.sm)
                             .background(.ultraThinMaterial, in: Circle())
@@ -119,7 +119,7 @@ struct FaceScanView: View {
             Color.black.ignoresSafeArea()
             VStack(spacing: AppSpacing.lg) {
                 Image(systemName: "camera.fill")
-                    .font(.system(size: 48))
+                    .font(.custom("AvenirNext-Regular", size: 48, relativeTo: .largeTitle))
                     .foregroundStyle(.white.opacity(0.6))
 
                 Text("Akses Kamera Ditolak")
@@ -172,7 +172,7 @@ struct FaceScanView: View {
                         onDismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.system(size: 20, weight: .medium))
+                            .font(.custom("AvenirNext-Medium", size: 20, relativeTo: .title3))
                             .foregroundStyle(.white)
                             .padding(AppSpacing.sm)
                             .background(.ultraThinMaterial, in: Circle())
@@ -186,12 +186,12 @@ struct FaceScanView: View {
                         // Info action placeholder
                     } label: {
                         Image(systemName: "info.circle")
-                            .font(.system(size: 20))
+                            .font(.custom("AvenirNext-Regular", size: 20, relativeTo: .title3))
                             .foregroundStyle(.white)
                             .padding(AppSpacing.sm)
                             .background(.ultraThinMaterial, in: Circle())
                     }
-                    .padding(.leading, 12)
+                    .padding(.leading, AppSpacing.sm)
                 }
                 .padding(.horizontal, AppSpacing.lg)
                 .padding(.top, 60) // To clear dynamic island in ignoresSafeArea context
@@ -252,7 +252,7 @@ struct FaceScanView: View {
 
             VStack(spacing: AppSpacing.lg) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.system(size: 44))
+                    .font(.custom("AvenirNext-Regular", size: 44, relativeTo: .largeTitle))
                     .foregroundStyle(AppColor.accentDanger)
 
                 Text("Terjadi Kesalahan")

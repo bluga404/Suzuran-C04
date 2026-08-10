@@ -12,7 +12,6 @@ struct HistoryView: View {
     }
 
     private let columns = Array(repeating: GridItem(.flexible(), spacing: AppSpacing.xs), count: 3)
-    private let comparePurple = Color(red: 0.506, green: 0.510, blue: 1.0) // #8182FF
 
     private let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -44,7 +43,7 @@ struct HistoryView: View {
                 // selectedPair is guaranteed when navigateToCompare=true.
                 // Use a fallback EmptyView to satisfy type system safely.
                 if let (first, second) = viewModel.selectedPair {
-                    CompareView(
+                    HistoryFactory.makeCompareView(
                         recordA: first,
                         recordB: second,
                         allRecords: viewModel.records
@@ -69,13 +68,13 @@ struct HistoryView: View {
             } label: {
                 if viewModel.isCompareMode {
                     Text("Compare (\(viewModel.selectedCount)/2)")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.custom("AvenirNext-DemiBold", size: 14, relativeTo: .subheadline))
                 } else {
                     Text("Compare")
-                        .font(.system(size: 14, weight: .semibold))
+                        .font(.custom("AvenirNext-DemiBold", size: 14, relativeTo: .subheadline))
                 }
             }
-            .tint(comparePurple)
+            .tint(AppColor.accentPrimary)
             .disabled(viewModel.isCompareMode && !viewModel.canCompare)
             .buttonStyle(.glassProminent)
 
@@ -86,7 +85,7 @@ struct HistoryView: View {
                     }
                 } label: {
                     Image(systemName: "xmark")
-                        .font(.system(size: 14, weight: .bold))
+                        .font(.custom("AvenirNext-Bold", size: 14, relativeTo: .subheadline))
                 }
                 .tint(Color.primary)
                 .buttonStyle(.glassProminent)
@@ -110,7 +109,7 @@ struct HistoryView: View {
                         }
                     } header: {
                         Text(section.key)
-                            .font(.system(size: 22, weight: .bold))
+                            .font(.custom("AvenirNext-Bold", size: 22, relativeTo: .title2))
                             .foregroundStyle(.primary)
                             .padding(.top, AppSpacing.xs)
                     }
@@ -144,7 +143,7 @@ struct HistoryView: View {
                                 .fill(Color(.secondarySystemGroupedBackground))
                                 .overlay(
                                     Image(systemName: "person.crop.rectangle")
-                                        .font(.system(size: 28))
+                                        .font(.custom("AvenirNext-Regular", size: 28, relativeTo: .title))
                                         .foregroundStyle(.secondary)
                                 )
                         }
@@ -154,14 +153,14 @@ struct HistoryView: View {
                     .overlay(
                         RoundedRectangle(cornerRadius: AppCornerRadius.sm)
                             .stroke(
-                                viewModel.isSelected(record) ? comparePurple : Color(.separator),
+                                viewModel.isSelected(record) ? AppColor.accentPrimary : AppColor.borderSubtle,
                                 lineWidth: viewModel.isSelected(record) ? 2.5 : 0.5
                             )
                     )
 
                     // Date label
                     Text(dateFormatter.string(from: record.date))
-                        .font(.system(size: 11, weight: .medium))
+                        .font(.custom("AvenirNext-Medium", size: 11, relativeTo: .caption2))
                         .foregroundStyle(.secondary)
                         .lineLimit(1)
                 }
@@ -169,9 +168,9 @@ struct HistoryView: View {
                 // Selection checkmark badge (compare mode only)
                 if viewModel.isCompareMode {
                     Image(systemName: viewModel.isSelected(record) ? "checkmark.circle.fill" : "circle")
-                        .font(.system(size: 20))
-                        .foregroundStyle(viewModel.isSelected(record) ? comparePurple : Color(.systemGray3))
-                        .background(Circle().fill(Color(.systemBackground)).padding(2))
+                        .font(.custom("AvenirNext-Regular", size: 20, relativeTo: .title3))
+                        .foregroundStyle(viewModel.isSelected(record) ? AppColor.accentPrimary : Color(uiColor: .systemGray3))
+                        .background(Circle().fill(Color(uiColor: .systemBackground)).padding(2))
                         .padding(6)
                 }
             }

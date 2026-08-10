@@ -4,7 +4,7 @@ struct ProfileView: View {
     var body: some View {
         VStack(spacing: AppSpacing.lg) {
             Image(systemName: "person.fill")
-                .font(.system(size: 48))
+                .font(.custom("AvenirNext-Regular", size: 48, relativeTo: .largeTitle))
                 .foregroundStyle(AppColor.accentPrimary)
             Text("Halo Profile")
                 .font(AppTypography.title)

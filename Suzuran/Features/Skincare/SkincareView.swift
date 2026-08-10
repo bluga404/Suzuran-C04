@@ -4,7 +4,7 @@ struct SkincareView: View {
     var body: some View {
         VStack(spacing: AppSpacing.lg) {
             Image(systemName: "leaf.fill")
-                .font(.system(size: 48))
+                .font(.custom("AvenirNext-Regular", size: 48, relativeTo: .largeTitle))
                 .foregroundStyle(AppColor.accentPrimary)
             Text("Halo Skincare")
                 .font(AppTypography.title)

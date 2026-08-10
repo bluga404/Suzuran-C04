@@ -5,21 +5,20 @@ struct TopLightingIndicatorView: View {
     let condition: LightingCondition
     
     var body: some View {
-        VStack(alignment: .leading, spacing: 2) {
+        VStack(alignment: .leading, spacing: AppSpacing.xxs) {
             Text(condition.title)
-                .font(.system(size: 11, weight: .bold))
-                .foregroundColor(.black)
+                .font(.custom("AvenirNext-Bold", size: 11, relativeTo: .caption2))
+                .foregroundStyle(.primary)
             
             Text(condition.subtitle)
-                .font(.system(size: 10, weight: .regular))
-                .foregroundColor(.black.opacity(0.8))
+                .font(.custom("AvenirNext-Regular", size: 10, relativeTo: .caption2))
+                .foregroundStyle(.secondary)
         }
-        .padding(.horizontal, 14)
-        .padding(.vertical, 8)
+        .padding(.horizontal, AppSpacing.md)
+        .padding(.vertical, AppSpacing.xs)
         .background(
-            // Use a solid grey color matching the design image with some opacity
             Capsule()
-                .fill(Color(white: 0.6).opacity(0.85))
+                .fill(.ultraThinMaterial)
         )
         // Transition to slide or fade when appearing
         .animation(.easeInOut(duration: 0.3), value: condition)

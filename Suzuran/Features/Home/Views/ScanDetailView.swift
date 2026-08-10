@@ -3,11 +3,11 @@ import SwiftUI
 struct ScanDetailView: View {
     /// Owned by this view so the ViewModel persists across body re-evaluations
     /// (e.g., when presented inside a sheet).
-    @StateObject private var viewModel: ScanDetailViewModel
+    @ObservedObject private var viewModel: ScanDetailViewModel
     @Environment(\.dismiss) private var dismiss
 
     init(viewModel: ScanDetailViewModel) {
-        self._viewModel = StateObject(wrappedValue: viewModel)
+        self.viewModel = viewModel
     }
 
     var body: some View {

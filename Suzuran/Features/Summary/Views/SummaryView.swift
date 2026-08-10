@@ -32,17 +32,17 @@ struct SummaryView: View {
 
                                 HStack {
                                     Text("\(latest.skinScore)%")
-                                        .font(.system(size: 44, weight: .bold))
+                                        .font(.custom("AvenirNext-Bold", size: 44, relativeTo: .largeTitle))
                                         .foregroundStyle(.primary)
 
                                     Spacer()
 
-                                    VStack(alignment: .trailing, spacing: 4) {
+                                    VStack(alignment: .trailing, spacing: AppSpacing.xxs) {
                                         Text(latest.severity.rawValue.capitalized)
-                                            .font(.system(size: 13, weight: .bold))
+                                            .font(.custom("AvenirNext-Bold", size: 13, relativeTo: .caption))
                                             .foregroundStyle(.white)
-                                            .padding(.horizontal, 10)
-                                            .padding(.vertical, 4)
+                                            .padding(.horizontal, AppSpacing.sm)
+                                            .padding(.vertical, AppSpacing.xxs)
                                             .background(Capsule().fill(severityColor(latest.severity)))
 
                                         Text("\(latest.totalAcneCount) jerawat")
@@ -59,10 +59,10 @@ struct SummaryView: View {
                         VStack(alignment: .leading, spacing: AppSpacing.md) {
                             HStack {
                                 Image(systemName: "face.dashed")
-                                    .font(.system(size: 36))
+                                    .font(.custom("AvenirNext-Regular", size: 36, relativeTo: .largeTitle))
                                     .foregroundStyle(AppColor.accentPrimary)
 
-                                VStack(alignment: .leading, spacing: 2) {
+                                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                                     Text("Scan Wajah 360°")
                                         .font(AppTypography.subtitle)
                                         .foregroundStyle(.primary)
@@ -88,10 +88,10 @@ struct SummaryView: View {
 
     private func severityColor(_ severity: AcneSeverity) -> Color {
         switch severity {
-        case .clear:    return .green
-        case .mild:     return .gray
-        case .moderate: return .orange
-        case .severe:   return .red
+        case .clear:    return AppColor.scoreVeryGood
+        case .mild:     return AppColor.scoreGood
+        case .moderate: return AppColor.scoreModerate
+        case .severe:   return AppColor.scoreVeryLow
         }
     }
 }

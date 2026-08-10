@@ -21,8 +21,8 @@ struct HomeHeader: View {
                     Image(systemName: "viewfinder")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(.primary)
-                        .padding(12)
-                        .background(Color(uiColor: .systemGray6))
+                        .padding(AppSpacing.sm)
+                        .background(AppColor.surfacePrimary)
                         .clipShape(Circle())
                 }
                 .accessibilityLabel("Mulai pindai wajah")

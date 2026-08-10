@@ -17,9 +17,9 @@ struct IngredientRecommendationCard: View {
 
             statusPill
         }
-        .padding(16)
+        .padding(AppSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(uiColor: .systemGray6))
+        .background(AppColor.surfacePrimary)
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
         .padding(.horizontal, AppSpacing.md)
     }
@@ -36,11 +36,11 @@ struct IngredientRecommendationCard: View {
         }()
 
         Text(text)
-            .font(.system(size: 13, weight: .regular, design: .default))
+            .font(.custom("AvenirNext-Regular", size: 13, relativeTo: .caption))
             .foregroundStyle(AppColor.textPrimary)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)
-            .background(Color(uiColor: .systemGray4))
+            .background(AppColor.borderSubtle.opacity(0.5))
             .clipShape(Capsule())
     }
 }

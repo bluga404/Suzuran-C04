@@ -20,12 +20,12 @@ struct ZoneDetailView: View {
                let uiImage = UIImage(data: imageData) {
                 imageContentView(uiImage)
             } else {
-                VStack(spacing: 12) {
+                VStack(spacing: AppSpacing.sm) {
                     Image(systemName: "photo")
-                        .font(.system(size: 56))
+                        .font(.custom("AvenirNext-Regular", size: 56, relativeTo: .largeTitle))
                         .foregroundStyle(.secondary)
                     Text("Foto belum tersedia")
-                        .font(.system(size: 15))
+                        .font(AppTypography.body)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -99,32 +99,32 @@ struct ZoneDetailView: View {
 
     private var headerOverlay: some View {
         VStack {
-            HStack(alignment: .center, spacing: 12) {
+            HStack(alignment: .center, spacing: AppSpacing.sm) {
                 Button(action: onDismiss) {
                     Image(systemName: "chevron.left")
-                        .font(.system(size: 17, weight: .semibold))
+                        .font(.custom("AvenirNext-DemiBold", size: 17, relativeTo: .headline))
                         .foregroundStyle(.white)
-                        .padding(10)
+                        .padding(AppSpacing.sm)
                         .background(Circle().fill(.black.opacity(0.55)))
                 }
 
                 Text(subZone.label)
-                    .font(.system(size: 18, weight: .semibold))
+                    .font(.custom("AvenirNext-DemiBold", size: 18, relativeTo: .headline))
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 1)
 
                 Spacer()
 
                 Text("\(subZone.acneCount) Jerawat")
-                    .font(.system(size: 13, weight: .medium))
+                    .font(.custom("AvenirNext-Medium", size: 13, relativeTo: .caption))
                     .foregroundStyle(.white)
-                    .padding(.horizontal, 10)
-                    .padding(.vertical, 5)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .padding(.vertical, AppSpacing.xxs)
                     .background(Capsule().fill(.black.opacity(0.50)))
             }
-            .padding(.horizontal, 16)
+            .padding(.horizontal, AppSpacing.md)
             .padding(.top, 56)
-            .padding(.bottom, 12)
+            .padding(.bottom, AppSpacing.sm)
             .background(
                 LinearGradient(
                     colors: [.black.opacity(0.55), .clear],
