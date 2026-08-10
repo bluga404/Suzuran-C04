@@ -203,8 +203,8 @@ struct CompareView: View {
 
                 Spacer(minLength: AppSpacing.sm)
 
-                // Score delta badge — visible in All mode only
-                if viewModel.selectedArea == nil {
+                // Score delta badge — visible in area-specific modes only
+                if viewModel.selectedArea != nil {
                     VStack(spacing: 2) {
                         Text("Score")
                             .font(.system(size: 11))

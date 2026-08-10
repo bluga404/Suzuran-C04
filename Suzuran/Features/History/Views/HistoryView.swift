@@ -57,24 +57,43 @@ struct HistoryView: View {
     // MARK: - Compare Button
 
     private var compareButton: some View {
-        Button {
-            if !viewModel.isCompareMode {
-                viewModel.toggleCompareMode()
-            } else if viewModel.canCompare {
-                navigateToCompare = true
+        HStack(spacing: 8) {
+            Button {
+                if !viewModel.isCompareMode {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        viewModel.toggleCompareMode()
+                    }
+                } else if viewModel.canCompare {
+                    navigateToCompare = true
+                }
+            } label: {
+                if viewModel.isCompareMode {
+                    Text("Compare (\(viewModel.selectedCount)/2)")
+                        .font(.system(size: 14, weight: .semibold))
+                } else {
+                    Text("Compare")
+                        .font(.system(size: 14, weight: .semibold))
+                }
             }
-        } label: {
+            .tint(comparePurple)
+            .disabled(viewModel.isCompareMode && !viewModel.canCompare)
+            .buttonStyle(.glassProminent)
+
             if viewModel.isCompareMode {
-                Text("Compare (\(viewModel.selectedCount)/2)")
-                    .font(.system(size: 14, weight: .semibold))
-            } else {
-                Text("Compare")
-                    .font(.system(size: 14, weight: .semibold))
+                Button {
+                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                        viewModel.toggleCompareMode()
+                    }
+                } label: {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 14, weight: .bold))
+                }
+                .tint(Color.primary)
+                .buttonStyle(.glassProminent)
+                .accessibilityLabel("Cancel comparison selection")
+                .transition(.move(edge: .trailing).combined(with: .opacity))
             }
         }
-        .tint(comparePurple)
-        .disabled(viewModel.isCompareMode && !viewModel.canCompare)
-        .buttonStyle(.glassProminent)
     }
 
     // MARK: - Grid Content
