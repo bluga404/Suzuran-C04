@@ -7,7 +7,7 @@ struct TrackSkincareButton: View {
         Button(action: onTap) {
             HStack(spacing: AppSpacing.xs) {
                 Image(systemName: "plus.circle.fill")
-                Text("Track Skincare")
+                Text("Track Your Skincare")
                     .font(AppTypography.bodyBold)
             }
             .foregroundStyle(AppColor.accentPrimary)

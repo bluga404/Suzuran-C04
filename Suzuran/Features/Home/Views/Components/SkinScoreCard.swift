@@ -2,31 +2,49 @@ import SwiftUI
 
 /// Displays the user's skin health score with contextual messaging and an action button.
 /// Adapts its content based on the current HomeSummaryState.
+/// Layout hierarchy: "SKIN CONDITION" header with an info icon, the score category,
+/// the score value, an English state-specific insight message, and an action button.
 struct SkinScoreCard: View {
     let score: SkinScorePresentation?
     let state: HomeSummaryState
     var onAction: () -> Void = {}
+    var onInfoTap: () -> Void = {}
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            // Score label title (only shown when score exists)
-            if let score = score {
-                Text(score.title)
-                    .font(AppTypography.bodyBold)
-                    .foregroundStyle(.primary)
+            // Header: title with an info button beside it
+            HStack {
+                Text("SKIN CONDITION")
+                    .font(AppTypography.caption)
+                    .tracking(1.2)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                Button(action: onInfoTap) {
+                    Image(systemName: "info.circle")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(.secondary)
+                }
+                .accessibilityLabel("Skin condition information")
+            }
+
+            // Score category (e.g. "Good", "Moderate") — larger than the score value
+            if let title = score?.title, !title.isEmpty {
+                Text(title)
+                    .font(.system(size: 56, weight: .bold, design: .rounded))
+                    .foregroundStyle(scoreColor)
             }
 
             // Score value
             HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
                 Text(score != nil ? "\(score!.value)" : "—")
-                    .font(.system(size: 48, weight: .bold, design: .rounded))
+                    .font(.system(size: 40, weight: .bold, design: .rounded))
                     .foregroundStyle(scoreColor)
-                Text(score != nil ? "/100" : "—/100")
+                Text("/100")
                     .font(AppTypography.subtitle)
                     .foregroundStyle(.secondary)
             }
 
-            // Contextual message
+            // Contextual insight message
             Text(messageText)
                 .font(AppTypography.body)
                 .foregroundStyle(.secondary)
@@ -34,7 +52,7 @@ struct SkinScoreCard: View {
 
             // Action button
             Button(action: onAction) {
-                Text(state == .empty ? "Scan" : "Details")
+                Text(state == .empty ? "Check My Skin" : "Details")
                     .font(AppTypography.bodyBold)
                     .foregroundStyle(.white)
                     .frame(maxWidth: .infinity)
@@ -63,22 +81,23 @@ struct SkinScoreCard: View {
         }
     }
 
-    // MARK: - State-specific messages in Bahasa Indonesia
+    // MARK: - State-specific messages in English
 
     private var messageText: String {
+        if let message = score?.message, !message.isEmpty {
+            return message
+        }
         switch state {
         case .empty:
-            return "Scan wajahmu untuk lihat kondisi kulit"
-        case .faceOnly:
-            return score?.message ?? ""
-        case .complete:
-            return "Scan lagi besok untuk lihat perubahan kondisi kulitmu!"
+            return "Scan your face to see skin condition"
+        case .faceOnly, .complete:
+            return "Scan again tomorrow to see your skin condition change!"
         case .improvement:
-            return "Yeay! Skormu lebih tinggi dari kemarin!"
+            return "Yeay! your score is higher than yesterday!"
         case .degradation:
-            return "Skormu lebih rendah dari kemarin, jangan khawatir, ini bagian dari prosesnya!"
+            return "Your score is lower than yesterday, don't worry, it's part of the process!"
         case .unchanged:
-            return "Skormu tidak berubah sejak scan terakhir"
+            return "No change from yesterday. Keep up your routine!"
         }
     }
 }
@@ -98,7 +117,7 @@ struct SkinScoreCard: View {
             value: 60,
             title: "Good",
             trend: .noPreviousData,
-            message: "Scan lagi besok untuk lihat perubahan kondisi kulitmu!"
+            message: "Scan again tomorrow to see your skin condition change!"
         ),
         state: .complete,
         onAction: {}
@@ -112,7 +131,7 @@ struct SkinScoreCard: View {
             value: 83,
             title: "Good",
             trend: .improved,
-            message: "Yeay! Skormu lebih tinggi dari kemarin!"
+            message: "Yeay! your score is higher than yesterday! improving 38% from yesterday"
         ),
         state: .improvement,
         onAction: {}
@@ -126,11 +145,10 @@ struct SkinScoreCard: View {
             value: 40,
             title: "Moderate",
             trend: .declined,
-            message: "Skormu lebih rendah dari kemarin, jangan khawatir, ini bagian dari prosesnya!"
+            message: "Your score is lower 33% than yesterday, don't worry, it's part of the process!"
         ),
         state: .degradation,
         onAction: {}
     )
     .padding()
 }
-

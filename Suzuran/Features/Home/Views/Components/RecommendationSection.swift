@@ -6,13 +6,14 @@ struct RecommendationSection: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Rekomendasi Bahan")
-                .font(AppTypography.bodyBold)
-                .foregroundStyle(.primary)
+            Text("INGREDIENTS")
+                .font(AppTypography.caption)
+                .tracking(1.2)
+                .foregroundStyle(.secondary)
                 .padding(.horizontal, AppSpacing.md)
 
             if recommendations.isEmpty && showEmptyState {
-                Text("Scan produk skincaremu untuk melihat rekomendasi bahan")
+                Text("Scan your skincare products to get ingredient recommendations")
                     .font(AppTypography.body)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, AppSpacing.md)

@@ -143,7 +143,7 @@ enum HomeFixtures {
             value: 60,
             title: "Good",
             trend: .noPreviousData,
-            message: "Scan produk skincaremu untuk rekomendasi bahan!"
+            message: "Scan again tomorrow to see your skin condition change!"
         ),
         dominantAcne: .blackhead,
         recommendations: [],
@@ -164,7 +164,7 @@ enum HomeFixtures {
             value: 60,
             title: "Good",
             trend: .noPreviousData,
-            message: "Scan lagi besok untuk lihat perubahan kondisi kulitmu!"
+            message: "Scan again tomorrow to see your skin condition change!"
         ),
         dominantAcne: .blackhead,
         recommendations: [niacinamideRecommendation, salicylicAcidRecommendation],
@@ -185,7 +185,7 @@ enum HomeFixtures {
             value: 83,
             title: "Good",
             trend: .improved,
-            message: "Yeay! Skormu lebih tinggi dari kemarin!"
+            message: "Yeay! your score is higher than yesterday! improving 38% from yesterday"
         ),
         dominantAcne: .blackhead,
         recommendations: [niacinamideRecommendation, salicylicAcidRecommendation],
@@ -206,7 +206,7 @@ enum HomeFixtures {
             value: 40,
             title: "Moderate",
             trend: .declined,
-            message: "Skormu lebih rendah dari kemarin, jangan khawatir, ini bagian dari proses!"
+            message: "Your score is lower 33% than yesterday, don't worry, it's part of the process!"
         ),
         dominantAcne: .pustule,
         recommendations: [benzoylPeroxideRecommendation],
@@ -227,7 +227,7 @@ enum HomeFixtures {
             value: 60,
             title: "Good",
             trend: .unchanged,
-            message: "Skormu tidak berubah dari kemarin."
+            message: "No change from yesterday. Keep up your routine!"
         ),
         dominantAcne: .blackhead,
         recommendations: [niacinamideRecommendation, salicylicAcidRecommendation],

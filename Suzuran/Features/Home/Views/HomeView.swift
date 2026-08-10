@@ -46,7 +46,7 @@ struct HomeView: View {
     @ViewBuilder
     private func loadedContent(summary: HomeSummary) -> some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: AppSpacing.lg) {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 HomeHeader(
                     date: summary.date,
                     showCameraButton: summary.scanAvailability.hasFaceScan,
@@ -67,10 +67,11 @@ struct HomeView: View {
                 .padding(.horizontal, AppSpacing.md)
 
                 if summary.state != .empty {
-                    DominantAcneSection(acneType: summary.dominantAcne)
-                }
+                    MostDetectedSection(
+                        acneType: summary.dominantAcne,
+                        count: dominantCount(in: summary)
+                    )
 
-                if summary.state != .empty && summary.state != .faceOnly {
                     RecommendationSection(
                         recommendations: summary.recommendations,
                         showEmptyState: summary.recommendations.isEmpty
@@ -96,5 +97,11 @@ struct HomeView: View {
         .sheet(item: $detailScanID) { scanID in
             HomeFactory.makeDetailView(scanID: scanID)
         }
+    }
+
+    /// Returns the detection count of the dominant acne type from the latest scan, if available.
+    private func dominantCount(in summary: HomeSummary) -> Int? {
+        guard let dominant = summary.dominantAcne, let scan = summary.latestScan else { return nil }
+        return scan.acneCounts[dominant]
     }
 }

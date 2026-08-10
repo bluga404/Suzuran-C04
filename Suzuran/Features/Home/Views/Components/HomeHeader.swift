@@ -12,7 +12,7 @@ struct HomeHeader: View {
                     .font(AppTypography.title)
                     .foregroundStyle(.primary)
                 Text(formattedDate)
-                    .font(AppTypography.caption)
+                    .font(AppTypography.subtitle)
                     .foregroundStyle(.secondary)
             }
             Spacer()
@@ -26,12 +26,13 @@ struct HomeHeader: View {
             }
         }
         .padding(.horizontal, AppSpacing.md)
-        .padding(.vertical, AppSpacing.sm)
+        .padding(.top, AppSpacing.sm)
+        .padding(.bottom, AppSpacing.xxs)
     }
 
     private var formattedDate: String {
         let formatter = DateFormatter()
-        formatter.dateFormat = "MMM d"
+        formatter.dateFormat = "d MMMM yyyy"
         return formatter.string(from: date)
     }
 }

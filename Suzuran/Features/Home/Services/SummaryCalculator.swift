@@ -48,22 +48,23 @@ struct SummaryCalculator {
         let trend = scoreCalculator.calculateTrend(latest: latestScan, previous: previousScan)
         let label = scoreCalculator.scoreLabel(for: scan.overallScore)
         let dominantAcne = scoreCalculator.dominantAcneType(from: scan.acneCounts)
+        let changePercent = percentageChange(from: previousScan, to: scan)
 
-        // Build message based on state (Bahasa Indonesia)
+        // Build message based on state (English)
         let message: String
         switch state {
         case .empty:
-            message = "Scan wajahmu untuk lihat kondisi kulit"
-        case .faceOnly:
-            message = "Scan produk skincarenya juga yuk!"
-        case .complete:
-            message = "Scan lagi besok untuk lihat perubahan kondisi kulitmu!"
+            message = "Scan your face to see skin condition"
+        case .faceOnly, .complete:
+            message = "Scan again tomorrow to see your skin condition change!"
         case .improvement:
-            message = "Yeay! skormu lebih tinggi dari kemarin!"
+            let percent = changePercent ?? 0
+            message = "Yeay! your score is higher than yesterday! improving \(percent)% from yesterday"
         case .degradation:
-            message = "Skormu lebih rendah dari kemarin, jangan khawatir, ini bagian dari prosesnya!"
+            let percent = changePercent ?? 0
+            message = "Your score is lower \(percent)% than yesterday, don't worry, it's part of the process!"
         case .unchanged:
-            message = "Skormu tidak berubah sejak scan terakhir"
+            message = "No change from yesterday. Keep up your routine!"
         }
 
         let skinScore = SkinScorePresentation(
@@ -101,6 +102,19 @@ struct SummaryCalculator {
             recommendations: recommendations,
             scanAvailability: scanAvailability
         )
+    }
+
+    // MARK: - Percentage Change
+
+    /// Computes the rounded percentage change between two scans relative to the previous score.
+    /// - Parameters:
+    ///   - previous: The previous scan, or nil if none exists.
+    ///   - latest: The most recent scan.
+    /// - Returns: A non-negative rounded percentage, or nil when there is no previous scan or its score is 0.
+    func percentageChange(from previous: SkinScan?, to latest: SkinScan) -> Int? {
+        guard let previous = previous, previous.overallScore > 0 else { return nil }
+        let delta = latest.overallScore - previous.overallScore
+        return Int((Double(abs(delta)) / Double(previous.overallScore) * 100).rounded())
     }
 
     // MARK: - Ingredient Recommendations
