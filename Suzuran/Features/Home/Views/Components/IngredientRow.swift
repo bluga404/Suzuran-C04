@@ -1,6 +1,8 @@
 import SwiftUI
 
-struct IngredientRecommendationCard: View {
+/// A single row inside the Ingredients card, showing the ingredient name,
+/// explanation, and whether it was found in the user's scanned products.
+struct IngredientRow: View {
     let recommendation: IngredientRecommendation
 
     var body: some View {
@@ -15,11 +17,7 @@ struct IngredientRecommendationCard: View {
 
             statusPill
         }
-        .padding(AppSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.regularMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
-        .padding(.horizontal, AppSpacing.md)
     }
 
     @ViewBuilder
@@ -27,9 +25,9 @@ struct IngredientRecommendationCard: View {
         let text: String = {
             switch recommendation.status {
             case .notFound:
-                return "Belum ditemukan di produk yang kamu scan"
+                return "Not found in your scanned products"
             case .found(let productName):
-                return "Sudah ada di rutinmu - \(productName)"
+                return "In your routine - \(productName)"
             }
         }()
 
@@ -44,23 +42,25 @@ struct IngredientRecommendationCard: View {
 }
 
 #Preview("Not Found") {
-    IngredientRecommendationCard(
+    IngredientRow(
         recommendation: IngredientRecommendation(
             id: UUID(),
             ingredient: Ingredient(name: "niacinamide", displayName: "Niacinamide"),
-            explanation: "Membantu mengontrol produksi sebum dan memperbaiki skin barrier",
+            explanation: "Helps control sebum production and repair the skin barrier",
             status: .notFound
         )
     )
+    .padding()
 }
 
 #Preview("Found") {
-    IngredientRecommendationCard(
+    IngredientRow(
         recommendation: IngredientRecommendation(
             id: UUID(),
             ingredient: Ingredient(name: "salicylic acid", displayName: "Salicylic Acid"),
-            explanation: "Exfoliant yang membantu membersihkan pori-pori tersumbat",
+            explanation: "Exfoliant that helps unclog pores",
             status: .found(productName: "Facewash")
         )
     )
+    .padding()
 }

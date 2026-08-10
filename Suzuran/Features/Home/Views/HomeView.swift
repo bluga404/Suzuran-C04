@@ -72,7 +72,7 @@ struct HomeView: View {
                         count: dominantCount(in: summary)
                     )
 
-                    RecommendationSection(
+                    IngredientSection(
                         recommendations: summary.recommendations,
                         showEmptyState: summary.recommendations.isEmpty
                     )
