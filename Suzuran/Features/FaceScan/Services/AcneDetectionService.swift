@@ -1,11 +1,11 @@
 import Foundation
 import CoreML
-@preconcurrency import Vision
+import Vision
 import CoreGraphics
 
 /// Encapsulates CoreML model loading and YOLO inference for acne detection.
 /// Returns `[AcneDetection]` with normalized bounding boxes (top-left origin, no Y-flip).
-final class AcneDetectionService: @unchecked Sendable {
+final class AcneDetectionService {
 
     // MARK: - Properties
 
@@ -50,7 +50,7 @@ final class AcneDetectionService: @unchecked Sendable {
     /// Run inference on a CGImage, returns detections with normalized coordinates.
     /// Uses scaleFill to resize input to 640×640.
     func detect(in cgImage: CGImage) async throws -> [AcneDetection] {
-        guard let model = visionModel else {
+        guard let visionModel = visionModel else {
             let message = modelLoadError?.localizedDescription ?? "Model tidak dimuat."
             throw AppError.unknown(message: "CoreML model gagal dimuat: \(message)")
         }
@@ -58,7 +58,7 @@ final class AcneDetectionService: @unchecked Sendable {
         return try await withCheckedThrowingContinuation { continuation in
             inferenceQueue.async {
                 do {
-                    let request = VNCoreMLRequest(model: model)
+                    let request = VNCoreMLRequest(model: visionModel)
                     request.imageCropAndScaleOption = .scaleFill
 
                     let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
@@ -104,12 +104,13 @@ final class AcneDetectionService: @unchecked Sendable {
 
     /// Parses end2end YOLO output of shape [1, 300, 6].
     /// Each row: [x1, y1, x2, y2, confidence, class_id] in pixel coords (0–640).
-    /// Filters confidence ≥ 0.05, class_id ∈ [0, 5], then applies per-class IoU NMS (threshold 0.35).
+    /// Filters confidence ≥ 0.05, class_id ∈ [0, 5].
+    /// Uses CoordinateNormalizer — NO Y-axis flip.
     private static func parseEnd2EndOutput(
         _ observations: [VNCoreMLFeatureValueObservation]
     ) -> [AcneDetection] {
         let confidenceThreshold: Float = 0.05
-        var raw: [AcneDetection] = []
+        var detections: [AcneDetection] = []
 
         for observation in observations {
             guard let multiArray = observation.featureValue.multiArrayValue else { continue }
@@ -148,23 +149,29 @@ final class AcneDetectionService: @unchecked Sendable {
                 guard conf >= confidenceThreshold else { continue }
                 guard classId >= 0, classId <= 5 else { continue }
 
+                // Use CoordinateNormalizer: computes midpoint, divides by 640, NO Y-flip.
                 let midpoint = CoordinateNormalizer.normalize(
-                    x1: CGFloat(x1), y1: CGFloat(y1),
-                    x2: CGFloat(x2), y2: CGFloat(y2)
+                    x1: CGFloat(x1),
+                    y1: CGFloat(y1),
+                    x2: CGFloat(x2),
+                    y2: CGFloat(y2)
                 )
+
+                // Build normalized bounding box in [0, 1] space (top-left origin)
                 let modelSize = CoordinateNormalizer.modelInputSize
-                let normWidth  = CGFloat(x2 - x1) / modelSize
+                let normWidth = CGFloat(x2 - x1) / modelSize
                 let normHeight = CGFloat(y2 - y1) / modelSize
-                let normX = midpoint.x - normWidth  / 2.0
+                let normX = midpoint.x - normWidth / 2.0
                 let normY = midpoint.y - normHeight / 2.0
 
                 let normalizedBBox = CGRect(
                     x: CoordinateNormalizer.clamp(normX),
                     y: CoordinateNormalizer.clamp(normY),
-                    width:  CoordinateNormalizer.clamp(normWidth),
+                    width: CoordinateNormalizer.clamp(normWidth),
                     height: CoordinateNormalizer.clamp(normHeight)
                 )
-                raw.append(AcneDetection(
+
+                detections.append(AcneDetection(
                     acneType: AcneType(classId: classId),
                     confidence: Double(conf),
                     normalizedBoundingBox: normalizedBBox
@@ -172,43 +179,7 @@ final class AcneDetectionService: @unchecked Sendable {
             }
         }
 
-        // Apply per-class NMS to remove stacked/overlapping boxes.
-        return nms(raw, iouThreshold: 0.35)
-    }
-
-    // MARK: - NMS
-
-    /// Per-class, confidence-sorted IoU Non-Maximum Suppression.
-    /// - Parameters:
-    ///   - detections: Raw detections (may contain heavy overlap).
-    ///   - iouThreshold: Boxes with IoU ≥ this value relative to a kept box are suppressed. 0.35 is aggressive.
-    /// - Returns: Deduplicated detections.
-    private static func nms(_ detections: [AcneDetection], iouThreshold: Double) -> [AcneDetection] {
-        // Group by class, then run greedy NMS inside each group.
-        let byClass = Dictionary(grouping: detections, by: \.acneType)
-        var kept: [AcneDetection] = []
-
-        for (_, group) in byClass {
-            // Sort descending by confidence
-            var sorted = group.sorted { $0.confidence > $1.confidence }
-            while !sorted.isEmpty {
-                let best = sorted.removeFirst()
-                kept.append(best)
-                // Suppress all remaining boxes that overlap too much with `best`
-                sorted = sorted.filter { iou(best.normalizedBoundingBox, $0.normalizedBoundingBox) < iouThreshold }
-            }
-        }
-        return kept
-    }
-
-    /// Intersection-over-Union for two CGRects in normalised 0–1 space.
-    private static func iou(_ a: CGRect, _ b: CGRect) -> Double {
-        let intersection = a.intersection(b)
-        guard !intersection.isNull else { return 0 }
-        let intersectionArea = Double(intersection.width * intersection.height)
-        let unionArea = Double(a.width * a.height) + Double(b.width * b.height) - intersectionArea
-        guard unionArea > 0 else { return 0 }
-        return intersectionArea / unionArea
+        return detections
     }
 
     // MARK: - Testable Parsing

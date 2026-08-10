@@ -9,17 +9,15 @@ import SwiftUI
 enum FaceScanFactory {
     @MainActor
     static func makeView(
-        onScanSaved: @escaping (FaceScanSession) -> Void = { _ in },
-        onSave: @escaping (FaceScanResultModel) -> Void = { _ in },
+        onScanSaved: @escaping (FaceScanSession, FaceScanResultModel) -> Void = { _, _ in },
         onDismiss: @escaping () -> Void = {}
     ) -> some View {
-        let acneDetectionService = AcneDetectionService()
-        let viewModel = FaceScanViewModel(acneDetectionService: acneDetectionService)
+        let service = AcneDetectionService()
+        let viewModel = FaceScanViewModel(acneDetectionService: service)
         return FaceScanView(
             viewModel: viewModel,
-            onDismiss: onDismiss,
             onScanSaved: onScanSaved,
-            onSave: onSave
+            onDismiss: onDismiss
         )
     }
 }

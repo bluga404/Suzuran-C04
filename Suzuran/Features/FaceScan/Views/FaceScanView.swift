@@ -5,11 +5,14 @@ import UIKit
 /// Switches rendering based on `viewModel.phase` to show permission request,
 /// live scanning, processing, results, or error states.
 ///
+/// The ViewModel is owned via `@StateObject` so it persists across body re-evaluations
+/// and only one AVCaptureSession + AcneDetectionService is ever created.
+///
 /// Requirements: 2.3, 2.4, 4.5, 5.6
 struct FaceScanView: View {
     @ObservedObject private var viewModel: FaceScanViewModel
+    let onScanSaved: (FaceScanSession, FaceScanResultModel) -> Void
     let onDismiss: () -> Void
-    let onSave: (FaceScanResultModel) -> Void
 
     /// Tracks completedAngles changes to trigger haptic feedback on zone capture.
     @State private var lastCompletedAngles: Int = 0
@@ -19,12 +22,12 @@ struct FaceScanView: View {
 
     init(
         viewModel: FaceScanViewModel,
-        onDismiss: @escaping () -> Void,
-        onSave: @escaping (FaceScanResultModel) -> Void = { _ in }
+        onScanSaved: @escaping (FaceScanSession, FaceScanResultModel) -> Void = { _, _ in },
+        onDismiss: @escaping () -> Void
     ) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self.onScanSaved = onScanSaved
         self.onDismiss = onDismiss
-        self.onSave = onSave
     }
 
     var body: some View {
@@ -67,7 +70,9 @@ struct FaceScanView: View {
 
         case .completed(let result):
             FaceScanResultView(result: result, onDone: {
-                onSave(result)
+                if let session = viewModel.lastSession {
+                    onScanSaved(session, result)
+                }
                 onDismiss()
             })
 
@@ -85,6 +90,25 @@ struct FaceScanView: View {
                 title: "Meminta Izin Kamera",
                 subtitle: "Mohon izinkan akses kamera untuk memulai pemindaian"
             )
+
+            // Back button in top-leading corner so users can exit if stuck
+            VStack {
+                HStack {
+                    Button {
+                        onDismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundStyle(.white)
+                            .padding(AppSpacing.sm)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
+                    .padding(.leading, AppSpacing.md)
+                    .padding(.top, 60)
+                    Spacer()
+                }
+                Spacer()
+            }
         }
     }
 
@@ -141,15 +165,46 @@ struct FaceScanView: View {
             CameraPreviewView(session: viewModel.captureSession)
                 .ignoresSafeArea()
 
-            // Face guide overlay (centered oval)
-            FaceGuideOverlayView(isReady: viewModel.readiness == .ready)
+            // Top Overlay Bar
+            VStack {
+                HStack(alignment: .center) {
+                    Button {
+                        onDismiss()
+                    } label: {
+                        Image(systemName: "chevron.left")
+                            .font(.system(size: 20, weight: .medium))
+                            .foregroundStyle(.white)
+                            .padding(AppSpacing.sm)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
 
-            // Scan progress ring around the face guide
-            ScanProgressView(
+                    Spacer()
+
+                    TopLightingIndicatorView(condition: viewModel.lightingCondition)
+
+                    Button {
+                        // Info action placeholder
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 20))
+                            .foregroundStyle(.white)
+                            .padding(AppSpacing.sm)
+                            .background(.ultraThinMaterial, in: Circle())
+                    }
+                    .padding(.leading, 12)
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.top, 60) // To clear dynamic island in ignoresSafeArea context
+
+                Spacer()
+            }
+
+            // Face guide overlay (centered oval) and progress ring combined
+            FaceGuideOverlayView(
+                isReady: viewModel.readiness == .ready,
                 holdProgress: viewModel.holdProgress,
                 completedAngles: viewModel.completedAngles
             )
-            .frame(width: 270, height: 370)
 
             // Bottom instruction and controls
             VStack {
@@ -157,24 +212,7 @@ struct FaceScanView: View {
 
                 // Instruction text
                 LightingIndicatorView(readiness: viewModel.readiness)
-                    .padding(.bottom, AppSpacing.sm)
-
-                // Close button with Liquid Glass material
-                HStack {
-                    Spacer()
-
-                    Button {
-                        onDismiss()
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(.white)
-                            .frame(width: 40, height: 40)
-                            .background(Circle().fill(.ultraThinMaterial))
-                    }
-                }
-                .padding(.horizontal, AppSpacing.lg)
-                .padding(.bottom, AppSpacing.xl)
+                    .padding(.bottom, AppSpacing.xl) // adjusted padding since close button is moved
             }
         }
     }
@@ -260,15 +298,5 @@ struct FaceScanView: View {
     private func openSettings() {
         guard let settingsURL = URL(string: UIApplication.openSettingsURLString) else { return }
         UIApplication.shared.open(settingsURL)
-    }
-}
-
-#Preview {
-    // Note: Preview requires a mock or real AcneDetectionService.
-    // This serves as a layout preview reference.
-    ZStack {
-        Color.black.ignoresSafeArea()
-        Text("FaceScanView Preview")
-            .foregroundStyle(.white)
     }
 }

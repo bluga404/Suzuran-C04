@@ -22,22 +22,22 @@ struct MainTabView: View {
 
     var body: some View {
         TabView(selection: $selectedTab) {
-            Tab("Summary", systemImage: "house.fill", value: .summary) {
-                HomeView(viewModel: homeSummaryViewModel)
+            Tab("Summary", systemImage: "heart.text.square.fill", value: .summary) {
+                HomeView(viewModel: homeSummaryViewModel, historyStore: viewModel.scanHistoryStore)
                     .environment(\.switchToTab) { tab in
                         selectedTab = tab
                     }
             }
 
-            Tab("Skincare", systemImage: "leaf.fill", value: .skincare) {
+            Tab("Skincare", systemImage: "viewfinder", value: .skincare) {
                 SkincareTabView()
             }
 
-            Tab("History", systemImage: "chart.line.uptrend.xyaxis", value: .history) {
+            Tab("History", systemImage: "photo.on.rectangle.angled", value: .history) {
                 HistoryFactory.makeView(historyStore: viewModel.scanHistoryStore)
             }
 
-            Tab("Report", systemImage: "chart.xyaxis.line", value: .report) {
+            Tab("Report", systemImage: "chart.line.uptrend.xyaxis", value: .report) {
                 ReportTabView()
             }
         }

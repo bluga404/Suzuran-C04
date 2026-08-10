@@ -10,9 +10,15 @@ extension UUID: @retroactive Identifiable {
 /// Requirements: 7.1, 7.2, 7.3, 7.4, 7.5, 7.6, 13.1, 13.2, 13.5, 13.6, 13.7
 struct HomeView: View {
     @ObservedObject var viewModel: HomeSummaryViewModel
+    let historyStore: ScanHistoryStore?
     @Environment(\.switchToTab) private var switchToTab
     @State private var detailScanID: UUID?
     @State private var isShowingScanSheet = false
+
+    init(viewModel: HomeSummaryViewModel, historyStore: ScanHistoryStore? = nil) {
+        self.viewModel = viewModel
+        self.historyStore = historyStore
+    }
 
     var body: some View {
         Group {
@@ -82,10 +88,11 @@ struct HomeView: View {
         }
         .fullScreenCover(isPresented: $isShowingScanSheet) {
             FaceScanFactory.makeView(
-                onScanSaved: { session in
+                onScanSaved: { session, result in
                     let mapper = FaceScanToSkinScanMapper()
                     let skinScan = mapper.map(session: session)
                     HomeFactory.sharedScanRepository.save(skinScan)
+                    historyStore?.save(result)
                 },
                 onDismiss: {
                     isShowingScanSheet = false
