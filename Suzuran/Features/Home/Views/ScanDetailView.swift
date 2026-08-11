@@ -97,7 +97,7 @@ struct ScanDetailView: View {
                 .font(.custom("AvenirNext-DemiBold", size: 14))
                 .padding(.horizontal, AppSpacing.md)
                 .padding(.vertical, 8)
-                .foregroundStyle(isSelected ? Color.white : .primary)
+                .foregroundStyle(isSelected ? AppColor.textOnAccent : .primary)
                 .background(
                     RoundedRectangle(cornerRadius: 20)
                         .fill(isSelected ? AppColor.accentPrimary : Color(uiColor: .systemBackground))
@@ -112,7 +112,7 @@ struct ScanDetailView: View {
     
     @ViewBuilder
     private func summaryHeader(data: ScanDetailData) -> some View {
-        HStack(alignment: .top, spacing: AppSpacing.md) {
+        HStack(alignment: viewModel.selectedRegion == nil ? .top : .center, spacing: AppSpacing.md) {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 if viewModel.selectedRegion == nil {
                     VStack(alignment: .leading, spacing: 2) {
@@ -135,12 +135,12 @@ struct ScanDetailView: View {
                     }
                 }
                 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: viewModel.selectedRegion == nil ? 2 : 4) {
                     Text("Most Detected Acne Type")
-                        .font(.custom("AvenirNext-Medium", size: 12))
+                        .font(.custom("AvenirNext-Medium", size: viewModel.selectedRegion == nil ? 12 : 14))
                         .foregroundStyle(.primary)
                     Text(viewModel.mostDetectedAcneType?.rawValue ?? "-")
-                        .font(.custom("AvenirNext-Bold", size: 16))
+                        .font(.custom("AvenirNext-Bold", size: viewModel.selectedRegion == nil ? 16 : 32))
                         .foregroundStyle(.primary)
                 }
             }
