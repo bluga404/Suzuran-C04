@@ -87,7 +87,7 @@ struct AddSkincareView: View {
                                     .padding(.vertical, 8)
                                     .frame(maxWidth: .infinity)
                                     .background(AppColor.accentPrimary)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(AppColor.textOnAccent)
                                     .cornerRadius(AppCornerRadius.sm)
                             }
                         }

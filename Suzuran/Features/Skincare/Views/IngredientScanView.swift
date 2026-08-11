@@ -54,7 +54,7 @@ struct IngredientScanView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, AppSpacing.md)
                         .background(AppColor.accentPrimary)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(AppColor.textOnAccent)
                         .cornerRadius(AppCornerRadius.md)
                     }
                     
