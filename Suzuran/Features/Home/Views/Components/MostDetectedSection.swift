@@ -9,7 +9,7 @@ struct MostDetectedSection: View {
 
     var body: some View {
         if let type = acneType {
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            AppCard(padding: AppSpacing.lg) {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     HStack {
                         Text("Most Detected")
@@ -33,10 +33,6 @@ struct MostDetectedSection: View {
                         .font(AppTypography.caption)
                         .foregroundStyle(.secondary)
                 }
-                .padding(AppSpacing.lg)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(AppColor.surfacePrimary)
-                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
             }
             .padding(.horizontal, AppSpacing.md)
         }

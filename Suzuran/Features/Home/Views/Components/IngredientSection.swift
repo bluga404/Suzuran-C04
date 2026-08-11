@@ -6,7 +6,6 @@ import SwiftUI
 struct IngredientSection: View {
     let recommendations: [IngredientRecommendation]
     let showEmptyState: Bool
-    var onInfoTap: () -> Void = {}
     var onTrackTap: () -> Void = {}
 
     private var visibleRecommendations: [IngredientRecommendation] {
@@ -14,7 +13,7 @@ struct IngredientSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+        AppCard(padding: AppSpacing.lg) {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 HStack {
                     Text("Ingredients")
@@ -22,16 +21,10 @@ struct IngredientSection: View {
                         .tracking(1.2)
                         .foregroundStyle(.secondary)
                     Spacer()
-                    Button(action: onInfoTap) {
-                        Image(systemName: "info.circle")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .accessibilityLabel("Ingredients information")
                 }
 
                 if visibleRecommendations.isEmpty && showEmptyState {
-                    Text("Scan your skincare products to see which ones may suit your skin condition.")
+                    Text("Scan your skincare products to get ingredient recommendations")
                         .font(AppTypography.body)
                         .foregroundStyle(.secondary)
                 } else {
@@ -57,10 +50,6 @@ struct IngredientSection: View {
                 .padding(.top, AppSpacing.xs)
                 .accessibilityLabel("Track skincare products")
             }
-            .padding(AppSpacing.lg)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(AppColor.surfacePrimary)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
         }
         .padding(.horizontal, AppSpacing.md)
     }

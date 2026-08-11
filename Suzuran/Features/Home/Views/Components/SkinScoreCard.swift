@@ -9,8 +9,9 @@ struct SkinScoreCard: View {
     var onInfoAction: () -> Void = {}
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            // Score label title
+        AppCard(padding: AppSpacing.lg) {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                // Score label title
             HStack {
                 Text(state == .improvement || state == .degradation ? "Skin Score" : "Skin Condition")
                     .font(AppTypography.caption)
@@ -76,10 +77,7 @@ struct SkinScoreCard: View {
             }
             .accessibilityLabel(state == .empty ? "Mulai scan wajah" : "Lihat detail hasil scan")
         }
-        .padding(AppSpacing.lg)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(AppColor.surfacePrimary)
-        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
+        }
     }
 
     // MARK: - State-specific messages in Bahasa Indonesia

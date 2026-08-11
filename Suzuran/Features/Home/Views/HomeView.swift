@@ -47,6 +47,7 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Summary")
+            .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     if let summary = loadedSummary, summary.scanAvailability.hasFaceScan {
