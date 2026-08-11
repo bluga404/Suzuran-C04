@@ -4,7 +4,7 @@ struct ScreenContainerModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(AppColor.backgroundPrimary)
+            .background(Color(.systemGroupedBackground))
     }
 }
 

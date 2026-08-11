@@ -6,15 +6,18 @@ final class AppContainer: ObservableObject {
     let environment: AppEnvironment
     let bootstrapper: AppBootstrapping
     let rootViewModel: RootViewModel
+    let scanHistoryStore: ScanHistoryStore
 
     private init(
         environment: AppEnvironment,
         bootstrapper: AppBootstrapping,
-        rootViewModel: RootViewModel
+        rootViewModel: RootViewModel,
+        scanHistoryStore: ScanHistoryStore
     ) {
         self.environment = environment
         self.bootstrapper = bootstrapper
         self.rootViewModel = rootViewModel
+        self.scanHistoryStore = scanHistoryStore
     }
 
     static func live() -> AppContainer {
@@ -22,13 +25,29 @@ final class AppContainer: ObservableObject {
         let keyValueStore = UserDefaultsKeyValueStore(userDefaults: .standard)
         let environment = AppEnvironment(logger: logger, keyValueStore: keyValueStore)
         let bootstrapper = AppBootstrapper(environment: environment)
+<<<<<<< HEAD
         let rootViewModel = RootViewModel(bootstrapper: bootstrapper)
+=======
+        let scanHistoryStore = ScanHistoryStore()
+
+        let rootViewModel = RootViewModel(
+            bootstrapper: bootstrapper,
+            scanHistoryStore: scanHistoryStore,
+            homeSummaryViewModelFactory: {
+                HomeFactory.makeViewModel()
+            }
+        )
+>>>>>>> a10bb3936580a6da0237730f7d536607f842fb57
 
         return AppContainer(
             environment: environment,
             bootstrapper: bootstrapper,
-            rootViewModel: rootViewModel
+            rootViewModel: rootViewModel,
+            scanHistoryStore: scanHistoryStore
         )
     }
+<<<<<<< HEAD
 
+=======
+>>>>>>> a10bb3936580a6da0237730f7d536607f842fb57
 }

@@ -7,8 +7,15 @@ struct RootView: View {
     var body: some View {
         Group {
             switch viewModel.phase {
+<<<<<<< HEAD
             case .report:
                 ReportFactory.makeView()
+=======
+            case .onboarding:
+                OnboardingView(viewModel: viewModel.makeOnboardingViewModel())
+            case .home:
+                MainTabView(viewModel: viewModel)
+>>>>>>> a10bb3936580a6da0237730f7d536607f842fb57
             case let .failed(error):
                 ErrorStateView(
                     title: "Startup Failed",
@@ -19,14 +26,19 @@ struct RootView: View {
             }
         }
         .onAppear(perform: viewModel.start)
-        .appScreenContainer()
     }
 }
 
 #Preview {
     RootView(
         viewModel: RootViewModel(
+<<<<<<< HEAD
             bootstrapper: PreviewBootstrapper()
+=======
+            bootstrapper: PreviewBootstrapper(),
+            scanHistoryStore: ScanHistoryStore(),
+            homeSummaryViewModelFactory: { HomeFactory.makeViewModel() }
+>>>>>>> a10bb3936580a6da0237730f7d536607f842fb57
         )
     )
 }
