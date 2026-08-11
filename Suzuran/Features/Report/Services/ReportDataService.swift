@@ -1,142 +1,169 @@
 import Foundation
 
 struct ReportDataSnapshot {
+    let records: [ScanRecord]
     let skinScoreSeriesByRange: [ReportRange: [ReportPoint]]
     let acneTypeSeriesByRange: [ReportRange: [AcneTypeSeries]]
-    let comparisonSummary: ReportComparisonSummary
     let insightSummary: ReportInsightSummary
 }
 
 final class ReportDataService {
-    func loadSnapshot() -> ReportDataSnapshot {
-        ReportDataSnapshot(
-            skinScoreSeriesByRange: [
-                .oneWeek: [
-                    .init(day: "Mon", score: 22),
-                    .init(day: "Tue", score: 28),
-                    .init(day: "Wed", score: 35),
-                    .init(day: "Thu", score: 32),
-                    .init(day: "Fri", score: 38),
-                    .init(day: "Sat", score: 41),
-                    .init(day: "Sun", score: 45)
-                ],
-                .oneMonth: [
-                    .init(day: "Week 1", score: 24),
-                    .init(day: "Week 2", score: 32),
-                    .init(day: "Week 3", score: 36),
-                    .init(day: "Week 4", score: 44)
-                ],
-                .oneYear: [
-                    .init(day: "Jan", score: 18),
-                    .init(day: "Feb", score: 21),
-                    .init(day: "Mar", score: 25),
-                    .init(day: "Apr", score: 28),
-                    .init(day: "May", score: 31),
-                    .init(day: "Jun", score: 33),
-                    .init(day: "Jul", score: 37),
-                    .init(day: "Aug", score: 39),
-                    .init(day: "Sep", score: 41),
-                    .init(day: "Oct", score: 42),
-                    .init(day: "Nov", score: 44),
-                    .init(day: "Dec", score: 46)
-                ]
-            ],
-            acneTypeSeriesByRange: [
-                .oneWeek: [
-                    .init(acneType: .whitehead, points: [
-                        .init(day: "Mon", score: 78), .init(day: "Tue", score: 80), .init(day: "Wed", score: 79),
-                        .init(day: "Thu", score: 83), .init(day: "Fri", score: 85), .init(day: "Sat", score: 87), .init(day: "Sun", score: 90)
-                    ]),
-                    .init(acneType: .blackhead, points: [
-                        .init(day: "Mon", score: 66), .init(day: "Tue", score: 68), .init(day: "Wed", score: 67),
-                        .init(day: "Thu", score: 70), .init(day: "Fri", score: 73), .init(day: "Sat", score: 74), .init(day: "Sun", score: 76)
-                    ]),
-                    .init(acneType: .papule, points: [
-                        .init(day: "Mon", score: 58), .init(day: "Tue", score: 60), .init(day: "Wed", score: 64),
-                        .init(day: "Thu", score: 62), .init(day: "Fri", score: 65), .init(day: "Sat", score: 67), .init(day: "Sun", score: 69)
-                    ]),
-                    .init(acneType: .pustule, points: [
-                        .init(day: "Mon", score: 72), .init(day: "Tue", score: 71), .init(day: "Wed", score: 73),
-                        .init(day: "Thu", score: 75), .init(day: "Fri", score: 74), .init(day: "Sat", score: 77), .init(day: "Sun", score: 79)
-                    ]),
-                    .init(acneType: .nodule, points: [
-                        .init(day: "Mon", score: 52), .init(day: "Tue", score: 54), .init(day: "Wed", score: 53),
-                        .init(day: "Thu", score: 56), .init(day: "Fri", score: 58), .init(day: "Sat", score: 57), .init(day: "Sun", score: 60)
-                    ]),
-                    .init(acneType: .cyst, points: [
-                        .init(day: "Mon", score: 62), .init(day: "Tue", score: 63), .init(day: "Wed", score: 65),
-                        .init(day: "Thu", score: 67), .init(day: "Fri", score: 68), .init(day: "Sat", score: 70), .init(day: "Sun", score: 72)
-                    ])
-                ],
-                .oneMonth: [
-                    .init(acneType: .whitehead, points: [
-                        .init(day: "Week 1", score: 79), .init(day: "Week 2", score: 83), .init(day: "Week 3", score: 87), .init(day: "Week 4", score: 91)
-                    ]),
-                    .init(acneType: .blackhead, points: [
-                        .init(day: "Week 1", score: 64), .init(day: "Week 2", score: 68), .init(day: "Week 3", score: 73), .init(day: "Week 4", score: 77)
-                    ]),
-                    .init(acneType: .papule, points: [
-                        .init(day: "Week 1", score: 56), .init(day: "Week 2", score: 61), .init(day: "Week 3", score: 65), .init(day: "Week 4", score: 70)
-                    ]),
-                    .init(acneType: .pustule, points: [
-                        .init(day: "Week 1", score: 70), .init(day: "Week 2", score: 72), .init(day: "Week 3", score: 76), .init(day: "Week 4", score: 80)
-                    ]),
-                    .init(acneType: .nodule, points: [
-                        .init(day: "Week 1", score: 51), .init(day: "Week 2", score: 55), .init(day: "Week 3", score: 58), .init(day: "Week 4", score: 62)
-                    ]),
-                    .init(acneType: .cyst, points: [
-                        .init(day: "Week 1", score: 60), .init(day: "Week 2", score: 64), .init(day: "Week 3", score: 69), .init(day: "Week 4", score: 73)
-                    ])
-                ],
-                .oneYear: [
-                    .init(acneType: .whitehead, points: [
-                        .init(day: "Jan", score: 74), .init(day: "Feb", score: 75), .init(day: "Mar", score: 77),
-                        .init(day: "Apr", score: 79), .init(day: "May", score: 81), .init(day: "Jun", score: 82),
-                        .init(day: "Jul", score: 84), .init(day: "Aug", score: 85), .init(day: "Sep", score: 87),
-                        .init(day: "Oct", score: 88), .init(day: "Nov", score: 90), .init(day: "Dec", score: 92)
-                    ]),
-                    .init(acneType: .blackhead, points: [
-                        .init(day: "Jan", score: 59), .init(day: "Feb", score: 60), .init(day: "Mar", score: 62),
-                        .init(day: "Apr", score: 64), .init(day: "May", score: 65), .init(day: "Jun", score: 67),
-                        .init(day: "Jul", score: 69), .init(day: "Aug", score: 70), .init(day: "Sep", score: 72),
-                        .init(day: "Oct", score: 73), .init(day: "Nov", score: 74), .init(day: "Dec", score: 76)
-                    ]),
-                    .init(acneType: .papule, points: [
-                        .init(day: "Jan", score: 49), .init(day: "Feb", score: 51), .init(day: "Mar", score: 52),
-                        .init(day: "Apr", score: 54), .init(day: "May", score: 56), .init(day: "Jun", score: 57),
-                        .init(day: "Jul", score: 59), .init(day: "Aug", score: 60), .init(day: "Sep", score: 62),
-                        .init(day: "Oct", score: 63), .init(day: "Nov", score: 65), .init(day: "Dec", score: 67)
-                    ]),
-                    .init(acneType: .pustule, points: [
-                        .init(day: "Jan", score: 66), .init(day: "Feb", score: 67), .init(day: "Mar", score: 68),
-                        .init(day: "Apr", score: 70), .init(day: "May", score: 71), .init(day: "Jun", score: 72),
-                        .init(day: "Jul", score: 73), .init(day: "Aug", score: 75), .init(day: "Sep", score: 76),
-                        .init(day: "Oct", score: 77), .init(day: "Nov", score: 79), .init(day: "Dec", score: 80)
-                    ]),
-                    .init(acneType: .nodule, points: [
-                        .init(day: "Jan", score: 44), .init(day: "Feb", score: 45), .init(day: "Mar", score: 46),
-                        .init(day: "Apr", score: 48), .init(day: "May", score: 49), .init(day: "Jun", score: 50),
-                        .init(day: "Jul", score: 52), .init(day: "Aug", score: 53), .init(day: "Sep", score: 55),
-                        .init(day: "Oct", score: 56), .init(day: "Nov", score: 57), .init(day: "Dec", score: 59)
-                    ]),
-                    .init(acneType: .cyst, points: [
-                        .init(day: "Jan", score: 53), .init(day: "Feb", score: 54), .init(day: "Mar", score: 56),
-                        .init(day: "Apr", score: 57), .init(day: "May", score: 59), .init(day: "Jun", score: 60),
-                        .init(day: "Jul", score: 61), .init(day: "Aug", score: 63), .init(day: "Sep", score: 64),
-                        .init(day: "Oct", score: 66), .init(day: "Nov", score: 67), .init(day: "Dec", score: 69)
-                    ])
-                ]
-            ],
-            comparisonSummary: .init(
-                baselineLabel: "Compared to 28 July",
-                headline: "Your Skin is Improving!",
-                scoreLabel: "Score",
-                deltaText: "+10"
-            ),
-            insightSummary: .init(
-                title: "Summary Insight",
-                body: "Lorem ipsum dolor sit amet, nulla deserunt tempor elit veniam esse tempor. In et fugiat dolor consequat nulla laboris fugiat in. Qui nulla deserunt deserunt nemo nostrud occaecat ut in nulla ut enim. Ut velit sint dolore veniam ut enim officia irure velit ut. Ut velit mollit ea in reprehenderit id veniam sed."
-            )
+    private let historyStore: ScanHistoryStore?
+    private let summaryService: GeminiSummaryService
+
+    init(
+        historyStore: ScanHistoryStore? = nil,
+        summaryService: GeminiSummaryService = GeminiSummaryService()
+    ) {
+        self.historyStore = historyStore
+        self.summaryService = summaryService
+    }
+
+    func loadSnapshot() async -> ReportDataSnapshot {
+        let records = (historyStore?.records ?? []).sorted { $0.date < $1.date }
+
+        let skinScoreSeriesByRange = ReportRange.allCases.reduce(into: [ReportRange: [ReportPoint]]()) { result, range in
+            result[range] = buildSkinScoreSeries(for: range, from: records)
+        }
+
+        let acneTypeSeriesByRange = ReportRange.allCases.reduce(into: [ReportRange: [AcneTypeSeries]]()) { result, range in
+            result[range] = buildAcneTypeSeries(for: range, from: records)
+        }
+
+        return ReportDataSnapshot(
+            records: records,
+            skinScoreSeriesByRange: skinScoreSeriesByRange,
+            acneTypeSeriesByRange: acneTypeSeriesByRange,
+            insightSummary: await buildInsightSummary(from: records)
         )
+    }
+
+    // MARK: - Real data builders
+
+    private func buildSkinScoreSeries(for range: ReportRange, from records: [ScanRecord]) -> [ReportPoint] {
+        let filtered = filteredRecords(for: range, in: records)
+        guard !filtered.isEmpty else { return [] }
+
+        return filtered.enumerated().map { index, record in
+            let label = shortLabel(for: record.date, in: range, index: index)
+            return ReportPoint(day: label, score: record.skinScore)
+        }
+    }
+
+    private func buildAcneTypeSeries(for range: ReportRange, from records: [ScanRecord]) -> [AcneTypeSeries] {
+        let filtered = filteredRecords(for: range, in: records)
+        guard !filtered.isEmpty else { return [] }
+
+        let relevantTypes = AcneType.allCases.filter { $0 != .unknown }
+        var series: [AcneTypeSeries] = []
+
+        for acneType in relevantTypes {
+            let points = filtered.enumerated().map { index, record in
+                let count = record.acneCount(for: acneType)
+                let normalizedScore: Int
+
+                if record.totalAcneCount > 0 {
+                    normalizedScore = Int((Double(count) / Double(record.totalAcneCount)) * 100.0)
+                } else {
+                    normalizedScore = 0
+                }
+
+                let label = shortLabel(for: record.date, in: range, index: index)
+                return ReportPoint(day: label, score: normalizedScore)
+            }
+
+            let hasVisibleData = points.contains { $0.score > 0 }
+            if hasVisibleData || filtered.count == 1 {
+                series.append(AcneTypeSeries(acneType: acneType, points: points))
+            }
+        }
+
+        return series
+    }
+
+    private func buildInsightSummary(from records: [ScanRecord]) async -> ReportInsightSummary {
+        guard !records.isEmpty else {
+            return .init(
+                title: "Ringkasan",
+                body: "Simpan scan wajah pertama untuk melihat tren perkembangan kulitmu di sini."
+            )
+        }
+
+        do {
+            let generated = try await summaryService.generateSummary(for: records)
+            if !generated.isEmpty {
+                return .init(title: "Ringkasan", body: generated)
+            }
+        } catch {
+            // Fall back to a static summary if Gemini is unavailable, misconfigured, or returns invalid content.
+        }
+
+        return buildStaticInsightSummary(from: records)
+    }
+
+    private func buildStaticInsightSummary(from records: [ScanRecord]) -> ReportInsightSummary {
+        let latest = records.last!
+        let first = records.first!
+        let totalDelta = latest.totalAcneCount - first.totalAcneCount
+
+        if records.count == 1 {
+            let dominant = latest.acneTypeCounts.max { $0.count < $1.count }
+            let dominantText = dominant?.acneType.displayName ?? "Acne"
+            return .init(
+                title: "Ringkasan",
+                body: "Jenis jerawat yang paling sering muncul saat ini adalah \(dominantText.lowercased()). Total jerawat yang terdeteksi pada scan terakhir adalah \(latest.totalAcneCount)."
+            )
+        }
+
+        let dominant = latest.acneTypeCounts.max { $0.count < $1.count }
+        let dominantText = dominant?.acneType.displayName ?? "Acne"
+        let direction = totalDelta <= 0 ? "fewer" : "more"
+
+        return .init(
+            title: "Ringkasan",
+            body: "Dibandingkan scan awal, jumlah jerawat yang terdeteksi saat ini \(direction == "fewer" ? "lebih sedikit" : "lebih banyak") dari sebelumnya. Jenis jerawat yang paling sering muncul adalah \(dominantText.lowercased())."
+        )
+    }
+
+    // MARK: - Range helpers
+
+    private func filteredRecords(for range: ReportRange, in records: [ScanRecord]) -> [ScanRecord] {
+        guard !records.isEmpty else { return [] }
+
+        switch range {
+        case .oneWeek:
+            return records.filter { $0.date >= Calendar.current.date(byAdding: .day, value: -6, to: Date()) ?? $0.date }
+        case .oneMonth:
+            return records.filter { $0.date >= Calendar.current.date(byAdding: .day, value: -30, to: Date()) ?? $0.date }
+        case .oneYear:
+            return records.filter { $0.date >= Calendar.current.date(byAdding: .year, value: -1, to: Date()) ?? $0.date }
+        }
+    }
+
+    private func shortLabel(for date: Date, in range: ReportRange, index: Int) -> String {
+        switch range {
+        case .oneWeek:
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US")
+            formatter.dateFormat = "EEE"
+            return formatter.string(from: date)
+        case .oneMonth:
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US")
+            formatter.dateFormat = "d MMM"
+            return formatter.string(from: date)
+        case .oneYear:
+            let formatter = DateFormatter()
+            formatter.locale = Locale(identifier: "en_US")
+            formatter.dateFormat = "MMM"
+            return formatter.string(from: date)
+        }
+    }
+
+    private func formattedDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.locale = Locale(identifier: "en_US")
+        formatter.dateFormat = "d MMM yyyy"
+        return formatter.string(from: date)
     }
 }

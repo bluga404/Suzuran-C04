@@ -5,6 +5,7 @@ struct ReportSkinScoreChartView: View {
     let data: [ReportPoint]
     private let minChartWidth: CGFloat = 320
     private let widthPerPoint: CGFloat = 56
+    private let chartPadding: CGFloat = 16
 
     var body: some View {
         GeometryReader { proxy in
@@ -31,11 +32,7 @@ struct ReportSkinScoreChartView: View {
                 .chartYAxis {
                     AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) { value in
                         if let score = value.as(Double.self) {
-                            if score == 0 {
-                                AxisGridLine(stroke: StrokeStyle(lineWidth: 1))
-                            } else {
-                                AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: [5, 5]))
-                            }
+                            AxisGridLine(stroke: StrokeStyle(lineWidth: 1, dash: score == 0 ? [] : [5, 5]))
                         }
                         AxisValueLabel()
                     }
@@ -43,13 +40,18 @@ struct ReportSkinScoreChartView: View {
                 .chartPlotStyle { plotArea in
                     plotArea.cornerRadius(AppCornerRadius.md)
                 }
-                .frame(width: chartWidth(availableWidth: proxy.size.width))
+                .chartYScale(domain: 0...100)
+                .frame(width: chartWidth(availableWidth: proxy.size.width), height: 240)
+                .padding(.top, 8)
+                .padding(.bottom, 8)
             }
+            .padding(.bottom, 4)
         }
+        .frame(minHeight: 240)
     }
 
     private func chartWidth(availableWidth: CGFloat) -> CGFloat {
         let dataWidth = CGFloat(Swift.max(data.count, 1)) * widthPerPoint
-        return Swift.max(availableWidth, Swift.max(minChartWidth, dataWidth))
+        return Swift.max(availableWidth + (chartPadding * 2), Swift.max(minChartWidth, dataWidth + (chartPadding * 2)))
     }
 }

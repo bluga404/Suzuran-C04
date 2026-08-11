@@ -8,6 +8,7 @@ struct ReportAcneTypeChartView: View {
     let onSelectDay: (String) -> Void
     private let minChartWidth: CGFloat = 320
     private let widthPerPoint: CGFloat = 56
+    private let chartPadding: CGFloat = 16
 
     private var colorScale: KeyValuePairs<String, Color> {
         [
@@ -72,7 +73,10 @@ struct ReportAcneTypeChartView: View {
                         .chartPlotStyle { plotArea in
                             plotArea.cornerRadius(AppCornerRadius.md)
                         }
-                        .frame(width: chartWidth(availableWidth: proxy.size.width))
+                        .chartYScale(domain: 0...100)
+                        .frame(width: chartWidth(availableWidth: proxy.size.width), height: 240)
+                        .padding(.top, 8)
+                        .padding(.bottom, 8)
 
                         HStack(spacing: 0) {
                             ForEach(dayLabels, id: \ .self) { day in
@@ -84,16 +88,18 @@ struct ReportAcneTypeChartView: View {
                                     }
                             }
                         }
-                        .frame(width: chartWidth(availableWidth: proxy.size.width), height: proxy.size.height)
+                        .frame(width: chartWidth(availableWidth: proxy.size.width), height: 240)
                     }
                 }
+                .padding(.bottom, 4)
             }
         }
+        .frame(minHeight: 240)
     }
 
     private func chartWidth(availableWidth: CGFloat) -> CGFloat {
-        let uniqueDaysCount = Set(points.map(\ .day)).count
+        let uniqueDaysCount = Set(points.map(\.day)).count
         let dataWidth = CGFloat(Swift.max(uniqueDaysCount, 1)) * widthPerPoint
-        return Swift.max(availableWidth, Swift.max(minChartWidth, dataWidth))
+        return Swift.max(availableWidth + (chartPadding * 2), Swift.max(minChartWidth, dataWidth + (chartPadding * 2)))
     }
 }

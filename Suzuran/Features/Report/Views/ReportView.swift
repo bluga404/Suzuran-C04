@@ -20,14 +20,26 @@ struct ReportView: View {
                         onRangeChanged: viewModel.setRange
                     )
 
-                    reportChartSection
+                    if !viewModel.hasAnyData {
+                        EmptyStateView(
+                            title: "Belum ada riwayat scan",
+                            message: "Lakukan scan wajah pertama untuk melihat perkembangan kulitmu di sini.",
+                            actionTitle: nil,
+                            onAction: nil
+                        )
+                        .frame(maxWidth: .infinity)
+                    } else {
+                        reportChartSection
 
-                    ReportSummaryCardsView(
-                        comparison: viewModel.comparisonSummary,
-                        insight: viewModel.insightSummary
-                    )
+                        ReportSummaryCardsView(
+                            selectedMetric: viewModel.selectedMetric,
+                            skinScoreSummary: viewModel.skinScoreSummary,
+                            acneSummary: viewModel.mostDetectedAcneSummary,
+                            insight: viewModel.insightSummary
+                        )
+                    }
                 }
-                .padding(AppSpacing.md)
+                .padding(AppSpacing.sm)
             }
             .navigationTitle("Report")
             .toolbarTitleDisplayMode(.inlineLarge)
@@ -39,7 +51,7 @@ struct ReportView: View {
         }
         .appScreenContainer()
         .task {
-            viewModel.loadIfNeeded()
+            await viewModel.loadIfNeeded()
         }
     }
 
@@ -47,24 +59,42 @@ struct ReportView: View {
     private var reportChartSection: some View {
         if viewModel.selectedMetric == .acneType {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                ReportAcneTypeChartView(
-                    points: viewModel.visibleAcneChartPoints,
-                    dayLabels: viewModel.acneDayLabels,
-                    selectedDay: viewModel.selectedAcnePointDay,
-                    onSelectDay: viewModel.selectAcnePointDay
-                )
-                    .frame(height: 220)
+                if viewModel.acneTypeSeriesData.isEmpty {
+                    EmptyStateView(
+                        title: "Belum ada data jerawat",
+                        message: "Riwayat scan yang tersimpan belum mencatat tipe jerawat untuk rentang ini.",
+                        actionTitle: nil,
+                        onAction: nil
+                    )
+                    .frame(maxWidth: .infinity)
+                } else {
+                    ReportAcneTypeChartView(
+                        points: viewModel.visibleAcneChartPoints,
+                        dayLabels: viewModel.acneDayLabels,
+                        selectedDay: viewModel.selectedAcnePointDay,
+                        onSelectDay: viewModel.selectAcnePointDay
+                    )
 
-                ReportAcneTypeChipsView(
-                    series: viewModel.acneTypeSeriesData,
-                    isActive: viewModel.isAcneTypeActive,
-                    scoresByAcneTypeID: viewModel.acneTypeScoresByID,
-                    onToggle: viewModel.toggleAcneTypeVisibility
-                )
+                    ReportAcneTypeChipsView(
+                        series: viewModel.acneTypeSeriesData,
+                        isActive: viewModel.isAcneTypeActive,
+                        scoresByAcneTypeID: viewModel.acneTypeScoresByID,
+                        onToggle: viewModel.toggleAcneTypeVisibility
+                    )
+                }
             }
         } else {
-            ReportSkinScoreChartView(data: viewModel.skinScoreData)
-                .frame(height: 180)
+            if viewModel.skinScoreData.isEmpty {
+                EmptyStateView(
+                    title: "Belum ada data score",
+                    message: "Grafik score akan muncul setelah ada scan yang tersimpan.",
+                    actionTitle: nil,
+                    onAction: nil
+                )
+                .frame(maxWidth: .infinity)
+            } else {
+                ReportSkinScoreChartView(data: viewModel.skinScoreData)
+            }
         }
     }
 }
