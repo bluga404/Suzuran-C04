@@ -3,6 +3,7 @@ import Foundation
 /// Represents the user's face readiness state during scanning.
 /// Each case provides a localized message and whether capture is allowed.
 enum FaceScanReadiness: Equatable {
+    case countingDown(Int)
     case searchingFace
     case faceOutOfGuide
     case tooFar
@@ -13,18 +14,20 @@ enum FaceScanReadiness: Equatable {
     /// Localized instruction message displayed to the user (Bahasa Indonesia).
     var message: String {
         switch self {
+        case .countingDown(let seconds):
+            return "Get ready in \(seconds)..."
         case .searchingFace:
-            return "Mencari wajah..."
+            return "Searching for face..."
         case .faceOutOfGuide:
-            return "Wajah di luar area"
+            return "Position your face within the oval"
         case .tooFar:
-            return "Terlalu jauh"
+            return "Move Your Head a Little Closer"
         case .wrongAngle(let direction):
-            return "Putar wajah ke \(direction)"
+            return "Turn your head to the \(direction)"
         case .unstable:
-            return "Tahan posisi..."
+            return "Hold steady..."
         case .ready:
-            return "Siap"
+            return "Ready"
         }
     }
 
@@ -33,7 +36,7 @@ enum FaceScanReadiness: Equatable {
         switch self {
         case .ready:
             return true
-        case .searchingFace, .faceOutOfGuide, .tooFar, .wrongAngle, .unstable:
+        case .countingDown, .searchingFace, .faceOutOfGuide, .tooFar, .wrongAngle, .unstable:
             return false
         }
     }

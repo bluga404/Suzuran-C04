@@ -10,17 +10,17 @@ enum FaceZone: String, CaseIterable, Equatable, Codable {
 
     var displayName: String {
         switch self {
-        case .front: return "Depan"
-        case .leftAngle: return "Kiri"
-        case .rightAngle: return "Kanan"
+        case .front: return "Front Side"
+        case .leftAngle: return "Left Side"
+        case .rightAngle: return "Right Side"
         }
     }
 
     var instruction: String {
         switch self {
-        case .front: return "Posisi Lurus ke Depan"
-        case .leftAngle: return "Putar Wajah ke Kiri"
-        case .rightAngle: return "Putar Wajah ke Kanan"
+        case .front: return "Look Straight Ahead"
+        case .leftAngle: return "Turn Your Head to the Right"
+        case .rightAngle: return "Turn Your Head to the Left"
         }
     }
 

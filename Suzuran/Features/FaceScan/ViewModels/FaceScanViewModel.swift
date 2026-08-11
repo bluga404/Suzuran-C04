@@ -13,7 +13,16 @@ final class FaceScanViewModel: NSObject, ObservableObject {
 
     // MARK: - Published State
 
-    @Published private(set) var phase: FaceScanPhase = .requestingPermission
+    @Published private(set) var phase: FaceScanPhase = {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        if status == .authorized {
+            return .scanning
+        } else if status == .notDetermined {
+            return .requestingPermission
+        } else {
+            return .permissionDenied
+        }
+    }()
     @Published private(set) var readiness: FaceScanReadiness = .searchingFace
     @Published private(set) var holdProgress: Double = 0.0
     @Published private(set) var currentAngleTarget: FaceZone = .front
@@ -38,6 +47,11 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         label: "suzuran.facescan.video",
         qos: .userInteractive
     )
+
+    private var countdownTask: Task<Void, Never>?
+    @Published private(set) var isCountdownActive: Bool = false
+    private var hasCompletedInitialCountdown = false
+
 
     // MARK: - Hold-to-Capture State
 
@@ -81,12 +95,14 @@ final class FaceScanViewModel: NSObject, ObservableObject {
                 configureCaptureSession()
                 startSession()
                 phase = .scanning
+                startInitialCountdown()
             case .notDetermined:
                 let granted = await AVCaptureDevice.requestAccess(for: .video)
                 if granted {
                     configureCaptureSession()
                     startSession()
                     phase = .scanning
+                    startInitialCountdown()
                 } else {
                     phase = .permissionDenied
                 }
@@ -113,9 +129,11 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         capturedImages = [:]
         holdStartTime = nil
         lastSampleBuffer = nil
+        hasCompletedInitialCountdown = false
         readiness = .searchingFace
         scanInstruction = currentAngleTarget.instruction
         phase = .scanning
+        startInitialCountdown()
         // If session was already configured, just restart it
         if isSessionConfigured {
             startSession()
@@ -137,6 +155,28 @@ final class FaceScanViewModel: NSObject, ObservableObject {
     /// and releases resources (Requirement 8.4, 9.4).
     func onViewDisappear() {
         stopScan()
+        countdownTask?.cancel()
+    }
+
+    // MARK: - Countdown
+
+    private func startInitialCountdown() {
+        guard !hasCompletedInitialCountdown else { return }
+        isCountdownActive = true
+        
+        countdownTask?.cancel()
+        countdownTask = Task { @MainActor [weak self] in
+            guard let self else { return }
+            for i in (1...3).reversed() {
+                if Task.isCancelled { return }
+                self.readiness = .countingDown(i)
+                try? await Task.sleep(nanoseconds: 1_000_000_000)
+            }
+            if Task.isCancelled { return }
+            self.isCountdownActive = false
+            self.hasCompletedInitialCountdown = true
+            self.readiness = .searchingFace
+        }
     }
 
     // MARK: - Camera Session Configuration
@@ -216,6 +256,7 @@ final class FaceScanViewModel: NSObject, ObservableObject {
 
     /// Called when no face is detected in the current frame.
     private func handleNoFaceDetected() {
+        if isCountdownActive { return }
         readiness = .searchingFace
         scanInstruction = FaceScanReadiness.searchingFace.message
         previousFrameData = nil
@@ -224,6 +265,7 @@ final class FaceScanViewModel: NSObject, ObservableObject {
 
     /// Called when a face is detected — validates position and updates state.
     private func handleFaceDetected(frameData: FaceFrameData, sampleBuffer: CMSampleBuffer) {
+        if isCountdownActive { return }
         let newReadiness = computeReadiness(frameData: frameData)
         readiness = newReadiness
         previousFrameData = frameData
@@ -260,7 +302,13 @@ final class FaceScanViewModel: NSObject, ObservableObject {
             pitch: pitch,
             target: currentAngleTarget
         ) else {
-            return .wrongAngle(currentAngleTarget.displayName)
+            let direction: String
+            switch currentAngleTarget {
+            case .front: direction = "Front"
+            case .leftAngle: direction = "Right" // To capture left cheek, turn right
+            case .rightAngle: direction = "Left" // To capture right cheek, turn left
+            }
+            return .wrongAngle(direction)
         }
 
         // 4. Stability check — face must not be moving excessively

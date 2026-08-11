@@ -12,10 +12,8 @@ enum FaceScanFactory {
         onScanSaved: @escaping (FaceScanSession, FaceScanResultModel) -> Void = { _, _ in },
         onDismiss: @escaping () -> Void = {}
     ) -> some View {
-        let service = AcneDetectionService()
-        let viewModel = FaceScanViewModel(acneDetectionService: service)
         return FaceScanView(
-            viewModel: viewModel,
+            viewModel: FaceScanViewModel(acneDetectionService: AcneDetectionService()),
             onScanSaved: onScanSaved,
             onDismiss: onDismiss
         )
