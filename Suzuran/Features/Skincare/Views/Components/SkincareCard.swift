@@ -25,7 +25,7 @@ struct SkincareCard: View {
                         Spacer()
                         
                         // Category Badge
-                        Text(product.category)
+                        Text(product.category.displayName)
                             .font(.system(size: 11, weight: .medium))
                             .padding(.horizontal, AppSpacing.sm)
                             .padding(.vertical, 4)

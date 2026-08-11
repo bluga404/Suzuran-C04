@@ -153,7 +153,7 @@ struct SummaryCalculator {
     /// Checks whether a recommended ingredient is found in the user's tracked products.
     private func ingredientStatus(for ingredient: Ingredient, in products: [SkincareProduct]) -> IngredientStatus {
         for product in products {
-            if product.ingredients.contains(where: { $0.lowercased() == ingredient.name.lowercased() }) {
+            if product.ingredients.contains(where: { $0.normalizedName == ingredient.name.lowercased() }) {
                 return .found(productName: product.name)
             }
         }

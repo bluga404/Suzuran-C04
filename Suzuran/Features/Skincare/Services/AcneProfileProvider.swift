@@ -5,8 +5,16 @@ protocol AcneProfileProviding {
 }
 
 final class AcneProfileProvider: AcneProfileProviding {
+    private let historyStore: ScanHistoryStore
+
+    init(historyStore: ScanHistoryStore) {
+        self.historyStore = historyStore
+    }
+
     func getActiveAcneTypes() -> [AcneType] {
-        // Mock data. In a real integration, this would retrieve the latest scan results.
-        return [.whitehead, .blackhead, .pustule]
+        guard let latestScan = historyStore.records.first else {
+            return []
+        }
+        return latestScan.acneTypeCounts.map { $0.acneType }
     }
 }

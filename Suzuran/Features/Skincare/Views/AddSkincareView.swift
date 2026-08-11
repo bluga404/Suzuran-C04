@@ -6,135 +6,138 @@ struct AddSkincareView: View {
     @StateObject private var viewModel: AddSkincareViewModel
 
     @State private var isShowingSearch = false
+    @State private var isShowingScanInstruction = false
     @State private var isShowingScanner = false
 
-    private let ingredientRepository: SkincareIngredientRepository
+    private let ingredientRepository: CosingIngredientRepository
+    private let acneRepository: AcneIngredientRepository
     private let isEditing: Bool
 
     init(
         skincareViewModel: SkincareViewModel,
-        ingredientRepository: SkincareIngredientRepository,
+        ingredientRepository: CosingIngredientRepository,
+        acneRepository: AcneIngredientRepository,
         editingProduct: SkincareProduct? = nil
     ) {
         self.skincareViewModel = skincareViewModel
         self.ingredientRepository = ingredientRepository
-        self._viewModel = StateObject(wrappedValue: AddSkincareViewModel(editingProduct: editingProduct))
+        self.acneRepository = acneRepository
         self.isEditing = editingProduct != nil
+        self._viewModel = StateObject(wrappedValue: AddSkincareViewModel(editingProduct: editingProduct))
     }
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section("Informasi Produk") {
-                    TextField("Nama Produk (misal: Moisturizing Cream)", text: $viewModel.name)
-                        .font(AppTypography.body)
-                    
-                    TextField("Merek / Brand (misal: CeraVe)", text: $viewModel.brand)
-                        .font(AppTypography.body)
-                    
-                    Picker("Kategori", selection: $viewModel.category) {
-                        ForEach(viewModel.categories, id: \.self) { cat in
-                            Text(cat).tag(cat)
-                        }
-                    }
-                    .font(AppTypography.body)
-                    
-                    Toggle("Sedang Digunakan saat Ini", isOn: $viewModel.isUsedCurrently)
-                        .font(AppTypography.body)
-                        .tint(AppColor.accentPrimary)
-                }
-                
-                Section {
-                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                        HStack {
-                            Text("Bahan Kandungan")
-                                .font(AppTypography.bodyBold)
-                                .foregroundStyle(AppColor.textPrimary)
-                            
-                            Spacer()
-                            
-                            Text("\(viewModel.ingredients.count) item")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColor.textSecondary)
-                        }
-                        
-                        HStack(spacing: AppSpacing.sm) {
-                            // Add via Search
-                            Button(action: {
-                                isShowingSearch = true
-                            }) {
-                                Label("Cari", systemImage: "magnifyingglass")
-                                    .font(AppTypography.caption)
-                                    .fontWeight(.bold)
-                                    .padding(.vertical, 8)
-                                    .frame(maxWidth: .infinity)
-                                    .background(AppColor.surfacePrimary)
-                                    .foregroundStyle(AppColor.accentPrimary)
-                                    .cornerRadius(AppCornerRadius.sm)
-                                    .overlay(
-                                        RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                                            .stroke(AppColor.accentPrimary, lineWidth: 1)
-                                    )
-                            }
-                            
-                            // Add via Scanner
-                            Button(action: {
-                                isShowingScanner = true
-                            }) {
-                                Label("Pindai Label", systemImage: "doc.text.viewfinder")
-                                    .font(AppTypography.caption)
-                                    .fontWeight(.bold)
-                                    .padding(.vertical, 8)
-                                    .frame(maxWidth: .infinity)
-                                    .background(AppColor.accentPrimary)
-                                    .foregroundStyle(.white)
-                                    .cornerRadius(AppCornerRadius.sm)
-                            }
-                        }
-                        .padding(.vertical, 4)
-                        
-                        if viewModel.ingredients.isEmpty {
-                            Text("Belum ada bahan ditambahkan. Klik Cari atau Pindai untuk mengisi.")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColor.textSecondary)
-                                .padding(.vertical, AppSpacing.sm)
-                        } else {
-                            // Adaptive Grid of chips
-                            LazyVGrid(columns: [GridItem(.adaptive(minimum: 120, maximum: 200), spacing: 8)], spacing: 8) {
-                                ForEach(viewModel.ingredients, id: \.self) { ingredient in
-                                    let isMatched = ingredientRepository.getRecommendation(for: ingredient) != nil
-                                    
-                                    IngredientChip(name: ingredient, isMatched: isMatched) {
-                                        viewModel.removeIngredient(ingredient)
-                                    }
-                                }
-                            }
-                            .padding(.vertical, AppSpacing.xs)
-                        }
+        Form {
+            Section("Category") {
+                Picker("Kategori", selection: $viewModel.category) {
+                    ForEach(SkincareCategory.allCases) { cat in
+                        Text(cat.displayName).tag(cat)
                     }
                 }
+                .pickerStyle(.menu)
+                .font(AppTypography.body)
             }
-            .background(AppColor.backgroundPrimary)
-            .navigationTitle(isEditing ? "Edit Skincare" : "Tambah Skincare")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Batal") {
-                        dismiss()
-                    }
+            
+            Section("Product Name") {
+                TextField("Nama Produk", text: $viewModel.name)
                     .font(AppTypography.body)
-                    .foregroundStyle(AppColor.accentPrimary)
+            }
+            
+            Section(header: HStack {
+                Text("Ingredients")
+                Spacer()
+                if !viewModel.ingredients.isEmpty {
+                    Button("Clear All") {
+                        viewModel.clearAllIngredients()
+                    }
+                    .textCase(.none)
+                    .foregroundStyle(.red)
                 }
+            }) {
+                Button(action: {
+                    isShowingScanner = true
+                }) {
+                    VStack(spacing: AppSpacing.sm) {
+                        Image(systemName: "camera.viewfinder")
+                            .font(.system(size: 32))
+                        Text("Scan Ingredients")
+                            .font(AppTypography.bodyBold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppSpacing.lg)
+                    .background(AppColor.surfacePrimary)
+                    .foregroundStyle(AppColor.accentPrimary)
+                    .cornerRadius(AppCornerRadius.md)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppCornerRadius.md)
+                            .stroke(AppColor.accentPrimary, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                    )
+                }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+                .padding(.bottom, AppSpacing.xs)
                 
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button("Simpan") {
-                        viewModel.saveProduct(to: skincareViewModel)
-                        dismiss()
+                Button(action: {
+                    isShowingSearch = true
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Tambah Manual")
                     }
                     .font(AppTypography.bodyBold)
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppSpacing.sm)
+                    .background(AppColor.surfacePrimary)
                     .foregroundStyle(AppColor.accentPrimary)
-                    .disabled(!viewModel.isFormValid)
+                    .cornerRadius(AppCornerRadius.md)
                 }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+                .padding(.bottom, AppSpacing.sm)
+                
+                if viewModel.ingredients.isEmpty {
+                    Text("Belum ada bahan ditambahkan.")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColor.textSecondary)
+                } else {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 120, maximum: 200), spacing: 8)], spacing: 8) {
+                        ForEach(viewModel.ingredients) { ingredient in
+                            let rec = acneRepository.getRecommendation(for: ingredient.normalizedName)
+                            let isMatched = rec != nil
+                            
+                            IngredientChip(
+                                name: ingredient.name,
+                                isMatched: isMatched,
+                                onDelete: {
+                                    viewModel.removeIngredient(ingredient)
+                                }
+                            )
+                        }
+                    }
+                    .padding(.vertical, AppSpacing.xs)
+                }
+            }
+            
+            Section {
+                Button(action: {
+                    viewModel.saveProduct(to: skincareViewModel)
+                    dismiss()
+                }) {
+                    Text("Simpan Skincare")
+                        .font(AppTypography.bodyBold)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                        .foregroundStyle(.white)
+                }
+                .listRowBackground(viewModel.isFormValid ? AppColor.accentPrimary : AppColor.textSecondary.opacity(0.5))
+                .disabled(!viewModel.isFormValid)
+            }
+            }
+            .background(AppColor.backgroundPrimary)
+            .navigationTitle(isEditing ? "Edit Skincare" : "Add Skincare")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // Toolbar items removed
             }
             // Sheets
             .sheet(isPresented: $isShowingSearch) {
@@ -142,9 +145,13 @@ struct AddSkincareView: View {
                     viewModel.addIngredient(name)
                 }
             }
-            .sheet(isPresented: $isShowingScanner) {
+            .sheet(isPresented: $isShowingScanInstruction) {
+                ScanInstructionView {
+                    isShowingScanner = true
+                }
+            }
+            .fullScreenCover(isPresented: $isShowingScanner) {
                 IngredientScanView(viewModel: viewModel)
             }
-        }
     }
 }

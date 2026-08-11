@@ -3,20 +3,22 @@ import SwiftUI
 enum SkincareFactory {
     
     // Single shared instance ensures the JSON databases are only decoded once
-    private static let ingredientRepository = SkincareIngredientRepository()
+    private static let cosingRepository = CosingIngredientRepository()
+    private static let acneRepository = AcneIngredientRepository()
 
     @MainActor
-    static func makeView(onDismiss: @escaping () -> Void = {}) -> some View {
+    static func makeView(historyStore: ScanHistoryStore, onDismiss: @escaping () -> Void = {}) -> some View {
         let repository = SkincareProductRepository()
-        let provider = AcneProfileProvider()
+        let provider = AcneProfileProvider(historyStore: historyStore)
         let viewModel = SkincareViewModel(
             skincareRepository: repository,
-            ingredientRepository: ingredientRepository,
+            acneRepository: acneRepository,
             acneProfileProvider: provider
         )
         return SkincareView(
             viewModel: viewModel,
-            ingredientRepository: ingredientRepository,
+            ingredientRepository: cosingRepository,
+            acneRepository: acneRepository,
             onDismiss: onDismiss
         )
     }

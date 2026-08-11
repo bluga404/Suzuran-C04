@@ -1,0 +1,37 @@
+
+<svg width="402px" height="892px" viewBox="0 0 402 892" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <path d="M99.2,0 L302.8,0 C337.523255,0 354.884883,0 368.147411,6.7575955 C379.813461,12.7017447 389.298255,22.1865393 395.242404,33.852589 C402,47.1151169 402,64.4767446 402,99.2 L402,792.8 C402,827.523255 402,844.884883 395.242404,858.147411 C389.298255,869.813461 379.813461,879.298255 368.147411,885.242404 C354.884883,892 337.523255,892 302.8,892 L99.2,892 C64.4767446,892 47.1151169,892 33.852589,885.242404 C22.1865393,879.298255 12.7017447,869.813461 6.7575955,858.147411 C0,844.884883 0,827.523255 0,792.8 L0,99.2 C0,64.4767446 0,47.1151169 6.7575955,33.852589 C12.7017447,22.1865393 22.1865393,12.7017447 33.852589,6.7575955 C47.1151169,0 64.4767446,0 99.2,0 Z" id="path-rvsqj66b61-1"></path>
+        <path d="M330,21 C330,32.5979797 320.59798,42 309,42 L21.0000001,41.9999998 C9.40202025,42 0,32.5979797 0,21 C0,9.40202025 9.40202025,0 21,0 L309,0 C320.59798,0 330,9.40202025 330,21 Z" id="path-rvsqj66b61-2"></path>
+        <rect id="path-rvsqj66b61-3" x="0" y="0" width="330" height="42" rx="10"></rect>
+        <filter x="-4.2%" y="-23.8%" width="108.5%" height="166.7%" filterUnits="objectBoundingBox" id="filter-rvsqj66b61-4">
+            <feOffset dx="0" dy="4" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="4" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.25 0" type="matrix" in="shadowBlurOuter1"></feColorMatrix>
+        </filter>
+    </defs>
+    <g id="Mid-Fid-Revisi" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="00_EmptyState" xlink:href="#path-rvsqj66b61-1">
+            <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-rvsqj66b61-1"></use>
+            <g id="Toolbars/Top-(44pt)/Light/iPhone/Standard---Compact-Large" transform="translate(0, 62)"></g>
+            <circle id="Oval" fill-opacity="0.44" fill="#D7D7D7" fill-rule="evenodd" cx="201" cy="383" r="63"></circle>
+            <text id="􁒊" font-family="SFPro-Regular, SF Pro" font-size="70" font-weight="normal" fill="#A5A4A8">
+                <tspan x="156" y="408">􁒊</tspan>
+            </text>
+            <text id="No-Skincare-Routine" font-family="SFPro-Semibold, SF Pro" font-size="20" font-weight="500" fill="#C1C1C1">
+                <tspan x="61" y="483">No Skincare Routine Saved Yet</tspan>
+            </text>
+            <g id="Stack" transform="translate(36, 506)" xlink:href="#path-rvsqj66b61-2" fill-rule="evenodd" stroke-width="1">
+                <g id="Group-2">
+                    <g id="Rectangle-3">
+                        <use fill="black" fill-opacity="1" filter="url(#filter-rvsqj66b61-4)" xlink:href="#path-rvsqj66b61-3"></use>
+                        <use fill="#5B4EB1" fill-rule="evenodd" xlink:href="#path-rvsqj66b61-3"></use>
+                    </g>
+                    <text id="Add-Skincare-Routine" font-family="SFPro-Bold, SF Pro" font-size="16" font-weight="bold" line-spacing="25" fill="#FFFFFF">
+                        <tspan x="82" y="23.2096774">Add Skincare Routine</tspan>
+                    </text>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

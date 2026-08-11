@@ -1,0 +1,99 @@
+<svg width="402px" height="885.844508px" viewBox="0 0 402 885.844508" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <path d="M99.2,0 L302.8,0 C337.523255,0 354.884883,0 368.147411,6.7575955 C379.813461,12.7017447 389.298255,22.1865393 395.242404,33.852589 C402,47.1151169 402,64.4767446 402,99.2 L402,786.644508 C402,821.367763 402,838.729391 395.242404,851.991919 C389.298255,863.657969 379.813461,873.142763 368.147411,879.086912 C354.884883,885.844508 337.523255,885.844508 302.8,885.844508 L99.2,885.844508 C64.4767446,885.844508 47.1151169,885.844508 33.852589,879.086912 C22.1865393,873.142763 12.7017447,863.657969 6.7575955,851.991919 C0,838.729391 0,821.367763 0,786.644508 L0,99.2 C0,64.4767446 0,47.1151169 6.7575955,33.852589 C12.7017447,22.1865393 22.1865393,12.7017447 33.852589,6.7575955 C47.1151169,0 64.4767446,0 99.2,0 Z" id="path-xs2yyl-4m4-1"></path>
+        <path d="M0,0 L402,0 L402,54 L0,54 Z" id="path-xs2yyl-4m4-2"></path>
+        <path d="M39.95,0 L330.05,0 C345.435124,0 353.127685,0 358.778716,3.46295614 C365.750178,7.73507319 370,15.323677 370,23.5 C370,31.676323 365.750178,39.2649268 358.778716,43.5370439 C353.127685,47 345.435124,47 330.05,47 L39.95,47 C24.5648764,47 16.8723145,47 11.2212837,43.5370439 C4.24982231,39.2649268 0,31.676323 0,23.5 C0,15.323677 4.24982231,7.73507319 11.2212837,3.46295614 C16.8723145,0 24.5648764,0 39.95,0 Z" id="path-xs2yyl-4m4-3"></path>
+        <path d="M0,0 L370,0 L370,48 L0,48 Z" id="path-xs2yyl-4m4-4"></path>
+        <path d="M25.6,0 L309.4,0 C318.36084,0 322.84126,0 326.263848,1.74389561 C329.274441,3.27786961 331.72213,5.72555852 333.256104,8.736152 C335,12.1587399 335,16.6391599 335,25.6 L335,176.4 C335,185.36084 335,189.84126 333.256104,193.263848 C331.72213,196.274441 329.274441,198.72213 326.263848,200.256104 C322.84126,202 318.36084,202 309.4,202 L25.6,202 C16.6391599,202 12.1587399,202 8.736152,200.256104 C5.72555852,198.72213 3.27786961,196.274441 1.74389561,193.263848 C0,189.84126 0,185.36084 0,176.4 L0,25.6 C0,16.6391599 0,12.1587399 1.74389561,8.736152 C3.27786961,5.72555852 5.72555852,3.27786961 8.736152,1.74389561 C12.1587399,0 16.6391599,0 25.6,0 Z" id="path-xs2yyl-4m4-5"></path>
+        <filter x="-19.1%" y="-27.7%" width="138.2%" height="163.4%" filterUnits="objectBoundingBox" id="filter-xs2yyl-4m4-6">
+            <feOffset dx="0" dy="8" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="20" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.12 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feOffset dx="0" dy="0" in="SourceAlpha" result="shadowOffsetOuter2"></feOffset>
+            <feGaussianBlur stdDeviation="1" in="shadowOffsetOuter2" result="shadowBlurOuter2"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.1 0" type="matrix" in="shadowBlurOuter2" result="shadowMatrixOuter2"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="shadowMatrixOuter2"></feMergeNode>
+            </feMerge>
+        </filter>
+        <filter x="-13.3%" y="-18.1%" width="126.6%" height="144.1%" filterUnits="objectBoundingBox" id="filter-xs2yyl-4m4-7">
+            <feMorphology radius="1" operator="erode" in="SourceAlpha" result="shadowSpreadInner1"></feMorphology>
+            <feGaussianBlur stdDeviation="4" in="shadowSpreadInner1" result="shadowBlurInner1"></feGaussianBlur>
+            <feOffset dx="0" dy="0" in="shadowBlurInner1" result="shadowOffsetInner1"></feOffset>
+            <feComposite in="shadowOffsetInner1" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner1"></feComposite>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.2 0" type="matrix" in="shadowInnerInner1" result="shadowMatrixInner1"></feColorMatrix>
+            <feGaussianBlur stdDeviation="1" in="SourceAlpha" result="shadowBlurInner2"></feGaussianBlur>
+            <feOffset dx="-1" dy="-1" in="shadowBlurInner2" result="shadowOffsetInner2"></feOffset>
+            <feComposite in="shadowOffsetInner2" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner2"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.1   0 0 0 0 0.1   0 0 0 0 0.1  0 0 0 1 0" type="matrix" in="shadowInnerInner2" result="shadowMatrixInner2"></feColorMatrix>
+            <feGaussianBlur stdDeviation="1" in="SourceAlpha" result="shadowBlurInner3"></feGaussianBlur>
+            <feOffset dx="1" dy="1" in="shadowBlurInner3" result="shadowOffsetInner3"></feOffset>
+            <feComposite in="shadowOffsetInner3" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner3"></feComposite>
+            <feColorMatrix values="0 0 0 0 0.1   0 0 0 0 0.1   0 0 0 0 0.1  0 0 0 1 0" type="matrix" in="shadowInnerInner3" result="shadowMatrixInner3"></feColorMatrix>
+            <feMorphology radius="1.5" operator="dilate" in="SourceAlpha" result="shadowSpreadInner4"></feMorphology>
+            <feGaussianBlur stdDeviation="0.125" in="shadowSpreadInner4" result="shadowBlurInner4"></feGaussianBlur>
+            <feOffset dx="2" dy="2" in="shadowBlurInner4" result="shadowOffsetInner4"></feOffset>
+            <feComposite in="shadowOffsetInner4" in2="SourceAlpha" operator="arithmetic" k2="-1" k3="1" result="shadowInnerInner4"></feComposite>
+            <feColorMatrix values="0 0 0 0 1   0 0 0 0 1   0 0 0 0 1  0 0 0 0.7 0" type="matrix" in="shadowInnerInner4" result="shadowMatrixInner4"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixInner1"></feMergeNode>
+                <feMergeNode in="shadowMatrixInner2"></feMergeNode>
+                <feMergeNode in="shadowMatrixInner3"></feMergeNode>
+                <feMergeNode in="shadowMatrixInner4"></feMergeNode>
+            </feMerge>
+        </filter>
+        <path d="M151.5,48 L0,47.9999997 L0,0 L151.5,2.65223033e-07 Z M297.895772,2.61584342 C305.937047,6.71307744 311,14.9750666 311,24 C311,33.0249334 305.937047,41.2869226 297.895772,45.3841566 C292.76189,48 286.04126,48 272.6,48 L197.9,48 C184.45874,48 177.73811,48 172.604228,45.3841566 C164.562953,41.2869226 159.5,33.0249334 159.5,24 C159.5,14.9750666 164.562953,6.71307744 172.604228,2.61584342 C177.73811,0 184.45874,0 197.9,0 L272.6,0 C286.04126,0 292.76189,0 297.895772,2.61584342 Z" id="path-xs2yyl-4m4-8"></path>
+        <path d="M38.4,0 L113.1,0 C126.54126,0 133.26189,0 138.395772,2.61584342 C146.437047,6.71307744 151.5,14.9750666 151.5,24 C151.5,33.0249334 146.437047,41.2869226 138.395772,45.3841566 C133.26189,48 126.54126,48 113.1,48 L38.4,48 C24.9587399,48 18.2381098,48 13.104228,45.3841566 C5.06295348,41.2869226 0,33.0249334 0,24 C0,14.9750666 5.06295348,6.71307744 13.104228,2.61584342 C18.2381098,0 24.9587399,0 38.4,0 Z" id="path-xs2yyl-4m4-9"></path>
+        <path d="M38.4,0 L113.1,0 C126.54126,0 133.26189,0 138.395772,2.61584342 C146.437047,6.71307744 151.5,14.9750666 151.5,24 C151.5,33.0249334 146.437047,41.2869226 138.395772,45.3841566 C133.26189,48 126.54126,48 113.1,48 L38.4,48 C24.9587399,48 18.2381098,48 13.104228,45.3841566 C5.06295348,41.2869226 0,33.0249334 0,24 C0,14.9750666 5.06295348,6.71307744 13.104228,2.61584342 C18.2381098,0 24.9587399,0 38.4,0 Z" id="path-xs2yyl-4m4-10"></path>
+        <path d="M8,40 L303,40 L303,106 L8,106 Z M8,8 L303,8 L303,30 L8,30 Z" id="path-xs2yyl-4m4-11"></path>
+    </defs>
+    <g id="Mid-Fid-Revisi" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="06A_SaveEmptySkincare" xlink:href="#path-xs2yyl-4m4-1">
+            <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-xs2yyl-4m4-1"></use>
+            <g id="Stack-3" transform="translate(0, 62)" xlink:href="#path-xs2yyl-4m4-2"></g>
+            <g id="Stack-6" transform="translate(16, 740)" xlink:href="#path-xs2yyl-4m4-3">
+                <path stroke="#5B4EB1" stroke-width="1" d="M358.517467,3.88927622 C365.340599,8.07049716 369.5,15.4976413 369.5,23.5 C369.5,31.5023587 365.340599,38.9295028 358.517467,43.1107238 C353.688682,46.0698068 349.16417,46.5 330.05,46.5 L39.95,46.5 C20.8358296,46.5 16.3113176,46.0698068 11.482533,43.1107238 C4.65940056,38.9295028 0.5,31.5023587 0.5,23.5 C0.5,15.4976413 4.65940056,8.07049716 11.482533,3.88927622 C16.3113176,0.93019321 20.8358296,0.5 39.95,0.5 L330.05,0.5 C349.16417,0.5 353.688682,0.93019321 358.517467,3.88927622 Z" stroke-linejoin="square"></path>
+                <text id="􀅼-Add-New-Skincare" font-family="SFPro-Semibold, SF Pro" font-size="15" font-weight="500" line-spacing="20" fill="#5B4EB1">
+                    <tspan x="110.129039" y="27.5">􀅼 Add New Skincare</tspan>
+                </text>
+            </g>
+            <circle id="Oval" fill-opacity="0.44" fill="#D7D7D7" fill-rule="evenodd" cx="201" cy="383" r="63"></circle>
+            <text id="􁒊" font-family="SFPro-Regular, SF Pro" font-size="70" font-weight="normal" fill="#A5A4A8">
+                <tspan x="156" y="408">􁒊</tspan>
+            </text>
+            <text id="No-Skincare-Routine" font-family="SFPro-Semibold, SF Pro" font-size="20" font-weight="500" fill="#C1C1C1">
+                <tspan x="61" y="483">No Skincare Routine Saved Yet</tspan>
+            </text>
+            <g id="Stack-5" transform="translate(16, 805)" xlink:href="#path-xs2yyl-4m4-4"></g>
+            <rect id="Rectangle-2" fill-opacity="0.5" fill="#000103" fill-rule="evenodd" x="0" y="0" width="402" height="886"></rect>
+            <g id="Alerts/Light/Default" transform="translate(34, 334)" xlink:href="#path-xs2yyl-4m4-5">
+                <use fill="black" fill-opacity="1" filter="url(#filter-xs2yyl-4m4-6)" xlink:href="#path-xs2yyl-4m4-5"></use>
+                <use fill="#FFFFFF" fill-rule="evenodd" style="mix-blend-mode: lighten;" xlink:href="#path-xs2yyl-4m4-5"></use>
+                <use fill="#FAFAFA" fill-rule="evenodd" style="mix-blend-mode: darken;" xlink:href="#path-xs2yyl-4m4-5"></use>
+                <use fill="black" fill-opacity="1" filter="url(#filter-xs2yyl-4m4-7)" xlink:href="#path-xs2yyl-4m4-5"></use>
+                <g id="Buttons" transform="translate(12, 142)" xlink:href="#path-xs2yyl-4m4-8">
+                    <g id="Trailing-Action" transform="translate(159.5, 0)" xlink:href="#path-xs2yyl-4m4-9">
+                        <g id="BG" fill-rule="evenodd">
+                            <use fill-opacity="0.67" fill="#FFFFFF" xlink:href="#path-xs2yyl-4m4-10"></use>
+                            <use fill="#5B4EB1" style="mix-blend-mode: normal;" xlink:href="#path-xs2yyl-4m4-10"></use>
+                        </g>
+                        <text id="Label" font-family="SFPro-Semibold, SF Pro" font-size="17" font-weight="500" line-spacing="22" fill="#FFFFFF">
+                            <tspan x="48.4380657" y="29">Cancel</tspan>
+                        </text>
+                    </g>
+                </g>
+                <g id="Title-and-Message" transform="translate(12, 12)" xlink:href="#path-xs2yyl-4m4-11" fill="#000000" font-size="17" line-spacing="22">
+                    <text id="Description" style="mix-blend-mode: normal;" font-family="SFPro-Regular, SF Pro" font-weight="normal" fill-opacity="0.68">
+                        <tspan x="8" y="56">Your skincare data is empty. You won’t </tspan>
+                        <tspan x="8" y="78">receive any skincare insights until you </tspan>
+                        <tspan x="8" y="100">add your products.</tspan>
+                    </text>
+                    <text id="Title" font-family="SFPro-Semibold, SF Pro" font-weight="500">
+                        <tspan x="8" y="24">Are you sure want to save?</tspan>
+                    </text>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

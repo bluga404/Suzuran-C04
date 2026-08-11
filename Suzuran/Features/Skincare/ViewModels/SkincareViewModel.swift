@@ -8,18 +8,28 @@ final class SkincareViewModel: ObservableObject {
     @Published private(set) var matchedRecommendations: [UUID: [MatchedRecommendation]] = [:]
 
     private let skincareRepository: SkincareProductRepositoryProtocol
-    private let ingredientRepository: SkincareIngredientRepository
+    private let acneRepository: AcneIngredientRepositoryProtocol
     private let acneProfileProvider: AcneProfileProviding
 
     init(
         skincareRepository: SkincareProductRepositoryProtocol,
-        ingredientRepository: SkincareIngredientRepository,
+        acneRepository: AcneIngredientRepositoryProtocol,
         acneProfileProvider: AcneProfileProviding
     ) {
         self.skincareRepository = skincareRepository
-        self.ingredientRepository = ingredientRepository
+        self.acneRepository = acneRepository
         self.acneProfileProvider = acneProfileProvider
         loadData()
+    }
+
+    var uniqueMatchedRecommendations: [MatchedRecommendation] {
+        var unique: [String: MatchedRecommendation] = [:]
+        for (_, recommendations) in matchedRecommendations {
+            for rec in recommendations {
+                unique[rec.id] = rec
+            }
+        }
+        return Array(unique.values).sorted { $0.recommendation.ingredientName < $1.recommendation.ingredientName }
     }
 
     func loadData() {
@@ -31,10 +41,10 @@ final class SkincareViewModel: ObservableObject {
     private func calculateAllMatches() {
         var matches: [UUID: [MatchedRecommendation]] = [:]
         for product in products {
-            matches[product.id] = IngredientMatcher.match(
-                product: product,
+            matches[product.id] = IngredientMatcher.getMatches(
+                for: product.ingredients,
                 activeAcneTypes: activeAcneTypes,
-                repository: ingredientRepository
+                repository: acneRepository
             )
         }
         self.matchedRecommendations = matches

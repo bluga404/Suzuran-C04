@@ -2,11 +2,11 @@ import SwiftUI
 
 struct IngredientSearchView: View {
     @Environment(\.dismiss) private var dismiss
-    let repository: SkincareIngredientRepository
+    let repository: CosingIngredientRepository
     let onSelect: (String) -> Void
     
     @State private var query = ""
-    @State private var results: [String] = []
+    @State private var results: [IngredientReference] = []
 
     var body: some View {
         NavigationStack {
@@ -41,7 +41,7 @@ struct IngredientSearchView: View {
                 
                 // Search Results
                 List {
-                    if !query.isEmpty && !results.contains(where: { $0.caseInsensitiveCompare(query) == .orderedSame }) {
+                    if !query.isEmpty && !results.contains(where: { $0.normalizedName == query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }) {
                         Section("Kandungan Baru") {
                             Button(action: {
                                 onSelect(query)
@@ -72,11 +72,11 @@ struct IngredientSearchView: View {
                         } else {
                             ForEach(results, id: \.self) { ingredient in
                                 Button(action: {
-                                    onSelect(ingredient)
+                                    onSelect(ingredient.name)
                                     dismiss()
                                 }) {
                                     HStack {
-                                        Text(ingredient)
+                                        Text(ingredient.name)
                                             .font(AppTypography.body)
                                             .foregroundStyle(AppColor.textPrimary)
                                         Spacer()

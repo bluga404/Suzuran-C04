@@ -6,20 +6,20 @@ struct MatchedRecommendation: Identifiable, Equatable {
     let matchedAcneTypes: [AcneType]
 }
 
-final class IngredientMatcher {
+final class IngredientMatcher: IngredientMatchingService {
     
     /// Matches a skincare product's ingredients against the user's active acne types.
     /// Returns the matched recommendations along with details on which acne types they target.
-    static func match(
-        product: SkincareProduct,
+    static func getMatches(
+        for ingredients: [IngredientReference],
         activeAcneTypes: [AcneType],
-        repository: SkincareIngredientRepository
+        repository: AcneIngredientRepositoryProtocol
     ) -> [MatchedRecommendation] {
         var matches: [MatchedRecommendation] = []
         
-        for ingredient in product.ingredients {
-            // Find if there is a recommendation for this ingredient
-            guard let recommendation = repository.getRecommendation(for: ingredient) else {
+        for ingredient in ingredients {
+            // Find if there is a recommendation for this ingredient using normalized name
+            guard let recommendation = repository.getRecommendation(for: ingredient.normalizedName) else {
                 continue
             }
             
@@ -30,12 +30,15 @@ final class IngredientMatcher {
             
             // If it matches at least one active acne type, add it to recommendations!
             if !matchedTypes.isEmpty {
-                matches.append(
-                    MatchedRecommendation(
-                        recommendation: recommendation,
-                        matchedAcneTypes: matchedTypes
+                // Ensure we don't add duplicate recommendations
+                if !matches.contains(where: { $0.id == recommendation.ingredientName }) {
+                    matches.append(
+                        MatchedRecommendation(
+                            recommendation: recommendation,
+                            matchedAcneTypes: matchedTypes
+                        )
                     )
-                )
+                }
             }
         }
         

@@ -2,26 +2,34 @@ import SwiftUI
 
 struct SkincareView: View {
     @ObservedObject var viewModel: SkincareViewModel
-    let ingredientRepository: SkincareIngredientRepository
+    let ingredientRepository: CosingIngredientRepository
+    let acneRepository: AcneIngredientRepository
     let onDismiss: () -> Void
 
     @State private var isShowingAdd = false
+    @State private var selectedRecommendation: SkincareIngredientRecommendation?
 
     var body: some View {
         NavigationStack {
             Group {
                 if viewModel.products.isEmpty {
-                    emptyStateView
+                    EmptySkincareView {
+                        isShowingAdd = true
+                    }
                 } else {
                     contentView
                 }
             }
             .background(AppColor.backgroundPrimary)
-            .sheet(isPresented: $isShowingAdd) {
+            .navigationDestination(isPresented: $isShowingAdd) {
                 AddSkincareView(
                     skincareViewModel: viewModel,
-                    ingredientRepository: ingredientRepository
+                    ingredientRepository: ingredientRepository,
+                    acneRepository: acneRepository
                 )
+            }
+            .sheet(item: $selectedRecommendation) { rec in
+                IngredientDetailView(recommendation: rec)
             }
             .onAppear {
                 viewModel.loadData()
@@ -29,64 +37,7 @@ struct SkincareView: View {
         }
     }
     
-    private var emptyStateView: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 0) {
-                // Header
-                HStack {
-                    VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                        Text("Skincare")
-                            .font(.largeTitle.weight(.bold))
-                            .foregroundStyle(.primary)
-                        Text("Your current skincare routine")
-                            .font(AppTypography.body)
-                            .foregroundStyle(.secondary)
-                    }
-                    Spacer()
-                }
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.vertical, AppSpacing.sm)
-                
-                VStack(spacing: AppSpacing.md) {
-                    ZStack {
-                        Circle()
-                            .fill(AppColor.accentPrimary.opacity(0.05))
-                            .frame(width: 100, height: 100)
-                        
-                        Image(systemName: "bubbles.and.sparkles")
-                            .font(.system(size: 40))
-                            .foregroundStyle(AppColor.accentPrimary)
-                    }
-                    
-                    Text("Belum Ada Catatan Skincare")
-                        .font(AppTypography.subtitle)
-                        .foregroundStyle(AppColor.textPrimary)
-                    
-                    Text("Catat produk skincare yang Anda gunakan saat ini untuk menganalisis kesesuaian bahan aktifnya dengan kondisi jerawat Anda.")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColor.textSecondary)
-                        .multilineTextAlignment(.center)
-                        .padding(.horizontal, AppSpacing.lg)
-                    
-                    Button(action: {
-                        isShowingAdd = true
-                    }) {
-                        Text("Catat Skincare Pertama")
-                            .font(AppTypography.bodyBold)
-                            .padding(.horizontal, AppSpacing.lg)
-                            .padding(.vertical, AppSpacing.sm)
-                            .background(AppColor.accentPrimary)
-                            .foregroundStyle(.white)
-                            .cornerRadius(AppCornerRadius.md)
-                    }
-                    .padding(.top, AppSpacing.sm)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.top, 80)
-            }
-        }
-        .toolbar(.hidden, for: .navigationBar)
-    }
+
 
     private var contentView: some View {
         ScrollView {
@@ -144,6 +95,7 @@ struct SkincareView: View {
                                 destination: SkincareDetailView(
                                     skincareViewModel: viewModel,
                                     ingredientRepository: ingredientRepository,
+                                    acneRepository: acneRepository,
                                     product: product
                                 )
                             ) {
@@ -168,6 +120,7 @@ struct SkincareView: View {
                                 destination: SkincareDetailView(
                                     skincareViewModel: viewModel,
                                     ingredientRepository: ingredientRepository,
+                                    acneRepository: acneRepository,
                                     product: product
                                 )
                             ) {
@@ -181,6 +134,10 @@ struct SkincareView: View {
                     }
                     .padding(.top, AppSpacing.sm)
                 }
+                
+                // Match Ingredient Section (SVG 08)
+                matchedSection
+                    .padding(.top, AppSpacing.sm)
             }
             .padding(AppSpacing.md)
         }
@@ -194,6 +151,38 @@ struct SkincareView: View {
                     Image(systemName: "plus")
                         .font(.system(size: 18, weight: .bold))
                         .foregroundStyle(AppColor.accentPrimary)
+                }
+            }
+        }
+    }
+
+    /// Section "Match Ingredient" — ingredient unik dari semua produk yang
+    /// cocok dengan tipe jerawat aktif user.
+    private var matchedSection: some View {
+        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+            Text("Match Ingredient")
+                .font(AppTypography.bodyBold)
+                .foregroundStyle(AppColor.textPrimary)
+
+            Text("Kami merekomendasikan bahan yang sesuai dengan tipe jerawat dan kondisi kulit Anda.")
+                .font(AppTypography.caption)
+                .foregroundStyle(AppColor.textSecondary)
+
+            if viewModel.uniqueMatchedRecommendations.isEmpty {
+                AppCard {
+                    HStack(spacing: AppSpacing.sm) {
+                        Image(systemName: "sparkles")
+                            .foregroundStyle(AppColor.textSecondary)
+                        Text("Belum ada bahan yang cocok. Tambahkan produk untuk melihat rekomendasinya.")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColor.textSecondary)
+                    }
+                }
+            } else {
+                ForEach(viewModel.uniqueMatchedRecommendations) { match in
+                    RecommendationCard(match: match) {
+                        selectedRecommendation = match.recommendation
+                    }
                 }
             }
         }

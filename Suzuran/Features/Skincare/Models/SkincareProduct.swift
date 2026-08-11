@@ -4,17 +4,21 @@ struct SkincareProduct: Identifiable, Codable, Equatable {
     let id: UUID
     var name: String
     var brand: String
-    var category: String
-    var ingredients: [String]
+    var category: SkincareCategory
+    var ingredients: [IngredientReference]
     var isUsedCurrently: Bool
+    let createdAt: Date
+    var updatedAt: Date
 
     init(
         id: UUID = UUID(),
         name: String,
         brand: String,
-        category: String,
-        ingredients: [String] = [],
-        isUsedCurrently: Bool = true
+        category: SkincareCategory,
+        ingredients: [IngredientReference] = [],
+        isUsedCurrently: Bool = true,
+        createdAt: Date = Date(),
+        updatedAt: Date = Date()
     ) {
         self.id = id
         self.name = name
@@ -22,5 +26,7 @@ struct SkincareProduct: Identifiable, Codable, Equatable {
         self.category = category
         self.ingredients = ingredients
         self.isUsedCurrently = isUsedCurrently
+        self.createdAt = createdAt
+        self.updatedAt = updatedAt
     }
 }

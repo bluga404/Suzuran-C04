@@ -1,7 +1,7 @@
 import UIKit
 import Vision
 
-final class IngredientOCRService {
+final class IngredientOCRService: OCRService {
     func recognizeText(from image: UIImage) async throws -> String {
         guard let cgImage = image.cgImage else {
             throw NSError(domain: "OCR", code: 1, userInfo: [NSLocalizedDescriptionKey: "Invalid image"])

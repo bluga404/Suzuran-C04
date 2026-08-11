@@ -6,18 +6,19 @@ final class AddSkincareViewModel: ObservableObject {
     // Form fields
     @Published var name = ""
     @Published var brand = ""
-    @Published var category = "Moisturizer"
-    @Published var ingredients: [String] = []
+    @Published var category: SkincareCategory = .moisturizer
+    @Published var ingredients: [IngredientReference] = []
     @Published var isUsedCurrently = true
 
     // OCR scanning fields
     @Published var isProcessingOCR = false
+    @Published var isSearchingIngredient = false
+    @Published var isSaving = false
     @Published var errorMessage: String?
-    @Published var scannedIngredients: [String] = []
-
-    let categories = ["Cleanser", "Toner", "Serum", "Moisturizer", "Sunscreen", "Face Mask", "Other"]
+    @Published var scannedIngredients: [OCRIngredientResult] = []
 
     private let ocrService = IngredientOCRService()
+    private let parser = IngredientParser()
     private let editingProduct: SkincareProduct?
 
     init(editingProduct: SkincareProduct? = nil) {
@@ -32,12 +33,14 @@ final class AddSkincareViewModel: ObservableObject {
     }
 
     var isFormValid: Bool {
-        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty &&
-        !brand.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     func saveProduct(to viewModel: SkincareViewModel) {
-        let trimmedIngredients = ingredients.map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+        isSaving = true
+        defer { isSaving = false }
+        
+        let trimmedIngredients = ingredients
         if let editingProduct = editingProduct {
             var updated = editingProduct
             updated.name = name
@@ -45,6 +48,7 @@ final class AddSkincareViewModel: ObservableObject {
             updated.category = category
             updated.ingredients = trimmedIngredients
             updated.isUsedCurrently = isUsedCurrently
+            updated.updatedAt = Date()
             viewModel.updateProduct(updated)
         } else {
             let newProduct = SkincareProduct(
@@ -63,8 +67,8 @@ final class AddSkincareViewModel: ObservableObject {
         guard !cleanName.isEmpty else { return }
         
         // Avoid duplicate case-insensitive ingredients
-        if !ingredients.contains(where: { $0.caseInsensitiveCompare(cleanName) == .orderedSame }) {
-            ingredients.append(cleanName)
+        if !ingredients.contains(where: { $0.normalizedName == cleanName.lowercased() }) {
+            ingredients.append(IngredientReference(name: cleanName))
         }
     }
 
@@ -72,8 +76,12 @@ final class AddSkincareViewModel: ObservableObject {
         ingredients.remove(atOffsets: offsets)
     }
 
-    func removeIngredient(_ name: String) {
-        ingredients.removeAll { $0.caseInsensitiveCompare(name) == .orderedSame }
+    func removeIngredient(_ ingredient: IngredientReference) {
+        ingredients.removeAll { $0.id == ingredient.id }
+    }
+    
+    func clearAllIngredients() {
+        ingredients.removeAll()
     }
 
     func processImageForOCR(_ image: UIImage) async {
@@ -81,22 +89,16 @@ final class AddSkincareViewModel: ObservableObject {
         errorMessage = nil
         do {
             let text = try await ocrService.recognizeText(from: image)
-            let parsed = IngredientParser.extractIngredients(from: text)
-            
-            let cleanParsed = parsed
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .filter { $0.count > 1 }
-                
-            self.scannedIngredients = cleanParsed
+            self.scannedIngredients = parser.extractIngredients(from: text)
         } catch {
-            self.errorMessage = error.localizedDescription
+            self.errorMessage = SkincareError.ocrFailed.localizedDescription
         }
         isProcessingOCR = false
     }
 
     func commitScannedIngredients() {
-        for ingredient in scannedIngredients {
-            addIngredient(ingredient)
+        for result in scannedIngredients {
+            addIngredient(result.rawText)
         }
         scannedIngredients.removeAll()
     }

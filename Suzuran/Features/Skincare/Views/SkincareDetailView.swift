@@ -3,10 +3,10 @@ import SwiftUI
 struct SkincareDetailView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var skincareViewModel: SkincareViewModel
-    let ingredientRepository: SkincareIngredientRepository
+    let ingredientRepository: CosingIngredientRepository
+    let acneRepository: AcneIngredientRepository
     let product: SkincareProduct
 
-    @State private var isShowingEdit = false
     @State private var selectedRecommendation: SkincareIngredientRecommendation?
 
     var body: some View {
@@ -16,7 +16,7 @@ struct SkincareDetailView: View {
                 AppCard {
                     VStack(alignment: .leading, spacing: AppSpacing.sm) {
                         HStack {
-                            Text(product.category)
+                            Text(product.category.displayName)
                                 .font(.system(size: 11, weight: .bold))
                                 .padding(.horizontal, AppSpacing.sm)
                                 .padding(.vertical, 4)
@@ -85,7 +85,7 @@ struct SkincareDetailView: View {
                         // Display chips
                         LazyVGrid(columns: [GridItem(.adaptive(minimum: 120, maximum: 200), spacing: 8)], spacing: 8) {
                             ForEach(product.ingredients, id: \.self) { ingredient in
-                                let rec = ingredientRepository.getRecommendation(for: ingredient)
+                                let rec = acneRepository.getRecommendation(for: ingredient.normalizedName)
                                 let isMatched = rec != nil
                                 
                                 Button(action: {
@@ -93,7 +93,7 @@ struct SkincareDetailView: View {
                                         selectedRecommendation = rec
                                     }
                                 }) {
-                                    IngredientChip(name: ingredient, isMatched: isMatched)
+                                    IngredientChip(name: ingredient.name, isMatched: isMatched)
                                 }
                                 .disabled(!isMatched)
                             }
@@ -127,20 +127,18 @@ struct SkincareDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Edit") {
-                    isShowingEdit = true
+                if let latestProduct = skincareViewModel.products.first(where: { $0.id == product.id }) {
+                    NavigationLink(destination: EditSkincareView(
+                        skincareViewModel: skincareViewModel,
+                        ingredientRepository: ingredientRepository,
+                        acneRepository: acneRepository,
+                        product: latestProduct
+                    )) {
+                        Text("Edit")
+                            .font(AppTypography.bodyBold)
+                            .foregroundStyle(AppColor.accentPrimary)
+                    }
                 }
-                .font(AppTypography.bodyBold)
-                .foregroundStyle(AppColor.accentPrimary)
-            }
-        }
-        .sheet(isPresented: $isShowingEdit) {
-            if let latestProduct = skincareViewModel.products.first(where: { $0.id == product.id }) {
-                EditSkincareView(
-                    skincareViewModel: skincareViewModel,
-                    ingredientRepository: ingredientRepository,
-                    product: latestProduct
-                )
             }
         }
         .sheet(item: $selectedRecommendation) { rec in

@@ -53,7 +53,7 @@ struct IngredientReviewView: View {
                 } else {
                     ForEach(viewModel.scannedIngredients, id: \.self) { ingredient in
                         HStack {
-                            Text(ingredient)
+                            Text(ingredient.rawText)
                                 .font(AppTypography.body)
                                 .foregroundStyle(AppColor.textPrimary)
                             
@@ -103,8 +103,8 @@ struct IngredientReviewView: View {
         let trimmed = newIngredientName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         
-        if !viewModel.scannedIngredients.contains(where: { $0.caseInsensitiveCompare(trimmed) == .orderedSame }) {
-            viewModel.scannedIngredients.append(trimmed)
+        if !viewModel.scannedIngredients.contains(where: { $0.rawText.lowercased() == trimmed.lowercased() }) {
+            viewModel.scannedIngredients.append(OCRIngredientResult(rawText: trimmed))
         }
         newIngredientName = ""
     }
