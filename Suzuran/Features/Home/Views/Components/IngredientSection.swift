@@ -17,7 +17,7 @@ struct IngredientSection: View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 HStack {
-                    Text("INGREDIENTS")
+                    Text("Ingredients")
                         .font(AppTypography.caption)
                         .tracking(1.2)
                         .foregroundStyle(.secondary)
@@ -31,7 +31,7 @@ struct IngredientSection: View {
                 }
 
                 if visibleRecommendations.isEmpty && showEmptyState {
-                    Text("Scan your skincare products to get ingredient recommendations")
+                    Text("Scan your skincare products to see which ones may suit your skin condition.")
                         .font(AppTypography.body)
                         .foregroundStyle(.secondary)
                 } else {
