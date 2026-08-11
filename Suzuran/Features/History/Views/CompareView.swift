@@ -1,22 +1,16 @@
 import SwiftUI
+#if canImport(UIKit)
+import UIKit
+#endif
 
-// MARK: - CompareView
-//
-// Redesigned to match exact UI specification from reference screenshot:
-// - Photo frames: 181 x 213 with 8pt margin/spacing
-// - Date selectors: rounded 8, 16pt margin to photos, dropdown chevron
-// - Card background fill: #CECAE8 opacity 28%
-// - Card border: #CECAE8 100% opacity
-// - Skin score title: 22pt bold
-// - Skin score values (50 -> 60): 28pt bold
-// - Summary insight headline: 22pt bold #5B43B1
-
+/// Compare screen — allows side-by-side visual and quantitative comparison
+/// of two selected face scan records (recordA = older/before, recordB = newer/after).
 struct CompareView: View {
+    @ObservedObject var viewModel: CompareViewModel
 
-    @ObservedObject private var viewModel: CompareViewModel
+    // MARK: - Color & Style Tokens
 
-    // MARK: - Color Design Tokens
-    private let primaryPurple = Color(red: 91/255, green: 67/255, blue: 177/255) // #5B43B1
+    private let primaryPurple = Color(red: 91/255, green: 67/255, blue: 177/255)  // #5B43B1
     private let cardBorder    = Color(red: 206/255, green: 202/255, blue: 232/255) // #CECAE8
     private let cardFill      = Color(red: 206/255, green: 202/255, blue: 232/255).opacity(0.28) // #CECAE8 28%
 
@@ -70,7 +64,7 @@ struct CompareView: View {
                     CompareAreaChip(
                         label: area.rawValue,
                         isSelected: viewModel.selectedArea == area,
-                        imageData: viewModel.recordB.subZoneThumbnails?[area] ?? viewModel.recordA.subZoneThumbnails?[area],
+                        imageData: viewModel.recordB.subZoneThumbnails?[area] ?? viewModel.recordA.subZoneThumbnails?[area] ?? CompareFaceImage.cropImageData(viewModel.recordB.frontImageData ?? viewModel.recordA.frontImageData ?? Data(), area: area),
                         activeColor: primaryPurple
                     ) {
                         withAnimation(.easeInOut(duration: 0.18)) {
@@ -375,9 +369,46 @@ private struct CompareFaceImage: View {
     let selectedArea: ScanRecord.FaceArea?
     let borderColor: Color
 
+    private static let subZoneCrops: [ScanRecord.FaceArea: CGRect] = [
+        .forehead:   CGRect(x: 0.15, y: 0.08, width: 0.70, height: 0.32),
+        .nose:       CGRect(x: 0.25, y: 0.35, width: 0.50, height: 0.30),
+        .chin:       CGRect(x: 0.25, y: 0.62, width: 0.50, height: 0.28),
+        .rightCheek: CGRect(x: 0.45, y: 0.25, width: 0.45, height: 0.45),
+        .leftCheek:  CGRect(x: 0.10, y: 0.25, width: 0.45, height: 0.45)
+    ]
+
+    static func cropImageData(_ data: Data?, area: ScanRecord.FaceArea) -> Data? {
+        guard let data = data else { return nil }
+        #if canImport(UIKit)
+        guard let cropRect = subZoneCrops[area],
+              let uiImage = UIImage(data: data),
+              let cgImage = uiImage.cgImage else { return nil }
+
+        let width = CGFloat(cgImage.width)
+        let height = CGFloat(cgImage.height)
+
+        let pixelRect = CGRect(
+            x: cropRect.origin.x * width,
+            y: cropRect.origin.y * height,
+            width: cropRect.size.width * width,
+            height: cropRect.size.height * height
+        )
+
+        guard let cropped = cgImage.cropping(to: pixelRect) else { return nil }
+        return UIImage(cgImage: cropped).jpegData(compressionQuality: 0.85)
+        #else
+        return nil
+        #endif
+    }
+
     private var currentImageData: Data? {
-        if let area = selectedArea, let thumbnail = record.subZoneThumbnails?[area] {
+        guard let area = selectedArea else { return record.frontImageData }
+        if let thumbnail = record.subZoneThumbnails?[area] {
             return thumbnail
+        }
+        if let front = record.frontImageData,
+           let cropped = Self.cropImageData(front, area: area) {
+            return cropped
         }
         return record.frontImageData
     }

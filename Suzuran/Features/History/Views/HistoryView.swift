@@ -14,6 +14,7 @@ struct HistoryView: View {
     }
 
     @State private var activePayload: ComparePayload? = nil
+    @State private var detailScanID: UUID?
 
     init(viewModel: HistoryViewModel) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
@@ -75,6 +76,9 @@ struct HistoryView: View {
                     recordB: payload.recordB,
                     allRecords: viewModel.records
                 )
+            }
+            .navigationDestination(item: $detailScanID) { scanID in
+                HomeFactory.makeDetailView(scanID: scanID, historyStore: viewModel.historyStore)
             }
         }
     }
@@ -192,6 +196,8 @@ struct HistoryView: View {
         return Button {
             if viewModel.isCompareMode {
                 viewModel.toggleSelection(record)
+            } else {
+                detailScanID = record.id
             }
         } label: {
             ZStack(alignment: .bottom) {

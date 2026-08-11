@@ -82,7 +82,7 @@ struct SkincareView: View {
                                     .padding(.horizontal, AppSpacing.lg)
                                     .padding(.vertical, AppSpacing.sm)
                                     .background(AppColor.accentPrimary)
-                                    .foregroundStyle(.white)
+                                    .foregroundStyle(AppColor.textOnAccent)
                                     .cornerRadius(AppCornerRadius.md)
                             }
                             .padding(.top, AppSpacing.sm)

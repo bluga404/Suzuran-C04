@@ -18,14 +18,17 @@ struct FaceGuideOverlayView: View {
             ZStack {
                 // Base transparent track (acts as the face guide)
                 Ellipse()
-                    .stroke(Color.white.opacity(0.3), lineWidth: 4)
+                    .stroke(
+                        Color.gray.opacity(0.8),
+                        style: StrokeStyle(lineWidth: 8, dash: [12, 12])
+                    )
 
                 // Active progress fill (fills up the track)
                 Ellipse()
                     .trim(from: 0, to: holdProgress)
                     .stroke(
                         AppColor.accentPrimary,
-                        style: StrokeStyle(lineWidth: 4, lineCap: .round)
+                        style: StrokeStyle(lineWidth: 8, lineCap: .round)
                     )
             }
             .frame(width: 440, height: 320) // Swapped dimensions
@@ -38,19 +41,6 @@ struct FaceGuideOverlayView: View {
                 value: isPulsing
             )
             .animation(.linear(duration: 0.1), value: holdProgress)
-            
-            // Zone progress indicator
-            VStack {
-                Spacer()
-                Text("\(completedAngles)/3")
-                    .font(.system(size: 14, weight: .semibold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .padding(.horizontal, AppSpacing.xs)
-                    .padding(.vertical, AppSpacing.xxs)
-                    .background(Color.black.opacity(0.4))
-                    .clipShape(Capsule())
-                    .offset(y: 35) // Offset below the oval
-            }
         }
         .frame(width: 320, height: 440)
         .onChange(of: isReady) { _, newValue in
