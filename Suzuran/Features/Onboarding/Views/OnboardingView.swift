@@ -1,91 +1,38 @@
 import SwiftUI
 
-/// Main Onboarding View orchestrating the 5 screens in exact order:
-/// 1. SplashView (Welcome)
-/// 2. OnboardingPage1View ("Discover Your Skin")
-/// 3. OnboardingPage2View ("Know Which of Your Skincare...")
-/// 4. OnboardingPage3View ("See Progress & Save Your History")
-/// 5. ChooseVisualizationView ("Choose Your Visualization")
+/// Main Onboarding View orchestrating:
+/// 1. SplashView (Screen 1)
+/// 2. Paged TabView for Screens 2, 3, and 4 (Page 1, Page 2, Page 3)
 struct OnboardingView: View {
     @ObservedObject var viewModel: OnboardingViewModel
 
     var body: some View {
         ZStack {
-            switch viewModel.currentStep {
-            case .splash:
+            if viewModel.currentStep == .splash {
                 SplashView(onContinue: {
                     withAnimation(.easeInOut) {
                         viewModel.nextStep()
                     }
                 })
+                .transition(.opacity)
+            } else {
+                TabView(selection: $viewModel.currentStep) {
+                    OnboardingPage1View()
+                        .tag(OnboardingStep.page1)
 
-            case .discoverSkin:
-                OnboardingPage1View(
-                    onNext: {
-                        withAnimation(.easeInOut) {
-                            viewModel.nextStep()
-                        }
-                    },
-                    onSkip: {
-                        withAnimation(.easeInOut) {
-                            viewModel.skipToVisualization()
-                        }
-                    }
-                )
+                    OnboardingPage2View()
+                        .tag(OnboardingStep.page2)
 
-            case .matchSkincare:
-                OnboardingPage2View(
-                    onNext: {
-                        withAnimation(.easeInOut) {
-                            viewModel.nextStep()
-                        }
-                    },
-                    onBack: {
-                        withAnimation(.easeInOut) {
-                            viewModel.previousStep()
-                        }
-                    },
-                    onSkip: {
-                        withAnimation(.easeInOut) {
-                            viewModel.skipToVisualization()
-                        }
-                    }
-                )
-
-            case .saveHistory:
-                OnboardingPage3View(
-                    onNext: {
-                        withAnimation(.easeInOut) {
-                            viewModel.nextStep()
-                        }
-                    },
-                    onBack: {
-                        withAnimation(.easeInOut) {
-                            viewModel.previousStep()
-                        }
-                    },
-                    onSkip: {
-                        withAnimation(.easeInOut) {
-                            viewModel.skipToVisualization()
-                        }
-                    }
-                )
-
-            case .chooseVisualization:
-                ChooseVisualizationView(
-                    selectedGender: $viewModel.selectedGender,
-                    onNext: {
+                    OnboardingPage3View(onStart: {
                         viewModel.completeOnboarding()
-                    },
-                    onBack: {
-                        withAnimation(.easeInOut) {
-                            viewModel.previousStep()
-                        }
-                    }
-                )
+                    })
+                    .tag(OnboardingStep.page3)
+                }
+                .tabViewStyle(.page(indexDisplayMode: .never))
+                .transition(.opacity)
             }
         }
-        .transition(.opacity)
+        .background(Color.white.ignoresSafeArea())
     }
 }
 

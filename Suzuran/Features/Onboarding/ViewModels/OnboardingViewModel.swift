@@ -23,14 +23,12 @@ final class OnboardingViewModel: ObservableObject {
     func nextStep() {
         switch currentStep {
         case .splash:
-            currentStep = .discoverSkin
-        case .discoverSkin:
-            currentStep = .matchSkincare
-        case .matchSkincare:
-            currentStep = .saveHistory
-        case .saveHistory:
-            currentStep = .chooseVisualization
-        case .chooseVisualization:
+            currentStep = .page1
+        case .page1:
+            currentStep = .page2
+        case .page2:
+            currentStep = .page3
+        case .page3:
             completeOnboarding()
         }
     }
@@ -39,19 +37,13 @@ final class OnboardingViewModel: ObservableObject {
         switch currentStep {
         case .splash:
             break
-        case .discoverSkin:
+        case .page1:
             currentStep = .splash
-        case .matchSkincare:
-            currentStep = .discoverSkin
-        case .saveHistory:
-            currentStep = .matchSkincare
-        case .chooseVisualization:
-            currentStep = .saveHistory
+        case .page2:
+            currentStep = .page1
+        case .page3:
+            currentStep = .page2
         }
-    }
-
-    func skipToVisualization() {
-        currentStep = .chooseVisualization
     }
 
     func completeOnboarding() {
