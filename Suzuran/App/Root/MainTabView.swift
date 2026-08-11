@@ -30,7 +30,7 @@ struct MainTabView: View {
             }
 
             Tab("Skincare", systemImage: "viewfinder", value: .skincare) {
-                SkincareTabView()
+                SkincareFactory.makeView()
             }
 
             Tab("History", systemImage: "photo.on.rectangle.angled", value: .history) {
