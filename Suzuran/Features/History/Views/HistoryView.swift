@@ -1,7 +1,8 @@
 import SwiftUI
 
-/// History tab — shows all past scans in a grid grouped by month.
-/// Supports a compare mode where the user selects exactly 2 scans to compare.
+/// History tab — displays all past scans in a 3-column grid grouped by month.
+/// Features a fixed top header with "History" title and Compare / X buttons,
+/// exact 118x170 card dimensions, inside borders, date banners, and selection state.
 struct HistoryView: View {
     @ObservedObject private var viewModel: HistoryViewModel
 
@@ -11,7 +12,27 @@ struct HistoryView: View {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
     }
 
-    private let columns = Array(repeating: GridItem(.flexible(), spacing: AppSpacing.xs), count: 3)
+    // MARK: - Color Tokens & Grid Setup
+
+    /// Card dimensions & spacing per specification
+    private let cardWidth: CGFloat = 118
+    private let cardHeight: CGFloat = 170
+    private let gridSpacing: CGFloat = 8
+
+    /// Color tokens
+    private let borderNormal = Color(red: 0.87059, green: 0.87059, blue: 0.88235)      // #DEDEE1 100%
+    private let borderSelected = Color(red: 0.33725, green: 0.28627, blue: 0.67451)    // #5649AC 100%
+    private let dateBannerNormal = Color.black.opacity(0.50)                           // #000000 50%
+    private let dateBannerSelected = Color(red: 0.61961, green: 0.58824, blue: 0.81176).opacity(0.70) // #9E96CF 70%
+    private let purpleAccent = Color(red: 0.33725, green: 0.28627, blue: 0.67451)      // #5649AC
+
+    private var columns: [GridItem] {
+        [
+            GridItem(.fixed(cardWidth), spacing: gridSpacing),
+            GridItem(.fixed(cardWidth), spacing: gridSpacing),
+            GridItem(.fixed(cardWidth), spacing: gridSpacing)
+        ]
+    }
 
     private let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -22,26 +43,24 @@ struct HistoryView: View {
 
     var body: some View {
         NavigationStack {
-            Group {
-                if viewModel.records.isEmpty {
-                    ContentUnavailableView(
-                        "Belum Ada Riwayat",
-                        systemImage: "clock.arrow.circlepath",
-                        description: Text("Mulai scan wajah untuk melihat riwayat di sini.")
-                    )
-                } else {
-                    scrollContent
+            VStack(spacing: 0) {
+                // Fixed top header aligned with title & action buttons
+                topHeader
+
+                Group {
+                    if viewModel.records.isEmpty {
+                        ContentUnavailableView(
+                            "Belum Ada Riwayat",
+                            systemImage: "clock.arrow.circlepath",
+                            description: Text("Mulai scan wajah untuk melihat riwayat di sini.")
+                        )
+                    } else {
+                        scrollContent
+                    }
                 }
             }
-            .navigationTitle("History")
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    compareButton
-                }
-            }
+            .toolbar(.hidden, for: .navigationBar)
             .navigationDestination(isPresented: $navigateToCompare) {
-                // selectedPair is guaranteed when navigateToCompare=true.
-                // Use a fallback EmptyView to satisfy type system safely.
                 if let (first, second) = viewModel.selectedPair {
                     HistoryFactory.makeCompareView(
                         recordA: first,
@@ -53,127 +72,165 @@ struct HistoryView: View {
         }
     }
 
+    // MARK: - Fixed Top Header
+
+    private var topHeader: some View {
+        HStack(alignment: .center) {
+            Text("History")
+                .font(.custom("AvenirNext-Bold", size: 30, relativeTo: .largeTitle))
+                .foregroundStyle(.primary)
+
+            Spacer()
+
+            HStack(spacing: 8) {
+                compareButton
+
+                if viewModel.isCompareMode {
+                    xmarkButton
+                }
+            }
+        }
+        .padding(.horizontal, 16)
+        .padding(.top, 12)
+        .padding(.bottom, 8)
+        .background(Color(.systemBackground))
+    }
+
     // MARK: - Compare Button
 
     private var compareButton: some View {
-        HStack(spacing: 8) {
-            Button {
-                if !viewModel.isCompareMode {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        viewModel.toggleCompareMode()
-                    }
-                } else if viewModel.canCompare {
-                    navigateToCompare = true
+        Button {
+            if !viewModel.isCompareMode {
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                    viewModel.toggleCompareMode()
                 }
-            } label: {
-                if viewModel.isCompareMode {
-                    Text("Compare (\(viewModel.selectedCount)/2)")
-                        .font(.custom("AvenirNext-DemiBold", size: 14, relativeTo: .subheadline))
-                } else {
-                    Text("Compare")
-                        .font(.custom("AvenirNext-DemiBold", size: 14, relativeTo: .subheadline))
-                }
+            } else if viewModel.canCompare {
+                navigateToCompare = true
             }
-            .tint(AppColor.accentPrimary)
-            .disabled(viewModel.isCompareMode && !viewModel.canCompare)
-            .buttonStyle(.glassProminent)
-
-            if viewModel.isCompareMode {
-                Button {
-                    withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                        viewModel.toggleCompareMode()
-                    }
-                } label: {
-                    Image(systemName: "xmark")
-                        .font(.custom("AvenirNext-Bold", size: 14, relativeTo: .subheadline))
-                }
-                .tint(Color.primary)
-                .buttonStyle(.glassProminent)
-                .accessibilityLabel("Cancel comparison selection")
-                .transition(.move(edge: .trailing).combined(with: .opacity))
-            }
+        } label: {
+            Text(viewModel.isCompareMode ? "Compare (\(viewModel.selectedCount)/2)" : "Compare")
         }
+        .tint(purpleAccent)
+        .disabled(viewModel.isCompareMode && !viewModel.canCompare)
+        .buttonStyle(.glassProminent)
     }
 
-    // MARK: - Grid Content
+    // MARK: - X Close Button
+
+    private var xmarkButton: some View {
+        Button {
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                viewModel.toggleCompareMode()
+            }
+        } label: {
+            Image(systemName: "xmark")
+        }
+        .buttonStyle(.glass)
+        .accessibilityLabel("Batal mode compare")
+        .transition(.scale.combined(with: .opacity))
+    }
+
+    // MARK: - Scrollable Grid Content
 
     private var scrollContent: some View {
         ScrollView {
             LazyVStack(alignment: .leading, spacing: AppSpacing.lg) {
                 ForEach(viewModel.groupedRecords, id: \.key) { section in
-                    Section {
-                        LazyVGrid(columns: columns, spacing: AppSpacing.xs) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text(section.key)
+                            .font(.custom("AvenirNext-Bold", size: 20, relativeTo: .title2))
+                            .foregroundStyle(.primary)
+                            .padding(.top, 4)
+
+                        LazyVGrid(columns: columns, spacing: gridSpacing) {
                             ForEach(section.records) { record in
                                 gridItem(record)
                             }
                         }
-                    } header: {
-                        Text(section.key)
-                            .font(.custom("AvenirNext-Bold", size: 22, relativeTo: .title2))
-                            .foregroundStyle(.primary)
-                            .padding(.top, AppSpacing.xs)
                     }
                 }
             }
-            .padding(.horizontal, AppSpacing.md)
-            .padding(.bottom, AppSpacing.xl)
+            .padding(.horizontal, 16)
+            .padding(.bottom, 90) // Clear floating tab bar space
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
     }
 
-    // MARK: - Grid Item
+    // MARK: - Grid Item (118 x 170 Photo Card)
 
     private func gridItem(_ record: ScanRecord) -> some View {
-        Button {
+        let isSelected = viewModel.isSelected(record)
+
+        return Button {
             if viewModel.isCompareMode {
                 viewModel.toggleSelection(record)
             }
         } label: {
-            ZStack(alignment: .topTrailing) {
-                VStack(spacing: 6) {
-                    // Thumbnail
-                    Group {
-                        if let data = record.frontImageData,
-                           let uiImage = UIImage(data: data) {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                        } else {
-                            Rectangle()
-                                .fill(Color(.secondarySystemGroupedBackground))
-                                .overlay(
-                                    Image(systemName: "person.crop.rectangle")
-                                        .font(.custom("AvenirNext-Regular", size: 28, relativeTo: .title))
-                                        .foregroundStyle(.secondary)
-                                )
-                        }
-                    }
-                    .frame(height: 120)
-                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                            .stroke(
-                                viewModel.isSelected(record) ? AppColor.accentPrimary : AppColor.borderSubtle,
-                                lineWidth: viewModel.isSelected(record) ? 2.5 : 0.5
+            ZStack(alignment: .bottom) {
+                // Background image or fallback placeholder
+                Group {
+                    if let data = record.frontImageData,
+                       let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                    } else {
+                        Rectangle()
+                            .fill(Color(.secondarySystemGroupedBackground))
+                            .overlay(
+                                Image(systemName: "person.crop.rectangle")
+                                    .font(.system(size: 34))
+                                    .foregroundStyle(.secondary)
                             )
-                    )
-
-                    // Date label
-                    Text(dateFormatter.string(from: record.date))
-                        .font(.custom("AvenirNext-Medium", size: 11, relativeTo: .caption2))
-                        .foregroundStyle(.secondary)
-                        .lineLimit(1)
+                    }
                 }
+                .frame(width: cardWidth, height: cardHeight)
+                .clipped()
 
-                // Selection checkmark badge (compare mode only)
+                // Date banner at bottom of card frame
+                HStack {
+                    Spacer()
+                    Text(dateFormatter.string(from: record.date))
+                        .font(.custom("AvenirNext-DemiBold", size: 13, relativeTo: .footnote))
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer()
+                }
+                .padding(.vertical, 6)
+                .background(isSelected ? dateBannerSelected : dateBannerNormal)
+
+                // Selection checkmark badge at top-right inside frame (during compare mode)
                 if viewModel.isCompareMode {
-                    Image(systemName: viewModel.isSelected(record) ? "checkmark.circle.fill" : "circle")
-                        .font(.custom("AvenirNext-Regular", size: 20, relativeTo: .title3))
-                        .foregroundStyle(viewModel.isSelected(record) ? AppColor.accentPrimary : Color(uiColor: .systemGray3))
-                        .background(Circle().fill(Color(uiColor: .systemBackground)).padding(2))
-                        .padding(6)
+                    VStack {
+                        HStack {
+                            Spacer()
+                            if isSelected {
+                                Image(systemName: "checkmark.circle.fill")
+                                    .font(.system(size: 20, weight: .bold))
+                                    .foregroundStyle(purpleAccent)
+                                    .background(Circle().fill(.white).padding(2))
+                            } else {
+                                Image(systemName: "circle")
+                                    .font(.system(size: 20, weight: .semibold))
+                                    .foregroundStyle(.white.opacity(0.85))
+                                    .shadow(color: .black.opacity(0.3), radius: 2, x: 0, y: 1)
+                            }
+                        }
+                        .padding(8)
+                        Spacer()
+                    }
                 }
             }
+            .frame(width: cardWidth, height: cardHeight)
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                // 3pt inside stroke border
+                RoundedRectangle(cornerRadius: 12)
+                    .strokeBorder(
+                        isSelected ? borderSelected : borderNormal,
+                        lineWidth: 3
+                    )
+            )
         }
         .buttonStyle(.plain)
     }
