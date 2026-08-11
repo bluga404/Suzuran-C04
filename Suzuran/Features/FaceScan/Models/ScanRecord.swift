@@ -3,7 +3,7 @@ import Foundation
 /// Lightweight, Codable representation of a completed face scan for storage in history.
 /// Stores only the data needed for the history grid and compare view — not the full
 /// detection/marker details (those are transient and only live in FaceScanResultModel).
-struct ScanRecord: Identifiable, Codable, Equatable {
+struct ScanRecord: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     /// Date of the scan — only one record per calendar day.
     let date: Date
@@ -21,15 +21,21 @@ struct ScanRecord: Identifiable, Codable, Equatable {
     let acneAreaCounts: [AcneAreaCount]
     /// Cropped thumbnails for each specific facial sub-zone (Forehead, Nose, Chin, Left Cheek, Right Cheek)
     let subZoneThumbnails: [FaceArea: Data]?
+    /// Per-area, per-type acne counts. Maps facial area to list of type counts in that area.
+    let areaTypeCounts: [FaceArea: [AcneTypeCount]]?
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
 
     /// Codable wrapper for acne type + count pair.
-    struct AcneTypeCount: Codable, Equatable {
+    struct AcneTypeCount: Codable, Equatable, Hashable {
         let acneType: AcneType
         let count: Int
     }
 
     /// Codable wrapper for facial area + count pair.
-    struct AcneAreaCount: Codable, Equatable {
+    struct AcneAreaCount: Codable, Equatable, Hashable {
         let area: FaceArea
         let count: Int
     }
@@ -57,6 +63,18 @@ struct ScanRecord: Identifiable, Codable, Equatable {
         acneTypeCounts.first { $0.acneType == type }?.count ?? 0
     }
 
+    /// Returns the count for a given acne type in a specific facial area (0 if not recorded).
+    func acneCount(for type: AcneType, in area: FaceArea) -> Int {
+        if let counts = areaTypeCounts?[area] {
+            return counts.first { $0.acneType == type }?.count ?? 0
+        }
+        // Fallback proportional distribution when granular areaTypeCounts is not stored
+        let totalAreaCount = acneCount(for: area)
+        guard totalAreaCount > 0, totalAcneCount > 0 else { return 0 }
+        let overallTypeCount = acneCount(for: type)
+        return max(0, Int(round(Double(totalAreaCount * overallTypeCount) / Double(totalAcneCount))))
+    }
+
     // MARK: - Initializer (backward-compatible with existing callers)
 
     init(
@@ -68,7 +86,8 @@ struct ScanRecord: Identifiable, Codable, Equatable {
         severity: AcneSeverity,
         acneTypeCounts: [AcneTypeCount],
         acneAreaCounts: [AcneAreaCount] = [],
-        subZoneThumbnails: [FaceArea: Data]? = nil
+        subZoneThumbnails: [FaceArea: Data]? = nil,
+        areaTypeCounts: [FaceArea: [AcneTypeCount]]? = nil
     ) {
         self.id = id
         self.date = date
@@ -79,5 +98,6 @@ struct ScanRecord: Identifiable, Codable, Equatable {
         self.acneTypeCounts = acneTypeCounts
         self.acneAreaCounts = acneAreaCounts
         self.subZoneThumbnails = subZoneThumbnails
+        self.areaTypeCounts = areaTypeCounts
     }
 }

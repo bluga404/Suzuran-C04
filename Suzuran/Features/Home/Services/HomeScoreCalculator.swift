@@ -49,13 +49,13 @@ struct HomeScoreCalculator {
     /// Maps an `AcneType` to its GAGS lesion severity value.
     /// - Parameter type: The acne type to map.
     /// - Returns: GAGS severity (0–4).
-    private func gagsSeverity(for type: AcneType) -> Int {
+    private func gagsSeverity(for type: AcneType) -> Double {
         switch type {
-        case .blackhead, .whitehead: return 1
-        case .papule: return 2
-        case .pustule: return 3
-        case .nodule, .cyst: return 4
-        case .unknown: return 0
+        case .blackhead, .whitehead: return 0.5
+        case .papule: return 1.0
+        case .pustule: return 2.0
+        case .nodule, .cyst: return 3.0
+        case .unknown: return 0.0
         }
     }
 
@@ -70,8 +70,8 @@ struct HomeScoreCalculator {
             let highestSeverity = counts
                 .filter { $0.value > 0 }
                 .map { gagsSeverity(for: $0.key) }
-                .max() ?? 0
-            zoneScores[region] = region.gagsFactor * highestSeverity
+                .max() ?? 0.0
+            zoneScores[region] = Int(round(Double(region.gagsFactor) * highestSeverity))
         }
         let total = zoneScores.values.reduce(0, +)
         return (zoneScores: zoneScores, total: total)
