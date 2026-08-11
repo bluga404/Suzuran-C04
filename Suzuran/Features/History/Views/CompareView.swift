@@ -2,12 +2,23 @@ import SwiftUI
 
 // MARK: - CompareView
 //
-// Pushed via NavigationStack from HistoryView — NOT a modal/sheet.
-// All presentation logic lives in CompareViewModel; this file only renders UI.
+// Redesigned to match exact UI specification from reference screenshot:
+// - Photo frames: 181 x 213 with 8pt margin/spacing
+// - Date selectors: rounded 8, 16pt margin to photos, dropdown chevron
+// - Card background fill: #CECAE8 opacity 28%
+// - Card border: #CECAE8 100% opacity
+// - Skin score title: 22pt bold
+// - Skin score values (50 -> 60): 28pt bold
+// - Summary insight headline: 22pt bold #5B43B1
 
 struct CompareView: View {
 
     @ObservedObject private var viewModel: CompareViewModel
+
+    // MARK: - Color Design Tokens
+    private let primaryPurple = Color(red: 91/255, green: 67/255, blue: 177/255) // #5B43B1
+    private let cardBorder    = Color(red: 206/255, green: 202/255, blue: 232/255) // #CECAE8
+    private let cardFill      = Color(red: 206/255, green: 202/255, blue: 232/255).opacity(0.28) // #CECAE8 28%
 
     // MARK: - Init
 
@@ -19,36 +30,36 @@ struct CompareView: View {
 
     var body: some View {
         ScrollView(.vertical, showsIndicators: false) {
-            VStack(alignment: .leading, spacing: AppSpacing.lg) {
+            VStack(alignment: .leading, spacing: 16) {
                 areaFilterChips
                 dateSelectors
                 faceImages
-                if viewModel.selectedArea == nil {
-                    skinScoreSection
-                }
-                insightCard
-                totalAcneCard
-                acneBreakdownCard
+                    .padding(.top, 0)
+                skinScoreAndInsightCard
+                totalAcneSection
+                acneBreakdownSection
             }
-            .padding(.horizontal, AppSpacing.md)
-            .padding(.top, AppSpacing.sm)
-            .padding(.bottom, AppSpacing.xl)
+            .padding(.horizontal, 16)
+            .padding(.top, 8)
+            .padding(.bottom, 32)
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle("Compare")
         .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 
     // MARK: - Area Filter Chips
 
     private var areaFilterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            HStack(spacing: AppSpacing.xs) {
+            HStack(spacing: 8) {
                 // "All" chip
                 CompareAreaChip(
                     label: "All",
                     isSelected: viewModel.selectedArea == nil,
-                    imageData: nil
+                    imageData: nil,
+                    activeColor: primaryPurple
                 ) {
                     withAnimation(.easeInOut(duration: 0.18)) {
                         viewModel.selectedArea = nil
@@ -59,7 +70,8 @@ struct CompareView: View {
                     CompareAreaChip(
                         label: area.rawValue,
                         isSelected: viewModel.selectedArea == area,
-                        imageData: viewModel.recordB.subZoneThumbnails?[area]
+                        imageData: viewModel.recordB.subZoneThumbnails?[area] ?? viewModel.recordA.subZoneThumbnails?[area],
+                        activeColor: primaryPurple
                     ) {
                         withAnimation(.easeInOut(duration: 0.18)) {
                             viewModel.selectedArea = area
@@ -71,210 +83,210 @@ struct CompareView: View {
         }
     }
 
-    // MARK: - Date Selectors
+    // MARK: - Date Selectors (Rounded 8, 16pt margin to photos)
 
     private var dateSelectors: some View {
-        HStack(spacing: AppSpacing.sm) {
+        HStack(spacing: 8) {
             CompareDateChip(
                 date: viewModel.recordA.date,
-                formatter: CompareViewModel.displayDateFormatter
+                formatter: CompareViewModel.displayDateFormatter,
+                borderColor: cardBorder
             )
             .accessibilityLabel("Before date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordA.date))")
 
             CompareDateChip(
                 date: viewModel.recordB.date,
-                formatter: CompareViewModel.displayDateFormatter
+                formatter: CompareViewModel.displayDateFormatter,
+                borderColor: cardBorder
             )
             .accessibilityLabel("After date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordB.date))")
         }
     }
 
-    // MARK: - Face Images
+    // MARK: - Face Images (181 x 213 with margin 8)
 
     private var faceImages: some View {
-        HStack(spacing: AppSpacing.sm) {
-            CompareFaceImage(record: viewModel.recordA, selectedArea: viewModel.selectedArea)
-            CompareFaceImage(record: viewModel.recordB, selectedArea: viewModel.selectedArea)
+        HStack(spacing: 8) {
+            CompareFaceImage(record: viewModel.recordA, selectedArea: viewModel.selectedArea, borderColor: cardBorder)
+            CompareFaceImage(record: viewModel.recordB, selectedArea: viewModel.selectedArea, borderColor: cardBorder)
         }
     }
 
-    // MARK: - Skin Score Section (All filter only)
+    // MARK: - Combined Skin Score & Summary Insight Card
 
-    private var skinScoreSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            HStack(spacing: AppSpacing.xxs) {
-                Text("Skin Score")
-                    .font(.custom("AvenirNext-DemiBold", size: 18, relativeTo: .headline))
-                    .foregroundStyle(.primary)
-                Image(systemName: "info.circle")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(.secondary)
-                    .accessibilityHidden(true)
-            }
-
-            HStack {
-                Text("\(viewModel.recordA.skinScore)")
-                    .font(.custom("AvenirNext-Bold", size: 52, relativeTo: .largeTitle))
-                    .foregroundStyle(.primary)
-                    .monospacedDigit()
-
-                Spacer()
-
-                Image(systemName: "arrow.right")
-                    .font(.custom("AvenirNext-DemiBold", size: 20, relativeTo: .title3))
-                    .foregroundStyle(.secondary)
-                    .accessibilityHidden(true)
-
-                Spacer()
-
-                Text("\(viewModel.recordB.skinScore)")
-                    .font(.custom("AvenirNext-Bold", size: 52, relativeTo: .largeTitle))
-                    .foregroundStyle(.primary)
-                    .monospacedDigit()
-            }
-            .padding(.vertical, AppSpacing.xs)
-            .accessibilityElement(children: .combine)
-            .accessibilityLabel("Skin score: \(viewModel.recordA.skinScore) before, \(viewModel.recordB.skinScore) after")
-        }
-    }
-
-    // MARK: - Summary Insight Card
-
-    private var insightCard: some View {
+    private var skinScoreAndInsightCard: some View {
         let diff = viewModel.scoreDiff
-        return AppCard {
-            HStack(alignment: .top, spacing: AppSpacing.sm) {
-                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+        return VStack(alignment: .leading, spacing: 14) {
+            if viewModel.selectedArea == nil {
+                // Skin Score Top Section (All mode only)
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 4) {
+                        Text("Skin Score")
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundStyle(.primary)
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.primary)
+                            .accessibilityHidden(true)
+                    }
+
+                    HStack {
+                        Text("\(viewModel.recordA.skinScore)")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundStyle(.primary)
+                            .monospacedDigit()
+
+                        Spacer()
+
+                        Image(systemName: "arrow.right")
+                            .font(.system(size: 18, weight: .semibold))
+                            .foregroundStyle(.primary)
+                            .accessibilityHidden(true)
+
+                        Spacer()
+
+                        Text("\(viewModel.recordB.skinScore)")
+                            .font(.system(size: 28, weight: .bold))
+                            .foregroundStyle(.primary)
+                            .monospacedDigit()
+                    }
+                }
+
+                Divider()
+                    .overlay(cardBorder.opacity(0.6))
+            }
+
+            // Summary Insight Section
+            HStack(alignment: .center, spacing: 12) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text("Summary Insight")
-                        .font(.custom("AvenirNext-Medium", size: 12, relativeTo: .caption))
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 12, weight: .medium))
+                        .foregroundStyle(Color(.secondaryLabel))
 
                     Text(viewModel.insightHeadline)
-                        .font(.custom("AvenirNext-Bold", size: 17, relativeTo: .headline))
-                        .foregroundStyle(.primary)
+                        .font(.system(size: 22, weight: .bold))
+                        .foregroundStyle(primaryPurple)
 
                     Text(viewModel.insightBody)
-                        .font(AppTypography.caption)
-                        .foregroundStyle(.secondary)
+                        .font(.system(size: 13, weight: .regular))
+                        .foregroundStyle(.primary)
+                        .lineSpacing(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
 
-                Spacer(minLength: AppSpacing.sm)
-
-                // Score delta badge — visible in area-specific modes only
                 if viewModel.selectedArea != nil {
-                    VStack(spacing: AppSpacing.xxs) {
+                    Spacer(minLength: 8)
+
+                    // Score Delta Circle Badge (visible in region-specific chip modes)
+                    VStack(spacing: 2) {
                         Text("Score")
-                            .font(.custom("AvenirNext-Regular", size: 11, relativeTo: .caption2))
-                            .foregroundStyle(.secondary)
+                            .font(.system(size: 11, weight: .medium))
+                            .foregroundStyle(primaryPurple)
+
                         Text("\(diff >= 0 ? "+" : "")\(diff)")
-                            .font(.custom("AvenirNext-Bold", size: 22, relativeTo: .title2))
-                            .foregroundStyle(diff >= 0 ? AppColor.accentPrimary : AppColor.accentDanger)
+                            .font(.system(size: 22, weight: .bold))
+                            .foregroundStyle(primaryPurple)
                             .monospacedDigit()
-                            .padding(.horizontal, AppSpacing.sm)
-                            .padding(.vertical, AppSpacing.xs)
-                            .background(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                                    .fill(diff >= 0
-                                          ? AppColor.accentPrimary.opacity(0.12)
-                                          : AppColor.accentDanger.opacity(0.12))
-                            )
                     }
-                    .fixedSize()
-                    .accessibilityLabel("Score change: \(diff >= 0 ? "plus" : "")\(diff)")
+                    .frame(width: 68, height: 68)
+                    .background(primaryPurple.opacity(0.14))
+                    .clipShape(Circle())
                 }
             }
         }
+        .padding(16)
+        .background(cardFill)
+        .clipShape(RoundedRectangle(cornerRadius: 16))
+        .overlay(
+            RoundedRectangle(cornerRadius: 16)
+                .stroke(cardBorder, lineWidth: 1)
+        )
     }
 
-    // MARK: - Total Acne Card
+    // MARK: - Total Acne Section
 
-    private var totalAcneCard: some View {
+    private var totalAcneSection: some View {
         let diff = viewModel.filteredAcneDiff
-        return AppCard {
-            VStack(alignment: .leading, spacing: AppSpacing.md) {
-                // Title
-                HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
-                    Text("Total Acne")
-                        .font(.custom("AvenirNext-Bold", size: 18, relativeTo: .headline))
-                        .foregroundStyle(.primary)
-                    if let area = viewModel.selectedArea {
-                        Text("· \(area.rawValue)")
-                            .font(.custom("AvenirNext-Medium", size: 14, relativeTo: .subheadline))
-                            .foregroundStyle(.secondary)
-                    }
+        return VStack(alignment: .leading, spacing: 12) {
+            Text("Total Acne")
+                .font(.system(size: 22, weight: .bold))
+                .foregroundStyle(.primary)
+
+            HStack(alignment: .center) {
+                Text("\(viewModel.filteredAcneA)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .monospacedDigit()
+
+                Image(systemName: "arrow.right")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, 12)
+                    .accessibilityHidden(true)
+
+                Text("\(viewModel.filteredAcneB)")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(.primary)
+                    .monospacedDigit()
+
+                Spacer()
+
+                // Delta Badge
+                VStack(spacing: 2) {
+                    Text("\(diff > 0 ? "+" : "")\(diff)")
+                        .font(.system(size: 16, weight: .bold))
+                        .foregroundStyle(primaryPurple)
+                    Text("Acne spots")
+                        .font(.system(size: 10, weight: .medium))
+                        .foregroundStyle(primaryPurple)
                 }
-
-                HStack(alignment: .center) {
-                    Text("\(viewModel.filteredAcneA)")
-                        .font(.custom("AvenirNext-Bold", size: 28, relativeTo: .title))
-                        .foregroundStyle(.primary)
-                        .monospacedDigit()
-
-                    Image(systemName: "arrow.right")
-                        .font(.custom("AvenirNext-DemiBold", size: 16, relativeTo: .callout))
-                        .foregroundStyle(.secondary)
-                        .padding(.horizontal, AppSpacing.xs)
-                        .accessibilityHidden(true)
-
-                    Text("\(viewModel.filteredAcneB)")
-                        .font(.custom("AvenirNext-Bold", size: 28, relativeTo: .title))
-                        .foregroundStyle(.primary)
-                        .monospacedDigit()
-
-                    Spacer()
-
-                    // Delta badge
-                    VStack(spacing: AppSpacing.xxs) {
-                        Text("\(diff > 0 ? "+" : "")\(diff)")
-                            .font(.custom("AvenirNext-Bold", size: 20, relativeTo: .title3))
-                            .foregroundStyle(diff <= 0 ? AppColor.accentPrimary : AppColor.accentDanger)
-                            .monospacedDigit()
-                        Text("Acne spots")
-                            .font(.custom("AvenirNext-Medium", size: 11, relativeTo: .caption2))
-                            .foregroundStyle(.secondary)
-                    }
-                    .padding(.horizontal, AppSpacing.sm)
-                    .padding(.vertical, AppSpacing.xs)
-                    .background(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                            .fill(AppColor.surfacePrimary)
-                    )
-                    .accessibilityLabel("\(diff > 0 ? "plus" : "")\(diff) acne spots")
-                }
-                .accessibilityElement(children: .combine)
-                .accessibilityLabel("Total acne: \(viewModel.filteredAcneA) before, \(viewModel.filteredAcneB) after")
+                .padding(.horizontal, 14)
+                .padding(.vertical, 8)
+                .background(cardFill)
+                .clipShape(RoundedRectangle(cornerRadius: 10))
             }
         }
     }
 
-    // MARK: - Acne Breakdown Card
+    // MARK: - Acne Breakdown Section
 
-    private var acneBreakdownCard: some View {
-        AppCard {
-            VStack(alignment: .leading, spacing: AppSpacing.md) {
-                // Segmented control (only visible when no specific facial area is selected)
-                if viewModel.selectedArea == nil {
-                    VStack(spacing: AppSpacing.md) {
-                        Picker("Acne breakdown", selection: $viewModel.acneMode) {
-                            ForEach(AcneBreakdownMode.allCases) { mode in
-                                Text(mode.label).tag(mode)
-                            }
-                        }
-                        .pickerStyle(.segmented)
-                        
-                        Divider()
+    private var acneBreakdownSection: some View {
+        VStack(alignment: .leading, spacing: 16) {
+            if viewModel.selectedArea == nil {
+                // All Mode: Native Segmented Control
+                Picker("Acne breakdown mode", selection: $viewModel.acneMode) {
+                    ForEach(AcneBreakdownMode.allCases) { mode in
+                        Text(mode.label).tag(mode)
                     }
-                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
                 }
+                .pickerStyle(.segmented)
 
-                // Rows driven by current mode
                 let rows = viewModel.acneMode == .byType
                     ? viewModel.acneTypeRows
                     : viewModel.acneAreaRows
 
-                ForEach(rows) { row in
-                    CompareBreakdownRow(row: row)
+                VStack(spacing: 12) {
+                    ForEach(rows) { row in
+                        CompareBreakdownRow(row: row, cardFill: cardFill, primaryPurple: primaryPurple)
+                    }
+                }
+            } else {
+                // Region Chip Mode: "Acne Type (i)" title (NO segmented button)
+                HStack(spacing: 4) {
+                    Text("Acne Type")
+                        .font(.system(size: 20, weight: .bold))
+                        .foregroundStyle(.primary)
+
+                    Image(systemName: "info.circle")
+                        .font(.system(size: 14))
+                        .foregroundStyle(.secondary)
+                        .accessibilityHidden(true)
+                }
+
+                VStack(spacing: 12) {
+                    ForEach(viewModel.acneTypeRows) { row in
+                        CompareBreakdownRow(row: row, cardFill: cardFill, primaryPurple: primaryPurple)
+                    }
                 }
             }
         }
@@ -287,36 +299,37 @@ private struct CompareAreaChip: View {
     let label: String
     let isSelected: Bool
     let imageData: Data?
+    let activeColor: Color
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: AppSpacing.xxs) {
+            HStack(spacing: 6) {
                 if let data = imageData, let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
-                        .frame(width: 20, height: 20)
+                        .frame(width: 22, height: 22)
                         .clipShape(Circle())
                 }
                 
                 Text(label)
-                    .font(.custom(isSelected ? "AvenirNext-DemiBold" : "AvenirNext-Regular", size: 14, relativeTo: .subheadline))
+                    .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
             }
-            .foregroundStyle(isSelected ? Color(uiColor: .systemBackground) : .primary)
-            .padding(.horizontal, AppSpacing.md)
-            .padding(.vertical, AppSpacing.xs)
+            .foregroundStyle(isSelected ? .white : .primary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .background(
                 Capsule().fill(
                     isSelected
-                        ? Color.primary
-                        : AppColor.surfacePrimary
+                        ? activeColor
+                        : Color(.systemBackground)
                 )
             )
             .overlay(
                 Capsule()
                     .stroke(
-                        isSelected ? Color.clear : AppColor.borderSubtle,
+                        isSelected ? Color.clear : Color(.systemGray4),
                         lineWidth: 1
                     )
             )
@@ -331,20 +344,26 @@ private struct CompareAreaChip: View {
 private struct CompareDateChip: View {
     let date: Date
     let formatter: DateFormatter
+    let borderColor: Color
 
     var body: some View {
-        HStack(spacing: AppSpacing.xxs) {
+        HStack {
             Text(formatter.string(from: date))
-                .font(AppTypography.caption)
+                .font(.system(size: 14, weight: .regular))
                 .foregroundStyle(.primary)
-                .lineLimit(1)
+
+            Spacer()
+
+            Image(systemName: "chevron.down")
+                .font(.system(size: 12, weight: .medium))
+                .foregroundStyle(.primary)
         }
-        .padding(.horizontal, AppSpacing.md)
-        .padding(.vertical, AppSpacing.xs)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
         .frame(maxWidth: .infinity)
         .background(
-            RoundedRectangle(cornerRadius: 20)
-                .stroke(Color(.systemGray4), lineWidth: 1)
+            RoundedRectangle(cornerRadius: 8)
+                .stroke(borderColor, lineWidth: 1)
         )
     }
 }
@@ -354,6 +373,7 @@ private struct CompareDateChip: View {
 private struct CompareFaceImage: View {
     let record: ScanRecord
     let selectedArea: ScanRecord.FaceArea?
+    let borderColor: Color
 
     private var currentImageData: Data? {
         if let area = selectedArea, let thumbnail = record.subZoneThumbnails?[area] {
@@ -362,38 +382,51 @@ private struct CompareFaceImage: View {
         return record.frontImageData
     }
 
+    private var photoTitle: String {
+        selectedArea?.rawValue ?? "Face Capture"
+    }
+
     var body: some View {
-        Group {
-            if let data = currentImageData, let uiImage = UIImage(data: data) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .id(selectedArea?.rawValue ?? "All")
-                    .transition(.opacity)
-            } else {
-                Rectangle()
-                    .fill(AppColor.surfacePrimary)
-                    .overlay(
-                        VStack(spacing: AppSpacing.xs) {
-                            Image(systemName: "person.crop.rectangle")
-                                .font(.custom("AvenirNext-Regular", size: 36, relativeTo: .largeTitle))
-                                .foregroundStyle(.secondary)
-                            Text("No Image")
-                                .font(.custom("AvenirNext-Regular", size: 11, relativeTo: .caption2))
-                                .foregroundStyle(.secondary)
-                        }
-                    )
+        NavigationLink {
+            FullPhotoDetailView(
+                imageData: currentImageData,
+                title: photoTitle,
+                dateText: CompareViewModel.displayDateFormatter.string(from: record.date)
+            )
+        } label: {
+            Group {
+                if let data = currentImageData, let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .id(selectedArea?.rawValue ?? "All")
+                        .transition(.opacity)
+                } else {
+                    Rectangle()
+                        .fill(Color(.systemBackground))
+                        .overlay(
+                            VStack(spacing: 8) {
+                                Image(systemName: "person.crop.rectangle")
+                                    .font(.system(size: 36))
+                                    .foregroundStyle(.secondary)
+                                Text("No Image")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.secondary)
+                            }
+                        )
+                }
             }
+            .animation(.easeInOut(duration: 0.25), value: selectedArea)
+            .frame(width: 181, height: 213)
+            .clipped()
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+            .overlay(
+                RoundedRectangle(cornerRadius: 12)
+                    .stroke(borderColor, lineWidth: 1)
+            )
         }
-        .animation(.easeInOut(duration: 0.25), value: selectedArea)
-        .frame(width: 181, height: 213)
-        .clipped()
-        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
-        .overlay(
-            RoundedRectangle(cornerRadius: AppCornerRadius.md)
-                .stroke(Color(.systemGray4), lineWidth: 0.5)
-        )
-        .accessibilityLabel(record.frontImageData != nil ? "Face capture" : "No face image available")
+        .buttonStyle(.plain)
+        .accessibilityLabel(record.frontImageData != nil ? "Face capture, tap to view full ratio photo" : "No face image available")
     }
 }
 
@@ -401,47 +434,106 @@ private struct CompareFaceImage: View {
 
 private struct CompareBreakdownRow: View {
     let row: AcneComparisonRow
+    let cardFill: Color
+    let primaryPurple: Color
 
     var body: some View {
-        HStack(spacing: AppSpacing.xs) {
+        HStack(spacing: 8) {
             Text(row.label)
-                .font(AppTypography.body)
+                .font(.system(size: 15, weight: .regular))
                 .foregroundStyle(.primary)
-                .frame(minWidth: 90, alignment: .leading)
+                .frame(minWidth: 100, alignment: .leading)
 
             Spacer()
 
             Text("\(row.valueA)")
-                .font(.custom("AvenirNext-Medium", size: 15, relativeTo: .subheadline))
-                .foregroundStyle(.secondary)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(.primary)
                 .monospacedDigit()
 
             Image(systemName: "arrow.right")
-                .font(.custom("AvenirNext-Regular", size: 11, relativeTo: .caption2))
+                .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
 
             Text("\(row.valueB)")
-                .font(.custom("AvenirNext-Medium", size: 15, relativeTo: .subheadline))
+                .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.primary)
                 .monospacedDigit()
 
-            // Delta badge
+            // Delta Badge
             let diff = row.delta
             Text("\(diff >= 0 ? "+" : "")\(diff)")
-                .font(.custom("AvenirNext-DemiBold", size: 13, relativeTo: .caption))
-                .foregroundStyle(diff <= 0 ? AppColor.accentPrimary : AppColor.accentDanger)
+                .font(.system(size: 13, weight: .bold))
+                .foregroundStyle(primaryPurple)
                 .monospacedDigit()
-                .frame(minWidth: 44)
-                .padding(.horizontal, AppSpacing.xs)
-                .padding(.vertical, AppSpacing.xxs)
-                .background(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                        .fill(AppColor.surfacePrimary)
-                )
+                .frame(width: 42)
+                .padding(.vertical, 6)
+                .background(cardFill)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
         }
-        .padding(.vertical, AppSpacing.xxs)
+        .padding(.vertical, 2)
         .accessibilityElement(children: .combine)
         .accessibilityLabel("\(row.label): \(row.valueA) before, \(row.valueB) after, difference \(row.delta)")
+    }
+}
+
+// MARK: - FullPhotoDetailView
+
+private struct FullPhotoDetailView: View {
+    let imageData: Data?
+    let title: String
+    let dateText: String
+
+    var body: some View {
+        ZStack {
+            Color(.systemBackground)
+                .ignoresSafeArea()
+
+            VStack(spacing: 20) {
+                Spacer()
+
+                if let data = imageData, let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFit()
+                        .clipShape(RoundedRectangle(cornerRadius: 16))
+                        .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 4)
+                        .padding(.horizontal, 16)
+                } else {
+                    ContentUnavailableView(
+                        "No Image Available",
+                        systemImage: "person.crop.rectangle",
+                        description: Text("No photo data found for this scan record.")
+                    )
+                }
+
+                Spacer()
+
+                // Date & Area Badge
+                HStack(spacing: 8) {
+                    Text(title)
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(.primary)
+
+                    Text("·")
+                        .foregroundStyle(.secondary)
+
+                    Text(dateText)
+                        .font(.system(size: 14, weight: .regular))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 16)
+                .padding(.vertical, 10)
+                .background(
+                    Capsule()
+                        .fill(Color(.secondarySystemGroupedBackground))
+                )
+                .padding(.bottom, 24)
+            }
+        }
+        .navigationTitle(title)
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar(.hidden, for: .tabBar)
     }
 }
