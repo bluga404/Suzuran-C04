@@ -2,57 +2,53 @@ import SwiftUI
 
 /// Onboarding Page 3 (Screen 4): "Ready to See Where It’s Going?"
 struct OnboardingPage3View: View {
-    let onStart: () -> Void
-
     var body: some View {
-        VStack(spacing: 0) {
-            Spacer(minLength: 40)
+        GeometryReader { geometry in
+            VStack(spacing: 0) {
+                // Top section (52% screen height): Main Asset Illustration lowered slightly
+                ZStack(alignment: .bottom) {
+                    Color.white
+                    Image("faceScanProgressTracking")
+                        .resizable()
+                        .scaledToFit()
+                        .frame(maxWidth: geometry.size.width, maxHeight: geometry.size.height * 0.44)
+                        .padding(.top, 36)
+                        .padding(.bottom, 8)
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height * 0.52)
 
-            // Main Asset Illustration
-            Image("faceScanProgressTracking")
-                .resizable()
-                .scaledToFit()
-                .frame(maxWidth: 260, maxHeight: 260)
-                .padding(.horizontal, 24)
-
-            Spacer(minLength: 32)
-
-            // Header & Description Section
-            VStack(spacing: 12) {
-                Text("Ready to See Where It’s Going?")
-                    .font(.title2)
-                    .fontWeight(.bold)
-                    .foregroundStyle(AppColor.textPrimary)
-                    .multilineTextAlignment(.center)
-
-                Text("Suzuran helps you understand your acne, make better choices about skincare ingredients, and finally find what works")
-                    .font(.body)
-                    .foregroundStyle(AppColor.textSecondary)
-                    .multilineTextAlignment(.center)
-                    .padding(.horizontal, 32)
-            }
-
-            Spacer()
-
-            // Start Button
-            Button(action: onStart) {
-                Text("Start")
-                    .font(.headline)
-                    .foregroundStyle(Color(UIColor.systemBackground))
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 52)
-                    .background(
-                        Capsule()
-                            .fill(AppColor.accentPrimary)
+                // Bottom section (48% screen height): Text area with pure White-to-Black gradient
+                ZStack(alignment: .top) {
+                    LinearGradient(
+                        colors: OnboardingStep.page3.gradientColors,
+                        startPoint: .top,
+                        endPoint: .bottom
                     )
+                    .ignoresSafeArea(edges: .bottom)
+
+                    VStack(spacing: 12) {
+                        Text("Ready to See Where It’s Going?")
+                            .font(.title2)
+                            .fontWeight(.bold)
+                            .foregroundStyle(Color(red: 0.1, green: 0.1, blue: 0.12))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 24)
+
+                        Text("Suzuran helps you understand your acne, make better choices about skincare ingredients, and finally find what works")
+                            .font(.body)
+                            .foregroundStyle(Color(red: 0.3, green: 0.32, blue: 0.38))
+                            .multilineTextAlignment(.center)
+                            .padding(.horizontal, 32)
+                    }
+                    .padding(.top, 40)
+                }
+                .frame(width: geometry.size.width, height: geometry.size.height * 0.48)
             }
-            .padding(.horizontal, 24)
-            .padding(.bottom, 40) // Space for native page indicator alignment
         }
-        .background(AppColor.backgroundPrimary.ignoresSafeArea())
+        .ignoresSafeArea()
     }
 }
 
 #Preview {
-    OnboardingPage3View(onStart: {})
+    OnboardingPage3View()
 }

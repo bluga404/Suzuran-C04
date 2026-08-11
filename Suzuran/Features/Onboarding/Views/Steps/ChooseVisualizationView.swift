@@ -13,7 +13,7 @@ struct ChooseVisualizationView: View {
                 Button(action: onBack) {
                     Image(systemName: "chevron.left")
                         .font(.system(size: 18, weight: .medium))
-                        .foregroundStyle(.black)
+                        .foregroundStyle(AppColor.textPrimary)
                 }
 
                 Spacer()
@@ -27,12 +27,12 @@ struct ChooseVisualizationView: View {
             VStack(spacing: 12) {
                 Text("Choose Your Visualization")
                     .font(.system(size: 26, weight: .bold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(AppColor.textPrimary)
                     .multilineTextAlignment(.center)
 
                 Text("Select the avatar you'd like to use for your illustrations and personalized reports.")
                     .font(.system(size: 14))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(AppColor.textPrimary)
                     .multilineTextAlignment(.center)
                     .padding(.horizontal, 24)
             }
@@ -65,18 +65,18 @@ struct ChooseVisualizationView: View {
             Button(action: onNext) {
                 Text("Next")
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(.white)
+                    .foregroundStyle(AppColor.textOnAccent)
                     .frame(maxWidth: .infinity)
                     .frame(height: 52)
                     .background(
                         Capsule()
-                            .fill(Color(white: 0.6))
+                            .fill(AppColor.accentPrimary)
                     )
             }
             .padding(.horizontal, 24)
             .padding(.bottom, 24)
         }
-        .background(Color.white.ignoresSafeArea())
+        .background(AppColor.backgroundPrimary.ignoresSafeArea())
     }
 
     // MARK: - Avatar Card Component
@@ -91,11 +91,11 @@ struct ChooseVisualizationView: View {
             HStack(spacing: 20) {
                 Image(systemName: iconName)
                     .font(.system(size: 28, weight: .regular))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(AppColor.textPrimary)
 
                 Text(gender.rawValue)
                     .font(.system(size: 17, weight: .bold))
-                    .foregroundStyle(.black)
+                    .foregroundStyle(AppColor.textPrimary)
 
                 Spacer()
             }
@@ -103,7 +103,7 @@ struct ChooseVisualizationView: View {
             .frame(height: 84)
             .background(
                 RoundedRectangle(cornerRadius: 16)
-                    .fill(Color(white: 0.94))
+                    .fill(AppColor.surfacePrimary)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 16)

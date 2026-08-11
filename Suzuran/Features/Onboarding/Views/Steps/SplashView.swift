@@ -22,9 +22,10 @@ struct SplashView: View {
                     .foregroundStyle(AppColor.textPrimary)
             }
         }
-        .contentShape(Rectangle())
-        .onTapGesture {
-            onContinue()
+        .onAppear {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                onContinue()
+            }
         }
     }
 }
