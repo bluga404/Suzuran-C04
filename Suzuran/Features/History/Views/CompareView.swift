@@ -378,11 +378,22 @@ private struct CompareFaceImage: View {
     ]
 
     static func cropImageData(_ data: Data?, area: ScanRecord.FaceArea) -> Data? {
-        guard let data = data else { return nil }
+        guard let data = data, !data.isEmpty else { return nil }
         #if canImport(UIKit)
         guard let cropRect = subZoneCrops[area],
-              let uiImage = UIImage(data: data),
-              let cgImage = uiImage.cgImage else { return nil }
+              let rawImage = UIImage(data: data) else { return nil }
+
+        let normalised: UIImage
+        if rawImage.imageOrientation == .up {
+            normalised = rawImage
+        } else {
+            let renderer = UIGraphicsImageRenderer(size: rawImage.size)
+            normalised = renderer.image { _ in
+                rawImage.draw(in: CGRect(origin: .zero, size: rawImage.size))
+            }
+        }
+
+        guard let cgImage = normalised.cgImage else { return nil }
 
         let width = CGFloat(cgImage.width)
         let height = CGFloat(cgImage.height)
@@ -392,7 +403,7 @@ private struct CompareFaceImage: View {
             y: cropRect.origin.y * height,
             width: cropRect.size.width * width,
             height: cropRect.size.height * height
-        )
+        ).integral
 
         guard let cropped = cgImage.cropping(to: pixelRect) else { return nil }
         return UIImage(cgImage: cropped).jpegData(compressionQuality: 0.85)
@@ -418,10 +429,13 @@ private struct CompareFaceImage: View {
     }
 
     var body: some View {
+        let displayImageData = currentImageData
+        let displayTitle = photoTitle
+
         NavigationLink {
             FullPhotoDetailView(
-                imageData: currentImageData,
-                title: photoTitle,
+                imageData: displayImageData,
+                title: displayTitle,
                 dateText: CompareViewModel.displayDateFormatter.string(from: record.date)
             )
         } label: {
