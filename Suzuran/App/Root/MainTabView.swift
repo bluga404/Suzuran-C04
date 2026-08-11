@@ -38,7 +38,7 @@ struct MainTabView: View {
             }
 
             Tab("Report", systemImage: "chart.line.uptrend.xyaxis", value: .report) {
-                ReportTabView()
+                ReportFactory.makeView()
             }
         }
         .tint(AppColor.accentPrimary)
