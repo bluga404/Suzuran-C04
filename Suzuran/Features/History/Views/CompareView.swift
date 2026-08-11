@@ -8,6 +8,15 @@ import UIKit
 struct CompareView: View {
     @ObservedObject var viewModel: CompareViewModel
 
+    struct PhotoDetailPayload: Identifiable, Hashable {
+        let id = UUID()
+        let imageData: Data?
+        let title: String
+        let dateText: String
+    }
+
+    @State private var activeDetailPayload: PhotoDetailPayload? = nil
+
     // MARK: - Color & Style Tokens
 
     private let primaryPurple = Color(red: 91/255, green: 67/255, blue: 177/255)  // #5B43B1
@@ -41,6 +50,13 @@ struct CompareView: View {
         .navigationTitle("Compare")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+        .navigationDestination(item: $activeDetailPayload) { payload in
+            FullPhotoDetailView(
+                imageData: payload.imageData,
+                title: payload.title,
+                dateText: payload.dateText
+            )
+        }
     }
 
     // MARK: - Area Filter Chips
@@ -101,8 +117,21 @@ struct CompareView: View {
 
     private var faceImages: some View {
         HStack(spacing: 8) {
-            CompareFaceImage(record: viewModel.recordA, selectedArea: viewModel.selectedArea, borderColor: cardBorder)
-            CompareFaceImage(record: viewModel.recordB, selectedArea: viewModel.selectedArea, borderColor: cardBorder)
+            CompareFaceImage(
+                record: viewModel.recordA,
+                selectedArea: viewModel.selectedArea,
+                borderColor: cardBorder
+            ) { imageData, title, dateText in
+                activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
+            }
+
+            CompareFaceImage(
+                record: viewModel.recordB,
+                selectedArea: viewModel.selectedArea,
+                borderColor: cardBorder
+            ) { imageData, title, dateText in
+                activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
+            }
         }
     }
 
@@ -368,6 +397,7 @@ private struct CompareFaceImage: View {
     let record: ScanRecord
     let selectedArea: ScanRecord.FaceArea?
     let borderColor: Color
+    let onTap: (Data?, String, String) -> Void
 
     private static let subZoneCrops: [ScanRecord.FaceArea: CGRect] = [
         .forehead:   CGRect(x: 0.15, y: 0.08, width: 0.70, height: 0.32),
@@ -431,16 +461,13 @@ private struct CompareFaceImage: View {
     var body: some View {
         let displayImageData = currentImageData
         let displayTitle = photoTitle
+        let dateStr = CompareViewModel.displayDateFormatter.string(from: record.date)
 
-        NavigationLink {
-            FullPhotoDetailView(
-                imageData: displayImageData,
-                title: displayTitle,
-                dateText: CompareViewModel.displayDateFormatter.string(from: record.date)
-            )
+        Button {
+            onTap(displayImageData, displayTitle, dateStr)
         } label: {
             Group {
-                if let data = currentImageData, let uiImage = UIImage(data: data) {
+                if let data = displayImageData, let uiImage = UIImage(data: data) {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFill()
@@ -471,7 +498,7 @@ private struct CompareFaceImage: View {
             )
         }
         .buttonStyle(.plain)
-        .accessibilityLabel(record.frontImageData != nil ? "Face capture, tap to view full ratio photo" : "No face image available")
+        .accessibilityLabel(record.frontImageData != nil ? "\(displayTitle), tap to view full photo" : "No face image available")
     }
 }
 
