@@ -37,32 +37,6 @@ struct CompareView: View {
         .scrollEdgeEffectStyle(.soft, for: .top)
         .navigationTitle("Compare")
         .navigationBarTitleDisplayMode(.inline)
-        // Date picker for "before" slot
-        .confirmationDialog(
-            "Select 'Before' Date",
-            isPresented: $viewModel.showDatePickerA,
-            titleVisibility: .visible
-        ) {
-            ForEach(viewModel.candidatesForA) { record in
-                Button(CompareViewModel.displayDateFormatter.string(from: record.date)) {
-                    viewModel.selectRecordA(record)
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
-        // Date picker for "after" slot
-        .confirmationDialog(
-            "Select 'After' Date",
-            isPresented: $viewModel.showDatePickerB,
-            titleVisibility: .visible
-        ) {
-            ForEach(viewModel.candidatesForB) { record in
-                Button(CompareViewModel.displayDateFormatter.string(from: record.date)) {
-                    viewModel.selectRecordB(record)
-                }
-            }
-            Button("Cancel", role: .cancel) {}
-        }
     }
 
     // MARK: - Area Filter Chips
@@ -73,7 +47,8 @@ struct CompareView: View {
                 // "All" chip
                 CompareAreaChip(
                     label: "All",
-                    isSelected: viewModel.selectedArea == nil
+                    isSelected: viewModel.selectedArea == nil,
+                    imageData: nil
                 ) {
                     withAnimation(.easeInOut(duration: 0.18)) {
                         viewModel.selectedArea = nil
@@ -83,7 +58,8 @@ struct CompareView: View {
                 ForEach(ScanRecord.FaceArea.allCases) { area in
                     CompareAreaChip(
                         label: area.rawValue,
-                        isSelected: viewModel.selectedArea == area
+                        isSelected: viewModel.selectedArea == area,
+                        imageData: viewModel.recordB.subZoneThumbnails?[area]
                     ) {
                         withAnimation(.easeInOut(duration: 0.18)) {
                             viewModel.selectedArea = area
@@ -99,29 +75,17 @@ struct CompareView: View {
 
     private var dateSelectors: some View {
         HStack(spacing: AppSpacing.sm) {
-            // Tap to switch "before" record
-            Button {
-                viewModel.showDatePickerA = true
-            } label: {
-                CompareDateChip(
-                    date: viewModel.recordA.date,
-                    formatter: CompareViewModel.displayDateFormatter
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("Before date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordA.date)). Tap to change.")
+            CompareDateChip(
+                date: viewModel.recordA.date,
+                formatter: CompareViewModel.displayDateFormatter
+            )
+            .accessibilityLabel("Before date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordA.date))")
 
-            // Tap to switch "after" record
-            Button {
-                viewModel.showDatePickerB = true
-            } label: {
-                CompareDateChip(
-                    date: viewModel.recordB.date,
-                    formatter: CompareViewModel.displayDateFormatter
-                )
-            }
-            .buttonStyle(.plain)
-            .accessibilityLabel("After date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordB.date)). Tap to change.")
+            CompareDateChip(
+                date: viewModel.recordB.date,
+                formatter: CompareViewModel.displayDateFormatter
+            )
+            .accessibilityLabel("After date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordB.date))")
         }
     }
 
@@ -129,8 +93,8 @@ struct CompareView: View {
 
     private var faceImages: some View {
         HStack(spacing: AppSpacing.sm) {
-            CompareFaceImage(record: viewModel.recordA)
-            CompareFaceImage(record: viewModel.recordB)
+            CompareFaceImage(record: viewModel.recordA, selectedArea: viewModel.selectedArea)
+            CompareFaceImage(record: viewModel.recordB, selectedArea: viewModel.selectedArea)
         }
     }
 
@@ -289,15 +253,20 @@ struct CompareView: View {
     private var acneBreakdownCard: some View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                // Segmented control
-                Picker("Acne breakdown", selection: $viewModel.acneMode) {
-                    ForEach(AcneBreakdownMode.allCases) { mode in
-                        Text(mode.label).tag(mode)
+                // Segmented control (only visible when no specific facial area is selected)
+                if viewModel.selectedArea == nil {
+                    VStack(spacing: AppSpacing.md) {
+                        Picker("Acne breakdown", selection: $viewModel.acneMode) {
+                            ForEach(AcneBreakdownMode.allCases) { mode in
+                                Text(mode.label).tag(mode)
+                            }
+                        }
+                        .pickerStyle(.segmented)
+                        
+                        Divider()
                     }
+                    .transition(.opacity.combined(with: .scale(scale: 0.95)))
                 }
-                .pickerStyle(.segmented)
-
-                Divider()
 
                 // Rows driven by current mode
                 let rows = viewModel.acneMode == .byType
@@ -317,29 +286,40 @@ struct CompareView: View {
 private struct CompareAreaChip: View {
     let label: String
     let isSelected: Bool
+    let imageData: Data?
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Text(label)
-                .font(.custom(isSelected ? "AvenirNext-DemiBold" : "AvenirNext-Regular", size: 14, relativeTo: .subheadline))
-                .foregroundStyle(isSelected ? Color(uiColor: .systemBackground) : .primary)
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.vertical, AppSpacing.xs)
-                .background(
-                    Capsule().fill(
-                        isSelected
-                            ? Color.primary
-                            : AppColor.surfacePrimary
+            HStack(spacing: AppSpacing.xxs) {
+                if let data = imageData, let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 20, height: 20)
+                        .clipShape(Circle())
+                }
+                
+                Text(label)
+                    .font(.custom(isSelected ? "AvenirNext-DemiBold" : "AvenirNext-Regular", size: 14, relativeTo: .subheadline))
+            }
+            .foregroundStyle(isSelected ? Color(uiColor: .systemBackground) : .primary)
+            .padding(.horizontal, AppSpacing.md)
+            .padding(.vertical, AppSpacing.xs)
+            .background(
+                Capsule().fill(
+                    isSelected
+                        ? Color.primary
+                        : AppColor.surfacePrimary
+                )
+            )
+            .overlay(
+                Capsule()
+                    .stroke(
+                        isSelected ? Color.clear : AppColor.borderSubtle,
+                        lineWidth: 1
                     )
-                )
-                .overlay(
-                    Capsule()
-                        .stroke(
-                            isSelected ? Color.clear : AppColor.borderSubtle,
-                            lineWidth: 1
-                        )
-                )
+            )
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isSelected ? "\(label), selected" : label)
@@ -358,9 +338,6 @@ private struct CompareDateChip: View {
                 .font(AppTypography.caption)
                 .foregroundStyle(.primary)
                 .lineLimit(1)
-            Image(systemName: "chevron.down")
-                .font(.custom("AvenirNext-Regular", size: 10, relativeTo: .caption2))
-                .foregroundStyle(.secondary)
         }
         .padding(.horizontal, AppSpacing.md)
         .padding(.vertical, AppSpacing.xs)
@@ -376,13 +353,23 @@ private struct CompareDateChip: View {
 
 private struct CompareFaceImage: View {
     let record: ScanRecord
+    let selectedArea: ScanRecord.FaceArea?
+
+    private var currentImageData: Data? {
+        if let area = selectedArea, let thumbnail = record.subZoneThumbnails?[area] {
+            return thumbnail
+        }
+        return record.frontImageData
+    }
 
     var body: some View {
         Group {
-            if let data = record.frontImageData, let uiImage = UIImage(data: data) {
+            if let data = currentImageData, let uiImage = UIImage(data: data) {
                 Image(uiImage: uiImage)
                     .resizable()
                     .scaledToFill()
+                    .id(selectedArea?.rawValue ?? "All")
+                    .transition(.opacity)
             } else {
                 Rectangle()
                     .fill(AppColor.surfacePrimary)
@@ -398,8 +385,9 @@ private struct CompareFaceImage: View {
                     )
             }
         }
-        .frame(maxWidth: .infinity)
-        .aspectRatio(0.75, contentMode: .fit)
+        .animation(.easeInOut(duration: 0.25), value: selectedArea)
+        .frame(width: 181, height: 213)
+        .clipped()
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
         .overlay(
             RoundedRectangle(cornerRadius: AppCornerRadius.md)

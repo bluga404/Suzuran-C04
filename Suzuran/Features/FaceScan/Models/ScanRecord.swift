@@ -19,6 +19,8 @@ struct ScanRecord: Identifiable, Codable, Equatable {
     let acneTypeCounts: [AcneTypeCount]
     /// Per-area acne counts. Stored alongside type counts for Compare view.
     let acneAreaCounts: [AcneAreaCount]
+    /// Cropped thumbnails for each specific facial sub-zone (Forehead, Nose, Chin, Left Cheek, Right Cheek)
+    let subZoneThumbnails: [FaceArea: Data]?
 
     /// Codable wrapper for acne type + count pair.
     struct AcneTypeCount: Codable, Equatable {
@@ -65,7 +67,8 @@ struct ScanRecord: Identifiable, Codable, Equatable {
         totalAcneCount: Int,
         severity: AcneSeverity,
         acneTypeCounts: [AcneTypeCount],
-        acneAreaCounts: [AcneAreaCount] = []
+        acneAreaCounts: [AcneAreaCount] = [],
+        subZoneThumbnails: [FaceArea: Data]? = nil
     ) {
         self.id = id
         self.date = date
@@ -75,5 +78,6 @@ struct ScanRecord: Identifiable, Codable, Equatable {
         self.severity = severity
         self.acneTypeCounts = acneTypeCounts
         self.acneAreaCounts = acneAreaCounts
+        self.subZoneThumbnails = subZoneThumbnails
     }
 }

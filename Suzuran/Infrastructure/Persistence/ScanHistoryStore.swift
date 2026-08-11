@@ -32,6 +32,13 @@ final class ScanHistoryStore: ObservableObject {
 
         let frontImageData = result.zoneSummaries
             .first(where: { $0.zone == .front })?.imageData
+            
+        var thumbnails: [ScanRecord.FaceArea: Data] = [:]
+        for subZone in result.subZoneSummaries {
+            if let area = ScanRecord.FaceArea(rawValue: subZone.label), let data = subZone.imageData {
+                thumbnails[area] = data
+            }
+        }
 
         let record = ScanRecord(
             id: UUID(),
@@ -42,7 +49,8 @@ final class ScanHistoryStore: ObservableObject {
             severity: result.overallSeverity,
             acneTypeCounts: result.acneTypeSummaries.map {
                 ScanRecord.AcneTypeCount(acneType: $0.acneType, count: $0.count)
-            }
+            },
+            subZoneThumbnails: thumbnails.isEmpty ? nil : thumbnails
         )
 
         // Remove any existing record for the same calendar day
