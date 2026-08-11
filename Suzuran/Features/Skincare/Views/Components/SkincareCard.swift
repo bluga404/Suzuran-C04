@@ -6,17 +6,37 @@ struct SkincareCard: View {
     var onEdit: (() -> Void)? = nil
 
     var body: some View {
-        AppCard {
-            HStack(spacing: AppSpacing.md) {
-                // Left Icon Box
-                ZStack {
-                    RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                        .fill(AppColor.backgroundPrimary)
-                        .frame(width: 48, height: 48)
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                                .stroke(AppColor.borderSubtle, lineWidth: 1)
-                        )
+        Button(action: onTap) {
+            AppCard {
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                    HStack(alignment: .top) {
+                        VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                            Text(product.name)
+                                .font(AppTypography.bodyBold)
+                                .foregroundStyle(AppColor.textPrimary)
+                                .lineLimit(1)
+                            
+                            Text(product.brand)
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColor.textSecondary)
+                                .lineLimit(1)
+                        }
+                        
+                        Spacer()
+                        
+                        // Category Badge
+                        Text(product.category.displayName)
+                            .font(.system(size: 11, weight: .medium))
+                            .padding(.horizontal, AppSpacing.sm)
+                            .padding(.vertical, 4)
+                            .background(AppColor.backgroundPrimary)
+                            .foregroundStyle(AppColor.textSecondary)
+                            .clipShape(Capsule())
+                            .overlay(
+                                Capsule()
+                                    .stroke(AppColor.borderSubtle, lineWidth: 1)
+                            )
+                    }
                     
                     Image(systemName: product.category.iconSystemName)
                         .font(.system(size: 24))

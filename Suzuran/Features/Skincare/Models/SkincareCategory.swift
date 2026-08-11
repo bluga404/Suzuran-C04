@@ -1,39 +1,29 @@
 import Foundation
 
-/// Enum representasi kategori produk skincare pengguna.
 enum SkincareCategory: String, Codable, CaseIterable, Identifiable {
-    case cleanser
-    case toner
-    case serum
-    case moisturizer
-    case sunscreen
-    case treatment
-
-    // MARK: - Identifiable
-
-    var id: String { rawValue }
-
-    // MARK: - Display
-
+    case cleanser = "Cleanser"
+    case toner = "Toner"
+    case serum = "Serum"
+    case moisturizer = "Moisturizer"
+    case sunscreen = "Sunscreen"
+    case faceMask = "Face Mask"
+    case other = "Other"
+    
+    var id: String { self.rawValue }
+    
     var displayName: String {
-        switch self {
-        case .cleanser:    return "Pembersih"
-        case .toner:       return "Toner"
-        case .serum:       return "Serum"
-        case .moisturizer: return "Pelembap"
-        case .sunscreen:   return "Sunscreen"
-        case .treatment:   return "Treatment"
-        }
+        return self.rawValue
     }
-
-    var iconSystemName: String {
+    
+    var iconName: String {
         switch self {
-        case .cleanser:    return "bubbles.and.sparkles"
-        case .toner:       return "drop"
-        case .serum:       return "drop.halffull"
+        case .cleanser: return "bubbles.and.sparkles"
+        case .toner: return "drop"
+        case .serum: return "flask"
         case .moisturizer: return "drop.fill"
-        case .sunscreen:   return "sun.max"
-        case .treatment:   return "cross.case"
+        case .sunscreen: return "sun.max"
+        case .faceMask: return "face.dashed"
+        case .other: return "sparkles"
         }
     }
 }

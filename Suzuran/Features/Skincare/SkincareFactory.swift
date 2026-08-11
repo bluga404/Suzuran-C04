@@ -15,41 +15,23 @@ import SwiftUI
 /// state and `AppContainer`'s public API is untouched apart from one additive
 /// line (Req 20.3, 20.5).
 enum SkincareFactory {
-
-    /// Optional provider for the newest ``ScanRecord``. Set once, additively, from
-    /// `AppContainer.live()`. When unset, ``AcneProfileProvider`` returns an empty
-    /// active-acne list (Req 8.2, 8.6).
-    static var scanHistoryStoreProvider: (() -> ScanRecord?)?
+    
+    // Single shared instance ensures the JSON databases are only decoded once
+    private static let ingredientRepository = SkincareIngredientRepository()
 
     @MainActor
     static func makeView(onDismiss: @escaping () -> Void = {}) -> some View {
-        // Shared, decoded-once reference database (Req 6.6).
-        let db = IngredientDB.shared
-
-        // Split repositories (Req 6.1, 6.2, 6.3).
-        let cosingRepo = CosingIngredientRepository(db: db)
-        let acneRepo = AcneIngredientRepository(db: db)
-
-        // Pure matcher (Req 5.4, 7.x).
-        let matcher = IngredientMatchingService(acneRepo: acneRepo)
-
-        // Real acne profile, read-only from scan history (Req 8).
-        let profile = AcneProfileProvider(
-            latestRecordProvider: { scanHistoryStoreProvider?() }
-        )
-
-        // Persistence.
-        let productRepo = SkincareProductRepository()
-
+        let repository = SkincareProductRepository()
+        let provider = AcneProfileProvider()
         let viewModel = SkincareViewModel(
-            productRepo: productRepo,
-            matcher: matcher,
-            profile: profile
+            skincareRepository: repository,
+            acneRepository: acneRepository,
+            acneProfileProvider: provider
         )
 
         return SkincareView(
             viewModel: viewModel,
-            ingredientRepo: cosingRepo,
+            ingredientRepository: ingredientRepository,
             onDismiss: onDismiss
         )
     }

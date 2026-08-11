@@ -22,23 +22,16 @@ protocol AcneProfileProviding {
 /// - No network, no ML inference — read-only (Req 8.4).
 ///
 final class AcneProfileProvider: AcneProfileProviding {
+    private let historyStore: ScanHistoryStore
 
-    private let latestRecordProvider: () -> ScanRecord?
-    private let logger: AppLogging
-
-    init(latestRecordProvider: @escaping () -> ScanRecord?, logger: AppLogging = AppLogger()) {
-        self.latestRecordProvider = latestRecordProvider
-        self.logger = logger
+    init(historyStore: ScanHistoryStore) {
+        self.historyStore = historyStore
     }
 
     func getActiveAcneTypes() -> [AcneType] {
-        guard let latest = latestRecordProvider() else {
-            // No scan stored, or provider not wired — fail soft (Req 8.2, 8.6).
+        guard let latestScan = historyStore.records.first else {
             return []
         }
-        return latest.acneTypeCounts
-            .filter { $0.count > 0 && $0.acneType != .unknown }   // Req 8.3
-            .map { $0.acneType }
-            .sorted { $0.rawValue < $1.rawValue }                  // deterministic
+        return latestScan.acneTypeCounts.map { $0.acneType }
     }
 }

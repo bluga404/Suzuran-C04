@@ -1,0 +1,278 @@
+
+<svg width="402px" height="1627px" viewBox="0 0 402 1627" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <path d="M99.2,0 L302.8,0 C337.523255,0 354.884883,0 368.147411,6.7575955 C379.813461,12.7017447 389.298255,22.1865393 395.242404,33.852589 C402,47.1151169 402,64.4767446 402,99.2 L402,1527.8 C402,1562.52326 402,1579.88488 395.242404,1593.14741 C389.298255,1604.81346 379.813461,1614.29826 368.147411,1620.2424 C354.884883,1627 337.523255,1627 302.8,1627 L99.2,1627 C64.4767446,1627 47.1151169,1627 33.852589,1620.2424 C22.1865393,1614.29826 12.7017447,1604.81346 6.7575955,1593.14741 C0,1579.88488 0,1562.52326 0,1527.8 L0,99.2 C0,64.4767446 0,47.1151169 6.7575955,33.852589 C12.7017447,22.1865393 22.1865393,12.7017447 33.852589,6.7575955 C47.1151169,0 64.4767446,0 99.2,0 Z" id="path-sgoqk92r2c-1"></path>
+        <path d="M8,1196 L362,1196 C366.418278,1196 370,1199.58172 370,1204 L370,1281 C370,1285.41828 366.418278,1289 362,1289 L8,1289 C3.581722,1289 0,1285.41828 0,1281 L0,1204 C0,1199.58172 3.581722,1196 8,1196 Z M8,1094 L362,1094 C366.418278,1094 370,1097.58172 370,1102 L370,1179 C370,1183.41828 366.418278,1187 362,1187 L8,1187 C3.581722,1187 0,1183.41828 0,1179 L0,1102 C0,1097.58172 3.581722,1094 8,1094 Z M281,1057 L355,1057 L370,1057 L370,1085 L355,1085 L281,1085 L281,1057 Z M0,1061 L67,1061 L67,1081 L0,1081 Z M370,891 L370,1017 C370,1021.41828 366.418278,1025 362,1025 L8,1025 C3.581722,1025 0,1021.41828 0,1017 L0,891 L0,765 C0,760.581722 3.581722,757 8,757 L362,757 C366.418278,757 370,760.581722 370,765 L370,891 Z M0,724 L233,724 L233,749 L0,749 Z M370,602 L370,647 L370,684 C370,688.418278 366.418278,692 362,692 L8,692 C3.581722,692 0,688.418278 0,684 L0,647 L0,602 L0,496 C0,491.581722 3.581722,488 8,488 L362,488 C366.418278,488 370,491.581722 370,496 L370,602 Z M0,455 L142,455 L142,480 L0,480 Z M370,333 L370,378 L370,415 C370,419.418278 366.418278,423 362,423 L8,423 C3.581722,423 0,419.418278 0,415 L0,378 L0,333 L0,187 C0,182.581722 3.581722,179 8,179 L362,179 C366.418278,179 370,182.581722 370,187 L370,333 Z M0,142 L208,142 L208,167 L0,167 Z M0,0 L370,0 L370,110 L0,110 Z" id="path-sgoqk92r2c-2"></path>
+        <path d="M8,139 L362,139 C366.418278,139 370,142.581722 370,147 L370,224 C370,228.418278 366.418278,232 362,232 L8,232 C3.581722,232 0,228.418278 0,224 L0,147 C0,142.581722 3.581722,139 8,139 Z M8,37 L362,37 C366.418278,37 370,40.581722 370,45 L370,122 C370,126.418278 366.418278,130 362,130 L8,130 C3.581722,130 0,126.418278 0,122 L0,45 C0,40.581722 3.581722,37 8,37 Z M281,0 L355,0 L370,0 L370,28 L355,28 L281,28 L281,0 Z M0,4 L67,4 L67,24 L0,24 Z" id="path-sgoqk92r2c-3"></path>
+        <path d="M8,139 L362,139 C366.418278,139 370,142.581722 370,147 L370,224 C370,228.418278 366.418278,232 362,232 L8,232 C3.581722,232 0,228.418278 0,224 L0,147 C0,142.581722 3.581722,139 8,139 Z M8,37 L362,37 C366.418278,37 370,40.581722 370,45 L370,122 C370,126.418278 366.418278,130 362,130 L8,130 C3.581722,130 0,126.418278 0,122 L0,45 C0,40.581722 3.581722,37 8,37 Z M281,0 L355,0 L370,0 L370,28 L355,28 L281,28 L281,0 Z M0,4 L67,4 L67,24 L0,24 Z" id="path-sgoqk92r2c-4"></path>
+        <path d="M8,0 L362,0 C366.418278,0 370,3.581722 370,8 L370,85 C370,89.418278 366.418278,93 362,93 L8,93 C3.581722,93 0,89.418278 0,85 L0,8 C0,3.581722 3.581722,0 8,0 Z" id="path-sgoqk92r2c-5"></path>
+        <path d="M33,56 L178,56 L178,69 L33,69 Z M33,0 L350,0 L350,45 L33,45 Z M0,22.5 L25,22.5 L25,46.5 L0,46.5 Z" id="path-sgoqk92r2c-6"></path>
+        <path d="M0,56 L145,56 L145,69 L0,69 Z M0,0 L317,0 L317,45 L0,45 Z" id="path-sgoqk92r2c-7"></path>
+        <path d="M0,0 L145,0 L145,13 L0,13 Z" id="path-sgoqk92r2c-8"></path>
+        <path d="M8,0 L362,0 C366.418278,0 370,3.581722 370,8 L370,85 C370,89.418278 366.418278,93 362,93 L8,93 C3.581722,93 0,89.418278 0,85 L0,8 C0,3.581722 3.581722,0 8,0 Z" id="path-sgoqk92r2c-9"></path>
+        <path d="M33,56 L178,56 L178,69 L33,69 Z M33,0 L350,0 L350,45 L33,45 Z M0,22.5 L25,22.5 L25,46.5 L0,46.5 Z" id="path-sgoqk92r2c-10"></path>
+        <path d="M0,56 L145,56 L145,69 L0,69 Z M0,0 L317,0 L317,45 L0,45 Z" id="path-sgoqk92r2c-11"></path>
+        <path d="M0,0 L145,0 L145,13 L0,13 Z" id="path-sgoqk92r2c-12"></path>
+        <path d="M281,0 L355,0 L370,0 L370,28 L355,28 L281,28 L281,0 Z M0,4 L67,4 L67,24 L0,24 Z" id="path-sgoqk92r2c-13"></path>
+        <path d="M0,0 L74,0 L89,0 L89,28 L74,28 L0,28 L0,0 Z" id="path-sgoqk92r2c-14"></path>
+        <path d="M0,0 L67,0 L67,20 L0,20 Z" id="path-sgoqk92r2c-15"></path>
+        <path d="M370,167 L370,293 C370,297.418278 366.418278,301 362,301 L8,301 C3.581722,301 0,297.418278 0,293 L0,167 L0,41 C0,36.581722 3.581722,33 8,33 L362,33 C366.418278,33 370,36.581722 370,41 L370,167 Z M0,0 L233,0 L233,25 L0,25 Z" id="path-sgoqk92r2c-16"></path>
+        <path d="M370,134 L370,260 C370,264.418278 366.418278,268 362,268 L8,268 C3.581722,268 0,264.418278 0,260 L0,134 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 C366.418278,0 370,3.581722 370,8 L370,134 Z" id="path-sgoqk92r2c-17"></path>
+        <path d="M0,0 L370,0 L370,126 C370,130.418278 366.418278,134 362,134 L8,134 C3.581722,134 0,130.418278 0,126 L0,0 Z" id="path-sgoqk92r2c-18"></path>
+        <path d="M323,0 L345,0 L345,24 L323,24 Z M0,2 L46,2 L46,22 L0,22 Z" id="path-sgoqk92r2c-19"></path>
+        <path d="M0,0 L22,0 L22,24 L0,24 Z" id="path-sgoqk92r2c-20"></path>
+        <path d="M0,0 L46,0 L46,20 L0,20 Z" id="path-sgoqk92r2c-21"></path>
+        <path d="M8,0 L362,0 C366.418278,0 370,3.581722 370,8 L370,134 L0,134 L0,8 C0,3.581722 3.581722,0 8,0 Z" id="path-sgoqk92r2c-22"></path>
+        <path d="M323,0 L345,0 L345,24 L323,24 Z M0,2 L102,2 L102,22 L0,22 Z" id="path-sgoqk92r2c-23"></path>
+        <path d="M0,0 L22,0 L22,24 L0,24 Z" id="path-sgoqk92r2c-24"></path>
+        <path d="M0,0 L102,0 L102,20 L0,20 Z" id="path-sgoqk92r2c-25"></path>
+        <path d="M0,0 L233,0 L233,25 L0,25 Z" id="path-sgoqk92r2c-26"></path>
+        <path d="M0,0 L233,0 L233,25 L0,25 Z" id="path-sgoqk92r2c-27"></path>
+        <path d="M370,147 L370,192 L370,229 C370,233.418278 366.418278,237 362,237 L8,237 C3.581722,237 0,233.418278 0,229 L0,192 L0,147 L0,41 C0,36.581722 3.581722,33 8,33 L362,33 C366.418278,33 370,36.581722 370,41 L370,147 Z M0,0 L142,0 L142,25 L0,25 Z" id="path-sgoqk92r2c-28"></path>
+        <path d="M370,114 L370,159 L370,196 C370,200.418278 366.418278,204 362,204 L8,204 C3.581722,204 0,200.418278 0,196 L0,159 L0,114 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 C366.418278,0 370,3.581722 370,8 L370,114 Z" id="path-sgoqk92r2c-29"></path>
+        <path d="M0,0 L370,0 L370,37 C370,41.418278 366.418278,45 362,45 L8,45 C3.581722,45 0,41.418278 0,37 L0,0 Z" id="path-sgoqk92r2c-30"></path>
+        <path d="M0,0 L370,0 L370,45 L0,45 Z" id="path-sgoqk92r2c-31"></path>
+        <path d="M8,0 L362,0 C366.418278,0 370,3.581722 370,8 L370,114 L0,114 L0,8 C0,3.581722 3.581722,0 8,0 Z" id="path-sgoqk92r2c-32"></path>
+        <path d="M323,0 L345,0 L345,24 L323,24 Z M0,2 L65,2 L65,22 L0,22 Z" id="path-sgoqk92r2c-33"></path>
+        <path d="M0,0 L22,0 L22,24 L0,24 Z" id="path-sgoqk92r2c-34"></path>
+        <path d="M0,0 L65,0 L65,20 L0,20 Z" id="path-sgoqk92r2c-35"></path>
+        <path d="M0,0 L142,0 L142,25 L0,25 Z" id="path-sgoqk92r2c-36"></path>
+        <path d="M0,0 L142,0 L142,25 L0,25 Z" id="path-sgoqk92r2c-37"></path>
+        <path d="M370,191 L370,236 L370,273 C370,277.418278 366.418278,281 362,281 L8,281 C3.581722,281 0,277.418278 0,273 L0,236 L0,191 L0,45 C0,40.581722 3.581722,37 8,37 L362,37 C366.418278,37 370,40.581722 370,45 L370,191 Z M0,0 L208,0 L208,25 L0,25 Z" id="path-sgoqk92r2c-38"></path>
+        <path d="M370,154 L370,199 L370,236 C370,240.418278 366.418278,244 362,244 L8,244 C3.581722,244 0,240.418278 0,236 L0,199 L0,154 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 C366.418278,0 370,3.581722 370,8 L370,154 Z" id="path-sgoqk92r2c-39"></path>
+        <path d="M0,0 L370,0 L370,37 C370,41.418278 366.418278,45 362,45 L8,45 C3.581722,45 0,41.418278 0,37 L0,0 Z" id="path-sgoqk92r2c-40"></path>
+        <path d="M0,0 L370,0 L370,45 L0,45 Z" id="path-sgoqk92r2c-41"></path>
+        <path d="M8,0 L362,0 C366.418278,0 370,3.581722 370,8 L370,154 L0,154 L0,8 C0,3.581722 3.581722,0 8,0 Z" id="path-sgoqk92r2c-42"></path>
+        <path d="M323,0 L345,0 L345,24 L323,24 Z M0,2 L89,2 L89,22 L0,22 Z" id="path-sgoqk92r2c-43"></path>
+        <path d="M0,0 L22,0 L22,24 L0,24 Z" id="path-sgoqk92r2c-44"></path>
+        <path d="M0,0 L89,0 L89,20 L0,20 Z" id="path-sgoqk92r2c-45"></path>
+        <path d="M0,0 L208,0 L208,25 L0,25 Z" id="path-sgoqk92r2c-46"></path>
+        <path d="M0,0 L370,0 L370,110 L0,110 Z" id="path-sgoqk92r2c-47"></path>
+    </defs>
+    <g id="Mid-Fid-Revisi" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="10_IngredientDetailPage" xlink:href="#path-sgoqk92r2c-1">
+            <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-sgoqk92r2c-1"></use>
+            <text id="Azelaic-Acid" font-family="SFPro-Bold, SF Pro" font-size="28" font-weight="bold" fill="#000000">
+                <tspan x="121.246094" y="101">Azelaic Acid</tspan>
+            </text>
+            <g id="Stack-6" transform="translate(16, 140)" xlink:href="#path-sgoqk92r2c-2">
+                <g id="Stack-11" transform="translate(0, 1057)" xlink:href="#path-sgoqk92r2c-3">
+                    <g id="Stack-3" xlink:href="#path-sgoqk92r2c-4">
+                        <g id="Frame-7" transform="translate(0, 139)" xlink:href="#path-sgoqk92r2c-5">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,8 L369.5,85 C369.5,89.1421356 366.142136,92.5 362,92.5 L8,92.5 C3.85786438,92.5 0.5,89.1421356 0.5,85 L0.5,8 C0.5,3.85786438 3.85786438,0.5 8,0.5 L362,0.5 C366.142136,0.5 369.5,3.85786438 369.5,8 Z" stroke-linejoin="square" fill-opacity="0.44" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <g id="Stack" transform="translate(10, 12)" xlink:href="#path-sgoqk92r2c-6" fill="#000000">
+                                <g id="Stack-8" transform="translate(33, 0)" xlink:href="#path-sgoqk92r2c-7">
+                                    <g id="Stack-14" transform="translate(0, 56)" xlink:href="#path-sgoqk92r2c-8" font-family="SFPro-Regular, SF Pro" font-size="11" font-weight="normal">
+                                        <text id="Published:-October-6">
+                                            <tspan x="0" y="10">Published: October 6, 2023</tspan>
+                                        </text>
+                                    </g>
+                                    <text id="A-systematic-review" font-family="SFPro-MediumItalic, SF Pro" font-size="13" font-style="italic" font-weight="400">
+                                        <tspan x="0" y="12">A systematic review to evaluate the efficacy of  </tspan>
+                                        <tspan x="0" y="27">azelaic acid in the management of acne, rosacea, </tspan>
+                                        <tspan x="0" y="42">melasma and skin aging.</tspan>
+                                    </text>
+                                </g>
+                                <text id="􀉣" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal">
+                                    <tspan x="0" y="41.5">􀉣</tspan>
+                                </text>
+                            </g>
+                        </g>
+                        <g id="Frame-6" transform="translate(0, 37)" xlink:href="#path-sgoqk92r2c-9">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,8 L369.5,85 C369.5,89.1421356 366.142136,92.5 362,92.5 L8,92.5 C3.85786438,92.5 0.5,89.1421356 0.5,85 L0.5,8 C0.5,3.85786438 3.85786438,0.5 8,0.5 L362,0.5 C366.142136,0.5 369.5,3.85786438 369.5,8 Z" stroke-linejoin="square" fill-opacity="0.44" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <g id="Stack" transform="translate(10, 12)" xlink:href="#path-sgoqk92r2c-10" fill="#000000">
+                                <g id="Stack-8" transform="translate(33, 0)" xlink:href="#path-sgoqk92r2c-11">
+                                    <g id="Stack-14" transform="translate(0, 56)" xlink:href="#path-sgoqk92r2c-12" font-family="SFPro-Regular, SF Pro" font-size="11" font-weight="normal">
+                                        <text id="Published:-October-6">
+                                            <tspan x="0" y="10">Published: October 6, 2023</tspan>
+                                        </text>
+                                    </g>
+                                    <text id="A-systematic-review" font-family="SFPro-MediumItalic, SF Pro" font-size="13" font-style="italic" font-weight="400">
+                                        <tspan x="0" y="12">A systematic review to evaluate the efficacy of  </tspan>
+                                        <tspan x="0" y="27">azelaic acid in the management of acne, rosacea, </tspan>
+                                        <tspan x="0" y="42">melasma and skin aging.</tspan>
+                                    </text>
+                                </g>
+                                <text id="􀉣" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal">
+                                    <tspan x="0" y="41.5">􀉣</tspan>
+                                </text>
+                            </g>
+                        </g>
+                        <g id="Stack" xlink:href="#path-sgoqk92r2c-13">
+                            <g id="Stack-2" transform="translate(281, 0)" xlink:href="#path-sgoqk92r2c-14" fill="#3F3F3F" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20">
+                                <text id="􀆇">
+                                    <tspan x="74" y="14">􀆇</tspan>
+                                </text>
+                                <text id="See-Less">
+                                    <tspan x="6.34082031" y="14">See Less</tspan>
+                                </text>
+                            </g>
+                            <g transform="translate(0, 4)" xlink:href="#path-sgoqk92r2c-15" fill="#000000" font-family="SFPro-Bold, SF Pro" font-size="17" font-weight="bold" id="Sources">
+                                <text>
+                                    <tspan x="0" y="16">Sources</tspan>
+                                </text>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+                <g id="Stack-9" transform="translate(0, 724)" xlink:href="#path-sgoqk92r2c-16">
+                    <g id="Stack-14" transform="translate(0, 33)" xlink:href="#path-sgoqk92r2c-17">
+                        <g id="Stack-10" transform="translate(0, 134)" xlink:href="#path-sgoqk92r2c-18">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,126 C369.5,130.142136 366.142136,133.5 362,133.5 L8,133.5 C3.85786438,133.5 0.5,130.142136 0.5,126 L0.500000056,0.500000181 L369.5,0.500000181 Z" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <text id="--Apply-twice-daily" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#020202">
+                                <tspan x="11" y="61">- Apply twice daily</tspan>
+                                <tspan x="11" y="81">- Well-tolerated but may sting/itch initially</tspan>
+                                <tspan x="11" y="101">- Full effects at 8-12 weeks.</tspan>
+                            </text>
+                            <g id="Stack-5" transform="translate(11, 14)" xlink:href="#path-sgoqk92r2c-19">
+                                <g id="Stack-4" transform="translate(323, 0)" xlink:href="#path-sgoqk92r2c-20" fill="#020202" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal">
+                                    <text id="􀆇">
+                                        <tspan x="0" y="19">􀆇</tspan>
+                                    </text>
+                                </g>
+                                <g id="Stack-3" transform="translate(0, 2)" xlink:href="#path-sgoqk92r2c-21" fill="#5B4EB1" font-family="SFPro-Semibold, SF Pro" font-size="15" font-weight="500" line-spacing="20">
+                                    <text id="Usage">
+                                        <tspan x="0" y="14">Usage</tspan>
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                        <g id="Stack-9" xlink:href="#path-sgoqk92r2c-22">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,8 L369.5,133.5 L0.500000056,133.5 L0.5,8 C0.5,3.85786438 3.85786438,0.5 8,0.5 L362,0.5 C366.142136,0.5 369.5,3.85786438 369.5,8 Z" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <text id="--OTC:-10%-(The-Ordi" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#020202">
+                                <tspan x="11" y="61">- OTC: 10% (The Ordinary)</tspan>
+                                <tspan x="11" y="81">- Prescription: 15% gel (Finacea for rosacea)</tspan>
+                                <tspan x="11" y="101">- 20% cream (Azelex for acne)</tspan>
+                            </text>
+                            <g id="Stack-5" transform="translate(11, 14)" xlink:href="#path-sgoqk92r2c-23">
+                                <g id="Stack-4" transform="translate(323, 0)" xlink:href="#path-sgoqk92r2c-24" fill="#020202" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal">
+                                    <text id="􀆇">
+                                        <tspan x="0" y="19">􀆇</tspan>
+                                    </text>
+                                </g>
+                                <g id="Stack-3" transform="translate(0, 2)" xlink:href="#path-sgoqk92r2c-25" fill="#5B4EB1" font-family="SFPro-Semibold, SF Pro" font-size="15" font-weight="500" line-spacing="20">
+                                    <text id="Concentration">
+                                        <tspan x="0" y="14">Concentration</tspan>
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Stack-7" xlink:href="#path-sgoqk92r2c-26" fill="#000000" font-family="SFPro-Semibold, SF Pro" font-size="20" font-weight="500" line-spacing="25">
+                        <g id="Stack-2" xlink:href="#path-sgoqk92r2c-27">
+                            <text id="Concentration-and-Us">
+                                <tspan x="0" y="19">Concentration and Usage</tspan>
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g id="Stack-8" transform="translate(0, 455)" xlink:href="#path-sgoqk92r2c-28">
+                    <g id="Stack-13" transform="translate(0, 33)" xlink:href="#path-sgoqk92r2c-29">
+                        <g id="Stack-12" transform="translate(0, 159)" xlink:href="#path-sgoqk92r2c-30">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,37 C369.5,41.1421356 366.142136,44.5 362,44.5 L8,44.5 C3.85786438,44.5 0.5,41.1421356 0.5,37 L0.500000056,0.500000339 L369.5,0.500000339 Z" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <text id="􀆈" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal" fill="#020202">
+                                <tspan x="334" y="32">􀆈</tspan>
+                            </text>
+                            <text id="Rare" font-family="SFPro-Semibold, SF Pro" font-size="15" font-weight="500" line-spacing="20" fill="#5B4EB1">
+                                <tspan x="11" y="29">Rare</tspan>
+                            </text>
+                        </g>
+                        <g id="Stack-11" transform="translate(0, 114)" xlink:href="#path-sgoqk92r2c-31">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,44.4999997 L0.500000056,44.4999997 L0.500000056,0.500000339 L369.5,0.500000339 Z" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <text id="􀆈" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal" fill="#020202">
+                                <tspan x="334" y="32">􀆈</tspan>
+                            </text>
+                            <text id="Serious" font-family="SFPro-Semibold, SF Pro" font-size="15" font-weight="500" line-spacing="20" fill="#5B4EB1">
+                                <tspan x="11" y="29">Serious</tspan>
+                            </text>
+                        </g>
+                        <g id="Stack-9" xlink:href="#path-sgoqk92r2c-32">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,8 L369.5,113.5 L0.500000056,113.5 L0.5,8 C0.5,3.85786438 3.85786438,0.5 8,0.5 L362,0.5 C366.142136,0.5 369.5,3.85786438 369.5,8 Z" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <text id="Stinging,-burning,-i" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#020202">
+                                <tspan x="11" y="61">Stinging, burning, itching on initial application </tspan>
+                                <tspan x="11" y="81">(usually subsides within 2 weeks). Mild dryness.</tspan>
+                            </text>
+                            <g id="Stack-5" transform="translate(11, 14)" xlink:href="#path-sgoqk92r2c-33">
+                                <g id="Stack-4" transform="translate(323, 0)" xlink:href="#path-sgoqk92r2c-34" fill="#020202" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal">
+                                    <text id="􀆇">
+                                        <tspan x="0" y="19">􀆇</tspan>
+                                    </text>
+                                </g>
+                                <g id="Stack-3" transform="translate(0, 2)" xlink:href="#path-sgoqk92r2c-35" fill="#5B4EB1" font-family="SFPro-Semibold, SF Pro" font-size="15" font-weight="500" line-spacing="20">
+                                    <text id="Common">
+                                        <tspan x="0" y="14">Common</tspan>
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Stack-7" xlink:href="#path-sgoqk92r2c-36" fill="#000000" font-family="SFPro-Semibold, SF Pro" font-size="20" font-weight="500" line-spacing="25">
+                        <g id="Stack-2" xlink:href="#path-sgoqk92r2c-37">
+                            <text id="Risk-and-Safety">
+                                <tspan x="0" y="19">Risk and Safety</tspan>
+                            </text>
+                        </g>
+                    </g>
+                </g>
+                <g transform="translate(0, 142)" xlink:href="#path-sgoqk92r2c-38">
+                    <g id="Stack-13" transform="translate(0, 37)" xlink:href="#path-sgoqk92r2c-39">
+                        <g id="Stack-12" transform="translate(0, 199)" xlink:href="#path-sgoqk92r2c-40">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,37 C369.5,41.1421356 366.142136,44.5 362,44.5 L8,44.5 C3.85786438,44.5 0.5,41.1421356 0.5,37 L0.500000056,0.500000339 L369.5,0.500000339 Z" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <text id="􀆈" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal" fill="#020202">
+                                <tspan x="334" y="32">􀆈</tspan>
+                            </text>
+                            <text id="Niacinamide" font-family="SFPro-Semibold, SF Pro" font-size="15" font-weight="500" line-spacing="20" fill="#5B4EB1">
+                                <tspan x="11" y="29">Niacinamide</tspan>
+                            </text>
+                        </g>
+                        <g id="Stack-11" transform="translate(0, 154)" xlink:href="#path-sgoqk92r2c-41">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,44.4999997 L0.500000056,44.4999997 L0.500000056,0.500000339 L369.5,0.500000339 Z" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <text id="􀆈" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal" fill="#020202">
+                                <tspan x="334" y="32">􀆈</tspan>
+                            </text>
+                            <text id="Adapalene" font-family="SFPro-Semibold, SF Pro" font-size="15" font-weight="500" line-spacing="20" fill="#5B4EB1">
+                                <tspan x="11" y="29">Adapalene</tspan>
+                            </text>
+                        </g>
+                        <g id="Stack-9" xlink:href="#path-sgoqk92r2c-42">
+                            <path stroke="#DDD9F8" stroke-width="1" d="M369.5,8 L369.5,153.5 L0.500000056,153.5 L0.5,8 C0.5,3.85786438 3.85786438,0.5 8,0.5 L362,0.5 C366.142136,0.5 369.5,3.85786438 369.5,8 Z" stroke-linejoin="square" fill="#FFFFFF" fill-rule="evenodd"></path>
+                            <text id="Both-reduce-melanin" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#020202">
+                                <tspan x="11" y="61">Both reduce melanin production through different </tspan>
+                                <tspan x="11" y="81">pathways and both are anti-inflammatory. This </tspan>
+                                <tspan x="11" y="101">combination is pregnancy-safe and effective for </tspan>
+                                <tspan x="11" y="121">hyperpigmentation, rosacea, and acne.</tspan>
+                            </text>
+                            <g id="Stack-5" transform="translate(11, 14)" xlink:href="#path-sgoqk92r2c-43">
+                                <g id="Stack-4" transform="translate(323, 0)" xlink:href="#path-sgoqk92r2c-44" fill="#020202" font-family="SFPro-Regular, SF Pro" font-size="20" font-weight="normal">
+                                    <text id="􀆇">
+                                        <tspan x="0" y="19">􀆇</tspan>
+                                    </text>
+                                </g>
+                                <g id="Stack-3" transform="translate(0, 2)" xlink:href="#path-sgoqk92r2c-45" fill="#5B4EB1" font-family="SFPro-Semibold, SF Pro" font-size="15" font-weight="500" line-spacing="20">
+                                    <text id="Niacinamide">
+                                        <tspan x="0" y="14">Niacinamide</tspan>
+                                    </text>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Stack-2" xlink:href="#path-sgoqk92r2c-46" fill="#000000" font-family="SFPro-Semibold, SF Pro" font-size="20" font-weight="500" line-spacing="25">
+                        <text id="Ingredient-Interacti">
+                            <tspan x="0" y="19">Ingredient Interactions</tspan>
+                        </text>
+                    </g>
+                </g>
+                <g id="Stack" xlink:href="#path-sgoqk92r2c-47" font-family="SFPro-Regular, SF Pro" font-size="17" font-weight="normal" line-spacing="22">
+                    <text id="A-dicarboxylic-acid">
+                        <tspan x="0" y="16" fill="#000000">A dicarboxylic acid naturally produced by yeast </tspan>
+                        <tspan x="0" y="38" fill="#000000">on the skin. Azelaic acid is a true multi-tasker </tspan>
+                        <tspan x="0" y="60" fill="#000000">that treats acne, rosacea, and </tspan>
+                        <tspan x="0" y="82" fill="#000000">hyperpigmentation simultaneously. t is one of </tspan>
+                        <tspan x="0" y="104" fill="#000000">the </tspan>
+                        <tspan x="28.9448242" y="104" font-family="SFPro-Semibold, SF Pro" font-weight="500" fill="#5B4EB1">See More 􀆈</tspan>
+                    </text>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

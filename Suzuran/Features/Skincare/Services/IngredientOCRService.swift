@@ -1,19 +1,7 @@
 import UIKit
 import Vision
 
-/// Vision-backed OCR service that extracts raw text from an ingredient label image.
-///
-/// Wraps low-level Vision failures into the module's unified ``SkincareError/ocrFailed``
-/// so the UI can bind a localized (Bahasa Indonesia) message directly (Req 19.1, 19.2).
-/// Technical details are logged via ``AppLogger`` with the `[Skincare]` tag.
-final class IngredientOCRService {
-
-    private let logger: AppLogging
-
-    init(logger: AppLogging = AppLogger()) {
-        self.logger = logger
-    }
-
+final class IngredientOCRService: OCRService {
     func recognizeText(from image: UIImage) async throws -> String {
         guard let cgImage = image.cgImage else {
             logger.error("[Skincare] OCR: UIImage has no backing CGImage")

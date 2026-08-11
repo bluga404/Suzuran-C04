@@ -20,20 +20,23 @@ import Combine
 ///
 @MainActor
 final class AddSkincareViewModel: ObservableObject {
+    // Form fields
+    @Published var name = ""
+    @Published var brand = ""
+    @Published var category: SkincareCategory = .moisturizer
+    @Published var ingredients: [IngredientReference] = []
+    @Published var isUsedCurrently = true
 
-    // MARK: - Draft (isolated form state, Req 15)
-
-    @Published var draft: SkincareDraft
-
-    /// OCR review buffer. Holds candidate names that are NOT yet committed to the
-    /// draft (Req 4.3, 12.2). Committed to `draft.ingredients` via ``commitReview()``.
-    @Published var scannedIngredients: [String] = []
-
-    // MARK: - Granular loading flags (Req 19.3)
-
-    @Published var isScanning = false
+    // OCR scanning fields
+    @Published var isProcessingOCR = false
     @Published var isSearchingIngredient = false
     @Published var isSaving = false
+    @Published var errorMessage: String?
+    @Published var scannedIngredients: [OCRIngredientResult] = []
+
+    private let ocrService = IngredientOCRService()
+    private let parser = IngredientParser()
+    private let editingProduct: SkincareProduct?
 
     // MARK: - Alert & error
 
@@ -77,46 +80,56 @@ final class AddSkincareViewModel: ObservableObject {
         self.draft = SkincareDraft(from: editingProduct)
     }
 
-    // MARK: - Validation
-
-    var isFormValid: Bool { draft.isValid }
-
-    /// Whether the ingredient has a reference recommendation (used for chip styling).
-    /// Independent of the active acne profile — mirrors the legacy behavior of
-    /// highlighting known active ingredients in the form.
-    func isMatched(_ reference: IngredientReference) -> Bool {
-        acneRepo.recommendation(byCanonicalID: reference.id) != nil
+    var isFormValid: Bool {
+        !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
-    // MARK: - Ingredient management (operates on draft only, Req 15.2)
-
-    /// Adds an ingredient by raw name. Resolves to a canonical ``IngredientReference``
-    /// via the cosing repository, falling back to a locally-derived reference when the
-    /// name is not in the reference DB (Req 25.1). Deduplicates by Canonical_ID.
-    func addIngredient(_ rawName: String) {
-        let clean = rawName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !clean.isEmpty else { return }
-        let reference = ingredientRepo.find(byRawName: clean) ?? IngredientReference(fromRawName: clean)
-        guard !draft.ingredients.contains(where: { $0.id == reference.id }) else { return }
-        draft.ingredients.append(reference)
+    func saveProduct(to viewModel: SkincareViewModel) {
+        isSaving = true
+        defer { isSaving = false }
+        
+        let trimmedIngredients = ingredients
+        if let editingProduct = editingProduct {
+            var updated = editingProduct
+            updated.name = name
+            updated.brand = brand
+            updated.category = category
+            updated.ingredients = trimmedIngredients
+            updated.isUsedCurrently = isUsedCurrently
+            updated.updatedAt = Date()
+            viewModel.updateProduct(updated)
+        } else {
+            let newProduct = SkincareProduct(
+                name: name,
+                brand: brand,
+                category: category,
+                ingredients: trimmedIngredients,
+                isUsedCurrently: isUsedCurrently
+            )
+            viewModel.addProduct(newProduct)
+        }
     }
 
-    func removeIngredient(_ reference: IngredientReference) {
-        draft.ingredients.removeAll { $0.id == reference.id }
+    func addIngredient(_ ingredientName: String) {
+        let cleanName = ingredientName.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !cleanName.isEmpty else { return }
+        
+        // Avoid duplicate case-insensitive ingredients
+        if !ingredients.contains(where: { $0.normalizedName == cleanName.lowercased() }) {
+            ingredients.append(IngredientReference(name: cleanName))
+        }
     }
 
     func removeIngredient(at offsets: IndexSet) {
         draft.ingredients.remove(atOffsets: offsets)
     }
 
-    // MARK: - Clear All (Req 18)
-
-    /// Empties only the ingredient list, preserving name/brand/category
-    /// (Req 18.3). Idempotent: calling it on an already-empty draft is a no-op
-    /// (Req 18.4).
-    func confirmClearAll() {
-        guard !draft.ingredients.isEmpty else { return }
-        draft.ingredients.removeAll()
+    func removeIngredient(_ ingredient: IngredientReference) {
+        ingredients.removeAll { $0.id == ingredient.id }
+    }
+    
+    func clearAllIngredients() {
+        ingredients.removeAll()
     }
 
     // MARK: - OCR (Req 19.3, 19.4, 19.5)
@@ -128,37 +141,16 @@ final class AddSkincareViewModel: ObservableObject {
         errorMessage = nil
         defer { isScanning = false }
         do {
-            let text = try await ocr.recognizeText(from: image)
-            let parsed = IngredientParser.extractIngredients(from: text)
-                .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
-                .filter { $0.count > 1 }
-            scannedIngredients = parsed
+            let text = try await ocrService.recognizeText(from: image)
+            self.scannedIngredients = parser.extractIngredients(from: text)
         } catch {
-            errorMessage = SkincareError.ocrFailed.errorDescription
-            logger.error("[Skincare] OCR failed: \(error)")
+            self.errorMessage = SkincareError.ocrFailed.localizedDescription
         }
     }
 
-    /// Adds a manually-typed candidate to the review buffer (case-insensitive dedupe).
-    func addScannedIngredient(_ rawName: String) {
-        let clean = rawName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !clean.isEmpty else { return }
-        guard !scannedIngredients.contains(where: { $0.caseInsensitiveCompare(clean) == .orderedSame }) else { return }
-        scannedIngredients.append(clean)
-    }
-
-    func removeScannedIngredient(_ name: String) {
-        scannedIngredients.removeAll { $0 == name }
-    }
-
-    func removeScannedIngredient(at offsets: IndexSet) {
-        scannedIngredients.remove(atOffsets: offsets)
-    }
-
-    /// Commits the reviewed candidates into the draft, then clears the buffer.
-    func commitReview() {
-        for name in scannedIngredients {
-            addIngredient(name)
+    func commitScannedIngredients() {
+        for result in scannedIngredients {
+            addIngredient(result.rawText)
         }
         scannedIngredients.removeAll()
     }

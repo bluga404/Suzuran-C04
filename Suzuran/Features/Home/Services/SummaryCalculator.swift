@@ -155,7 +155,7 @@ struct SummaryCalculator {
             // against the reference's display `.name` to preserve the existing
             // case-insensitive substring semantics. This one-line touch is the
             // only cross-feature caller broken by the Phase 1 model change.
-            if product.ingredients.contains(where: { $0.name.lowercased() == ingredient.name.lowercased() }) {
+            if product.ingredients.contains(where: { $0.name.normalizedName == ingredient.name.lowercased() }) {
                 return .found(productName: product.name)
             }
         }

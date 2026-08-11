@@ -1,63 +1,56 @@
 import SwiftUI
 
-/// Empty state for Skincare Home, rendered when the user has no saved products.
-///
-/// Mirrors mockup `00_EmptyState.png`: an illustrative SF Symbol, a title, an
-/// explanatory body, and a primary "Tambah Skincare" call-to-action. Purely
-/// presentational — the parent (``SkincareView``) supplies the `onAdd` closure
-/// which opens the Add flow.
-///
-/// Uses design tokens (`AppSpacing`, `AppColor`, `AppTypography`) exclusively —
-/// no hardcoded colors or sizes (Req 9.5, 24.1).
-///
 struct EmptySkincareView: View {
-    let onAdd: () -> Void
-
+    let onAddSkincare: () -> Void
+    
     var body: some View {
-        VStack(spacing: AppSpacing.md) {
-            Spacer(minLength: AppSpacing.xl)
-
-            ZStack {
-                Circle()
-                    .fill(AppColor.accentPrimary.opacity(0.05))
-                    .frame(width: 100, height: 100)
-
-                Image(systemName: "bubbles.and.sparkles")
-                    .font(.system(size: 40))
-                    .foregroundStyle(AppColor.accentPrimary)
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                        Text("Skincare")
+                            .font(.largeTitle.weight(.bold))
+                            .foregroundStyle(.primary)
+                    }
+                    Spacer()
+                }
+                .padding(.horizontal, AppSpacing.md)
+                .padding(.vertical, AppSpacing.sm)
+                
+                Spacer(minLength: 120)
+                
+                VStack(spacing: AppSpacing.md) {
+                    ZStack {
+                        Circle()
+                            .fill(AppColor.accentPrimary.opacity(0.05))
+                            .frame(width: 100, height: 100)
+                        
+                        Image(systemName: "bubbles.and.sparkles.fill")
+                            .font(.system(size: 40))
+                            .foregroundStyle(AppColor.accentPrimary)
+                    }
+                    
+                    Text("No Skincare Routine Saved Yet")
+                        .font(AppTypography.subtitle)
+                        .foregroundStyle(AppColor.textSecondary)
+                    
+                    Button(action: onAddSkincare) {
+                        Text("Add Skincare Routine")
+                            .font(AppTypography.bodyBold)
+                            .padding(.horizontal, AppSpacing.lg)
+                            .padding(.vertical, AppSpacing.sm)
+                            .background(AppColor.accentPrimary)
+                            .foregroundStyle(.white)
+                            .cornerRadius(AppCornerRadius.md)
+                    }
+                    .padding(.top, AppSpacing.sm)
+                }
+                .frame(maxWidth: .infinity)
+                
+                Spacer(minLength: 120)
             }
-
-            Text("Belum Ada Catatan Skincare")
-                .font(AppTypography.subtitle)
-                .foregroundStyle(AppColor.textPrimary)
-                .multilineTextAlignment(.center)
-
-            Text("Catat produk skincare yang Anda gunakan saat ini untuk menganalisis kesesuaian bahan aktifnya dengan kondisi jerawat Anda.")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColor.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, AppSpacing.lg)
-
-            Button(action: onAdd) {
-                Text("Catat Skincare Pertama")
-                    .font(AppTypography.bodyBold)
-                    .padding(.horizontal, AppSpacing.lg)
-                    .padding(.vertical, AppSpacing.sm)
-                    .background(AppColor.accentPrimary)
-                    .foregroundStyle(AppColor.textOnAccent)
-                    .cornerRadius(AppCornerRadius.md)
-            }
-            .padding(.top, AppSpacing.sm)
-            .accessibilityLabel(Text("Tambah Skincare"))
-
-            Spacer(minLength: AppSpacing.xl)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, AppSpacing.xl)
+        .toolbar(.hidden, for: .navigationBar)
     }
-}
-
-#Preview {
-    EmptySkincareView(onAdd: {})
-        .background(AppColor.backgroundPrimary)
 }

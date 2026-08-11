@@ -10,74 +10,84 @@ struct AddSkincareView: View {
     @ObservedObject var skincareViewModel: SkincareViewModel
     @StateObject private var viewModel: AddSkincareViewModel
 
-    @State private var isShowingCamera = false
-    @State private var isShowingPhotoSource = false
-    @State private var selectedImage: UIImage?
-    @State private var selectedItem: PhotosPickerItem?
-    @State private var isConfirmingClearAll = false
-    @State private var manualCandidate = ""
-    @State private var searchResults: [String] = []
+    @State private var isShowingSearch = false
+    @State private var isShowingScanInstruction = false
+    @State private var isShowingScanner = false
 
-    private let ingredientRepo: IngredientRepositoryProtocol
+    private let ingredientRepository: CosingIngredientRepository
+    private let acneRepository: AcneIngredientRepository
+    private let isEditing: Bool
 
     init(
         skincareViewModel: SkincareViewModel,
-        ingredientRepo: IngredientRepositoryProtocol,
-        makeViewModel: @escaping @MainActor () -> AddSkincareViewModel
+        ingredientRepository: CosingIngredientRepository,
+        acneRepository: AcneIngredientRepository,
+        editingProduct: SkincareProduct? = nil
     ) {
         self.skincareViewModel = skincareViewModel
-        self.ingredientRepo = ingredientRepo
-        self._viewModel = StateObject(wrappedValue: makeViewModel())
+        self.ingredientRepository = ingredientRepository
+        self.acneRepository = acneRepository
+        self.isEditing = editingProduct != nil
+        self._viewModel = StateObject(wrappedValue: AddSkincareViewModel(editingProduct: editingProduct))
     }
 
     var body: some View {
-        ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.lg) {
-                    categorySection
-                    productInformationSection
-                    ingredientSection
+        Form {
+            Section("Category") {
+                Picker("Kategori", selection: $viewModel.category) {
+                    ForEach(SkincareCategory.allCases) { cat in
+                        Text(cat.displayName).tag(cat)
+                    }
                 }
-                .padding(AppSpacing.md)
+                .pickerStyle(.menu)
+                .font(AppTypography.body)
             }
-            .background(AppColor.backgroundPrimary)
-            .navigationTitle(viewModel.isEditing ? "Edit Skincare" : "Tambah Skincare")
-            .navigationBarTitleDisplayMode(.inline)
-            .safeAreaInset(edge: .bottom) {
-                PrimaryButton(
-                    title: viewModel.isEditing ? "Simpan Perubahan" : "Simpan Skincare",
-                    isLoading: viewModel.isSaving
-                ) {
-                    viewModel.save(into: skincareViewModel)
+            
+            Section("Product Name") {
+                TextField("Nama Produk", text: $viewModel.name)
+                    .font(AppTypography.body)
+            }
+            
+            Section(header: HStack {
+                Text("Ingredients")
+                Spacer()
+                if !viewModel.ingredients.isEmpty {
+                    Button("Clear All") {
+                        viewModel.clearAllIngredients()
+                    }
+                    .textCase(.none)
+                    .foregroundStyle(.red)
                 }
-                .disabled(!viewModel.isFormValid)
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.vertical, AppSpacing.sm)
-                .background(.regularMaterial)
-            }
-            .disabled(viewModel.alert != nil)
-            .fullScreenCover(isPresented: $isShowingCamera) {
-                CameraPicker(selectedImage: $selectedImage)
-                    .ignoresSafeArea()
-            }
-            .sheet(isPresented: $isShowingPhotoSource) {
-                PhotoSourceSheet(
-                    isShowingCamera: $isShowingCamera,
-                    selectedItem: $selectedItem
-                )
-                .presentationDetents([.height(180)])
-                .presentationDragIndicator(.visible)
-            }
-            .onChange(of: selectedImage) { _, image in
-                if let image = image {
-                    Task { await viewModel.processImage(image) }
+            }) {
+                Button(action: {
+                    isShowingScanner = true
+                }) {
+                    VStack(spacing: AppSpacing.sm) {
+                        Image(systemName: "camera.viewfinder")
+                            .font(.system(size: 32))
+                        Text("Scan Ingredients")
+                            .font(AppTypography.bodyBold)
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppSpacing.lg)
+                    .background(AppColor.surfacePrimary)
+                    .foregroundStyle(AppColor.accentPrimary)
+                    .cornerRadius(AppCornerRadius.md)
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppCornerRadius.md)
+                            .stroke(AppColor.accentPrimary, style: StrokeStyle(lineWidth: 1, dash: [5]))
+                    )
                 }
-            }
-            .onChange(of: selectedItem) { _, newItem in
-                isShowingPhotoSource = false
-                Task {
-                    if let data = try? await newItem?.loadTransferable(type: Data.self),
-                       let image = UIImage(data: data) {
-                        await MainActor.run { selectedImage = image }
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+                .padding(.bottom, AppSpacing.xs)
+                
+                Button(action: {
+                    isShowingSearch = true
+                }) {
+                    HStack {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Tambah Manual")
                     }
                 }
             }
@@ -134,19 +144,74 @@ struct AddSkincareView: View {
             HStack {
                 Text("Kategori")
                     .font(AppTypography.bodyBold)
-                    .foregroundStyle(AppColor.textPrimary)
-                
-                Spacer()
-                
-                Picker("Kategori", selection: $viewModel.draft.category) {
-                    ForEach(SkincareCategory.allCases) { category in
-                        Text(category.displayName).tag(category)
-                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, AppSpacing.sm)
+                    .background(AppColor.surfacePrimary)
+                    .foregroundStyle(AppColor.accentPrimary)
+                    .cornerRadius(AppCornerRadius.md)
                 }
-                .pickerStyle(.menu)
-                .tint(AppColor.accentPrimary)
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+                .padding(.bottom, AppSpacing.sm)
+                
+                if viewModel.ingredients.isEmpty {
+                    Text("Belum ada bahan ditambahkan.")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColor.textSecondary)
+                } else {
+                    LazyVGrid(columns: [GridItem(.adaptive(minimum: 120, maximum: 200), spacing: 8)], spacing: 8) {
+                        ForEach(viewModel.ingredients) { ingredient in
+                            let rec = acneRepository.getRecommendation(for: ingredient.normalizedName)
+                            let isMatched = rec != nil
+                            
+                            IngredientChip(
+                                name: ingredient.name,
+                                isMatched: isMatched,
+                                onDelete: {
+                                    viewModel.removeIngredient(ingredient)
+                                }
+                            )
+                        }
+                    }
+                    .padding(.vertical, AppSpacing.xs)
+                }
             }
-        }
+            
+            Section {
+                Button(action: {
+                    viewModel.saveProduct(to: skincareViewModel)
+                    dismiss()
+                }) {
+                    Text("Simpan Skincare")
+                        .font(AppTypography.bodyBold)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, 4)
+                        .foregroundStyle(.white)
+                }
+                .listRowBackground(viewModel.isFormValid ? AppColor.accentPrimary : AppColor.textSecondary.opacity(0.5))
+                .disabled(!viewModel.isFormValid)
+            }
+            }
+            .background(AppColor.backgroundPrimary)
+            .navigationTitle(isEditing ? "Edit Skincare" : "Add Skincare")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                // Toolbar items removed
+            }
+            // Sheets
+            .sheet(isPresented: $isShowingSearch) {
+                IngredientSearchView(repository: ingredientRepository) { name in
+                    viewModel.addIngredient(name)
+                }
+            }
+            .sheet(isPresented: $isShowingScanInstruction) {
+                ScanInstructionView {
+                    isShowingScanner = true
+                }
+            }
+            .fullScreenCover(isPresented: $isShowingScanner) {
+                IngredientScanView(viewModel: viewModel)
+            }
     }
 
     private var productInformationSection: some View {

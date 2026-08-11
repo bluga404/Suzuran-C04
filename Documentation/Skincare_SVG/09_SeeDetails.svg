@@ -1,0 +1,225 @@
+
+<svg width="402px" height="885.844508px" viewBox="0 0 402 885.844508" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <defs>
+        <path d="M99.2,0 L302.8,0 C337.523255,0 354.884883,0 368.147411,6.7575955 C379.813461,12.7017447 389.298255,22.1865393 395.242404,33.852589 C402,47.1151169 402,64.4767446 402,99.2 L402,786.644508 C402,821.367763 402,838.729391 395.242404,851.991919 C389.298255,863.657969 379.813461,873.142763 368.147411,879.086912 C354.884883,885.844508 337.523255,885.844508 302.8,885.844508 L99.2,885.844508 C64.4767446,885.844508 47.1151169,885.844508 33.852589,879.086912 C22.1865393,873.142763 12.7017447,863.657969 6.7575955,851.991919 C0,838.729391 0,821.367763 0,786.644508 L0,99.2 C0,64.4767446 0,47.1151169 6.7575955,33.852589 C12.7017447,22.1865393 22.1865393,12.7017447 33.852589,6.7575955 C47.1151169,0 64.4767446,0 99.2,0 Z" id="path-_temn3lhc6-1"></path>
+        <path d="M0,0 L44,0 L44,44 L0,44 Z" id="path-_temn3lhc6-2"></path>
+        <path d="M362,540 C366.418278,540 370,543.581722 370,548 L370,632 C370,636.418278 366.418278,640 362,640 L8,640 C3.581722,640 0,636.418278 0,632 L0,548 C0,543.581722 3.581722,540 8,540 L362,540 Z M362,432 C366.418278,432 370,435.581722 370,440 L370,524 C370,528.418278 366.418278,532 362,532 L8,532 C3.581722,532 0,528.418278 0,524 L0,440 C0,435.581722 3.581722,432 8,432 L362,432 Z M362,324 C366.418278,324 370,327.581722 370,332 L370,416 C370,420.418278 366.418278,424 362,424 L8,424 C3.581722,424 0,420.418278 0,416 L0,332 C0,327.581722 3.581722,324 8,324 L362,324 Z M362,216 C366.418278,216 370,219.581722 370,224 L370,308 C370,312.418278 366.418278,316 362,316 L8,316 C3.581722,316 0,312.418278 0,308 L0,224 C0,219.581722 3.581722,216 8,216 L362,216 Z M362,108 C366.418278,108 370,111.581722 370,116 L370,200 C370,204.418278 366.418278,208 362,208 L8,208 C3.581722,208 0,204.418278 0,200 L0,116 C0,111.581722 3.581722,108 8,108 L362,108 Z M362,0 C366.418278,0 370,3.581722 370,8 L370,92 C370,96.418278 366.418278,100 362,100 L8,100 C3.581722,100 0,96.418278 0,92 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 Z" id="path-_temn3lhc6-3"></path>
+        <path d="M362,540 C366.418278,540 370,543.581722 370,548 L370,632 C370,636.418278 366.418278,640 362,640 L8,640 C3.581722,640 0,636.418278 0,632 L0,548 C0,543.581722 3.581722,540 8,540 L362,540 Z M362,432 C366.418278,432 370,435.581722 370,440 L370,524 C370,528.418278 366.418278,532 362,532 L8,532 C3.581722,532 0,528.418278 0,524 L0,440 C0,435.581722 3.581722,432 8,432 L362,432 Z M362,324 C366.418278,324 370,327.581722 370,332 L370,416 C370,420.418278 366.418278,424 362,424 L8,424 C3.581722,424 0,420.418278 0,416 L0,332 C0,327.581722 3.581722,324 8,324 L362,324 Z M362,216 C366.418278,216 370,219.581722 370,224 L370,308 C370,312.418278 366.418278,316 362,316 L8,316 C3.581722,316 0,312.418278 0,308 L0,224 C0,219.581722 3.581722,216 8,216 L362,216 Z M362,108 C366.418278,108 370,111.581722 370,116 L370,200 C370,204.418278 366.418278,208 362,208 L8,208 C3.581722,208 0,204.418278 0,200 L0,116 C0,111.581722 3.581722,108 8,108 L362,108 Z M362,0 C366.418278,0 370,3.581722 370,8 L370,92 C370,96.418278 366.418278,100 362,100 L8,100 C3.581722,100 0,96.418278 0,92 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 Z" id="path-_temn3lhc6-4"></path>
+        <path d="M362,0 C366.418278,0 370,3.581722 370,8 L370,92 C370,96.418278 366.418278,100 362,100 L8,100 C3.581722,100 0,96.418278 0,92 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 Z" id="path-_temn3lhc6-5"></path>
+        <path d="M323,21 L338,21 L338,45 L323,45 Z M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-6"></path>
+        <path d="M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-7"></path>
+        <path d="M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-8"></path>
+        <path d="M11,0 L59,0 C65.0751322,0 70,4.92486775 70,11 C70,17.0751322 65.0751322,22 59,22 L11,22 C4.92486775,22 0,17.0751322 0,11 C0,4.92486775 4.92486775,0 11,0 Z" id="path-_temn3lhc6-9"></path>
+        <path d="M362,0 C366.418278,0 370,3.581722 370,8 L370,92 C370,96.418278 366.418278,100 362,100 L8,100 C3.581722,100 0,96.418278 0,92 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 Z" id="path-_temn3lhc6-10"></path>
+        <path d="M323,21 L338,21 L338,45 L323,45 Z M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-11"></path>
+        <path d="M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-12"></path>
+        <path d="M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-13"></path>
+        <path d="M11,0 L59,0 C65.0751322,0 70,4.92486775 70,11 C70,17.0751322 65.0751322,22 59,22 L11,22 C4.92486775,22 0,17.0751322 0,11 C0,4.92486775 4.92486775,0 11,0 Z" id="path-_temn3lhc6-14"></path>
+        <path d="M362,0 C366.418278,0 370,3.581722 370,8 L370,92 C370,96.418278 366.418278,100 362,100 L8,100 C3.581722,100 0,96.418278 0,92 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 Z" id="path-_temn3lhc6-15"></path>
+        <path d="M323,21 L338,21 L338,45 L323,45 Z M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-16"></path>
+        <path d="M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-17"></path>
+        <path d="M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-18"></path>
+        <path d="M11,0 L59,0 C65.0751322,0 70,4.92486775 70,11 C70,17.0751322 65.0751322,22 59,22 L11,22 C4.92486775,22 0,17.0751322 0,11 C0,4.92486775 4.92486775,0 11,0 Z" id="path-_temn3lhc6-19"></path>
+        <path d="M362,0 C366.418278,0 370,3.581722 370,8 L370,92 C370,96.418278 366.418278,100 362,100 L8,100 C3.581722,100 0,96.418278 0,92 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 Z" id="path-_temn3lhc6-20"></path>
+        <path d="M323,21 L338,21 L338,45 L323,45 Z M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-21"></path>
+        <path d="M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-22"></path>
+        <path d="M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-23"></path>
+        <path d="M11,0 L59,0 C65.0751322,0 70,4.92486775 70,11 C70,17.0751322 65.0751322,22 59,22 L11,22 C4.92486775,22 0,17.0751322 0,11 C0,4.92486775 4.92486775,0 11,0 Z" id="path-_temn3lhc6-24"></path>
+        <path d="M362,0 C366.418278,0 370,3.581722 370,8 L370,92 C370,96.418278 366.418278,100 362,100 L8,100 C3.581722,100 0,96.418278 0,92 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 Z" id="path-_temn3lhc6-25"></path>
+        <path d="M323,21 L338,21 L338,45 L323,45 Z M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-26"></path>
+        <path d="M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-27"></path>
+        <path d="M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-28"></path>
+        <path d="M11,0 L59,0 C65.0751322,0 70,4.92486775 70,11 C70,17.0751322 65.0751322,22 59,22 L11,22 C4.92486775,22 0,17.0751322 0,11 C0,4.92486775 4.92486775,0 11,0 Z" id="path-_temn3lhc6-29"></path>
+        <path d="M362,0 C366.418278,0 370,3.581722 370,8 L370,92 C370,96.418278 366.418278,100 362,100 L8,100 C3.581722,100 0,96.418278 0,92 L0,8 C0,3.581722 3.581722,0 8,0 L362,0 Z" id="path-_temn3lhc6-30"></path>
+        <path d="M323,21 L338,21 L338,45 L323,45 Z M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-31"></path>
+        <path d="M0,30 L299,30 L299,66 L0,66 Z M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-32"></path>
+        <path d="M116,0 L164,0 C170.075132,0 175,4.92486775 175,11 C175,17.0751322 170.075132,22 164,22 L116,22 C109.924868,22 105,17.0751322 105,11 C105,4.92486775 109.924868,0 116,0 Z M0,0 L97,0 L97,22 L0,22 Z" id="path-_temn3lhc6-33"></path>
+        <path d="M11,0 L59,0 C65.0751322,0 70,4.92486775 70,11 C70,17.0751322 65.0751322,22 59,22 L11,22 C4.92486775,22 0,17.0751322 0,11 C0,4.92486775 4.92486775,0 11,0 Z" id="path-_temn3lhc6-34"></path>
+    </defs>
+    <g id="Mid-Fid-Revisi" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="09_SeeDetails" xlink:href="#path-_temn3lhc6-1">
+            <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-1"></use>
+            <g id="Toolbars/Top-(44pt)/Light/iPhone/Standard---Title-Copy" transform="translate(0, 62)">
+                <g id="Leading" transform="translate(16, 0)" xlink:href="#path-_temn3lhc6-2"></g>
+            </g>
+            <g id="Stack-7" transform="translate(16, 132)" xlink:href="#path-_temn3lhc6-3" fill-rule="evenodd" stroke-width="1">
+                <g id="Stack-6" xlink:href="#path-_temn3lhc6-4">
+                    <g id="Group-5" transform="translate(0, 540)">
+                        <rect id="Rectangle" stroke="#DDD9F8" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                        <g id="Frame" xlink:href="#path-_temn3lhc6-5">
+                            <rect id="Rectangle" stroke="#DDD9F8" stroke-width="1" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                            <g id="Stack-4" transform="translate(16, 16)" xlink:href="#path-_temn3lhc6-6">
+                                <text id="􀆊" font-family="SFProDisplay-Regular, SF Pro Display" font-size="20" font-weight="normal" fill="#3F3F3F">
+                                    <tspan x="323" y="40">􀆊</tspan>
+                                </text>
+                                <g id="Stack-3" xlink:href="#path-_temn3lhc6-7">
+                                    <text id="These-ingredients-ma" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" fill="#3F3F3F">
+                                        <tspan x="0" y="44">These ingredients may be a good fit for </tspan>
+                                        <tspan x="0" y="62">your skin based on your acne type</tspan>
+                                    </text>
+                                    <g id="Stack" xlink:href="#path-_temn3lhc6-8">
+                                        <g id="Button-Clear-Copy" transform="translate(105, 0)" xlink:href="#path-_temn3lhc6-9">
+                                            <use fill="#DDD9F8" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-9"></use>
+                                            <use fill-opacity="0.13" fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-9"></use>
+                                            <text id="Papules" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#000000">
+                                                <tspan x="8.00292969" y="13">Papules</tspan>
+                                            </text>
+                                        </g>
+                                        <text id="Azelaic-Acid" font-family="SFPro-Semibold, SF Pro" font-size="17" font-weight="500" line-spacing="25" fill="#020202">
+                                            <tspan x="0" y="16">Azelaic Acid</tspan>
+                                        </text>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Group-6" transform="translate(0, 432)">
+                        <rect id="Rectangle" stroke="#DDD9F8" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                        <g id="Frame" xlink:href="#path-_temn3lhc6-10">
+                            <rect id="Rectangle" stroke="#DDD9F8" stroke-width="1" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                            <g id="Stack-4" transform="translate(16, 16)" xlink:href="#path-_temn3lhc6-11">
+                                <text id="􀆊" font-family="SFProDisplay-Regular, SF Pro Display" font-size="20" font-weight="normal" fill="#3F3F3F">
+                                    <tspan x="323" y="40">􀆊</tspan>
+                                </text>
+                                <g id="Stack-3" xlink:href="#path-_temn3lhc6-12">
+                                    <text id="These-ingredients-ma" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" fill="#3F3F3F">
+                                        <tspan x="0" y="44">These ingredients may be a good fit for </tspan>
+                                        <tspan x="0" y="62">your skin based on your acne type</tspan>
+                                    </text>
+                                    <g id="Stack" xlink:href="#path-_temn3lhc6-13">
+                                        <g id="Button-Clear-Copy" transform="translate(105, 0)" xlink:href="#path-_temn3lhc6-14">
+                                            <use fill="#DDD9F8" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-14"></use>
+                                            <use fill-opacity="0.13" fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-14"></use>
+                                            <text id="Papules" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#000000">
+                                                <tspan x="8.00292969" y="13">Papules</tspan>
+                                            </text>
+                                        </g>
+                                        <text id="Azelaic-Acid" font-family="SFPro-Semibold, SF Pro" font-size="17" font-weight="500" line-spacing="25" fill="#020202">
+                                            <tspan x="0" y="16">Azelaic Acid</tspan>
+                                        </text>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Group-4" transform="translate(0, 324)">
+                        <rect id="Rectangle" stroke="#DDD9F8" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                        <g id="Frame" xlink:href="#path-_temn3lhc6-15">
+                            <rect id="Rectangle" stroke="#DDD9F8" stroke-width="1" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                            <g id="Stack-4" transform="translate(16, 16)" xlink:href="#path-_temn3lhc6-16">
+                                <text id="􀆊" font-family="SFProDisplay-Regular, SF Pro Display" font-size="20" font-weight="normal" fill="#3F3F3F">
+                                    <tspan x="323" y="40">􀆊</tspan>
+                                </text>
+                                <g id="Stack-3" xlink:href="#path-_temn3lhc6-17">
+                                    <text id="These-ingredients-ma" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" fill="#3F3F3F">
+                                        <tspan x="0" y="44">These ingredients may be a good fit for </tspan>
+                                        <tspan x="0" y="62">your skin based on your acne type</tspan>
+                                    </text>
+                                    <g id="Stack" xlink:href="#path-_temn3lhc6-18">
+                                        <g id="Button-Clear-Copy" transform="translate(105, 0)" xlink:href="#path-_temn3lhc6-19">
+                                            <use fill="#DDD9F8" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-19"></use>
+                                            <use fill-opacity="0.13" fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-19"></use>
+                                            <text id="Papules" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#000000">
+                                                <tspan x="8.00292969" y="13">Papules</tspan>
+                                            </text>
+                                        </g>
+                                        <text id="Azelaic-Acid" font-family="SFPro-Semibold, SF Pro" font-size="17" font-weight="500" line-spacing="25" fill="#020202">
+                                            <tspan x="0" y="16">Azelaic Acid</tspan>
+                                        </text>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Group-3" transform="translate(0, 216)">
+                        <rect id="Rectangle" stroke="#DDD9F8" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                        <g id="Frame" xlink:href="#path-_temn3lhc6-20">
+                            <rect id="Rectangle" stroke="#DDD9F8" stroke-width="1" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                            <g id="Stack-4" transform="translate(16, 16)" xlink:href="#path-_temn3lhc6-21">
+                                <text id="􀆊" font-family="SFProDisplay-Regular, SF Pro Display" font-size="20" font-weight="normal" fill="#3F3F3F">
+                                    <tspan x="323" y="40">􀆊</tspan>
+                                </text>
+                                <g id="Stack-3" xlink:href="#path-_temn3lhc6-22">
+                                    <text id="These-ingredients-ma" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" fill="#3F3F3F">
+                                        <tspan x="0" y="44">These ingredients may be a good fit for </tspan>
+                                        <tspan x="0" y="62">your skin based on your acne type</tspan>
+                                    </text>
+                                    <g id="Stack" xlink:href="#path-_temn3lhc6-23">
+                                        <g id="Button-Clear-Copy" transform="translate(105, 0)" xlink:href="#path-_temn3lhc6-24">
+                                            <use fill="#DDD9F8" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-24"></use>
+                                            <use fill-opacity="0.13" fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-24"></use>
+                                            <text id="Papules" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#000000">
+                                                <tspan x="8.00292969" y="13">Papules</tspan>
+                                            </text>
+                                        </g>
+                                        <text id="Azelaic-Acid" font-family="SFPro-Semibold, SF Pro" font-size="17" font-weight="500" line-spacing="25" fill="#020202">
+                                            <tspan x="0" y="16">Azelaic Acid</tspan>
+                                        </text>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Group-2" transform="translate(0, 108)">
+                        <rect id="Rectangle" stroke="#DDD9F8" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                        <g id="Frame" xlink:href="#path-_temn3lhc6-25">
+                            <rect id="Rectangle" stroke="#DDD9F8" stroke-width="1" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                            <g id="Stack-4" transform="translate(16, 16)" xlink:href="#path-_temn3lhc6-26">
+                                <text id="􀆊" font-family="SFProDisplay-Regular, SF Pro Display" font-size="20" font-weight="normal" fill="#3F3F3F">
+                                    <tspan x="323" y="40">􀆊</tspan>
+                                </text>
+                                <g id="Stack-3" xlink:href="#path-_temn3lhc6-27">
+                                    <text id="These-ingredients-ma" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" fill="#3F3F3F">
+                                        <tspan x="0" y="44">These ingredients may be a good fit for </tspan>
+                                        <tspan x="0" y="62">your skin based on your acne type</tspan>
+                                    </text>
+                                    <g id="Stack" xlink:href="#path-_temn3lhc6-28">
+                                        <g id="Button-Clear-Copy" transform="translate(105, 0)" xlink:href="#path-_temn3lhc6-29">
+                                            <use fill="#DDD9F8" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-29"></use>
+                                            <use fill-opacity="0.13" fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-29"></use>
+                                            <text id="Papules" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#000000">
+                                                <tspan x="8.00292969" y="13">Papules</tspan>
+                                            </text>
+                                        </g>
+                                        <text id="Azelaic-Acid" font-family="SFPro-Semibold, SF Pro" font-size="17" font-weight="500" line-spacing="25" fill="#020202">
+                                            <tspan x="0" y="16">Azelaic Acid</tspan>
+                                        </text>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                    <g id="Group">
+                        <rect id="Rectangle" stroke="#DDD9F8" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                        <g id="Frame" xlink:href="#path-_temn3lhc6-30">
+                            <rect id="Rectangle" stroke="#DDD9F8" stroke-width="1" x="0.5" y="0.5" width="369" height="99" rx="8"></rect>
+                            <g id="Stack-4" transform="translate(16, 16)" xlink:href="#path-_temn3lhc6-31">
+                                <text id="􀆊" font-family="SFProDisplay-Regular, SF Pro Display" font-size="20" font-weight="normal" fill="#3F3F3F">
+                                    <tspan x="323" y="40">􀆊</tspan>
+                                </text>
+                                <g id="Stack-3" xlink:href="#path-_temn3lhc6-32">
+                                    <text id="These-ingredients-ma" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" fill="#3F3F3F">
+                                        <tspan x="0" y="44">These ingredients may be a good fit for </tspan>
+                                        <tspan x="0" y="62">your skin based on your acne type</tspan>
+                                    </text>
+                                    <g id="Stack" xlink:href="#path-_temn3lhc6-33">
+                                        <g id="Button-Clear-Copy" transform="translate(105, 0)" xlink:href="#path-_temn3lhc6-34">
+                                            <use fill="#DDD9F8" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-34"></use>
+                                            <use fill-opacity="0.13" fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-_temn3lhc6-34"></use>
+                                            <text id="Papules" font-family="SFPro-Regular, SF Pro" font-size="15" font-weight="normal" line-spacing="20" fill="#000000">
+                                                <tspan x="8.00292969" y="13">Papules</tspan>
+                                            </text>
+                                        </g>
+                                        <text id="Azelaic-Acid" font-family="SFPro-Semibold, SF Pro" font-size="17" font-weight="500" line-spacing="25" fill="#020202">
+                                            <tspan x="0" y="16">Azelaic Acid</tspan>
+                                        </text>
+                                    </g>
+                                </g>
+                            </g>
+                        </g>
+                    </g>
+                </g>
+            </g>
+        </g>
+    </g>
+</svg>

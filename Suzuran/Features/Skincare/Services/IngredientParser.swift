@@ -1,7 +1,7 @@
 import Foundation
 
-struct IngredientParser {
-    static func extractIngredients(from rawText: String) -> [String] {
+struct IngredientParser: IngredientExtractionService {
+    func extractIngredients(from rawText: String) -> [OCRIngredientResult] {
         let normalized = rawText
             .replacingOccurrences(of: "\n", with: " ")
             .replacingOccurrences(of: "•", with: ",")
@@ -46,9 +46,11 @@ struct IngredientParser {
             }
         }
 
-        return ingredientText
+        let extractedStrings = ingredientText
             .components(separatedBy: ",")
             .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
             .filter { $0.count > 1 }
+            
+        return extractedStrings.map { OCRIngredientResult(rawText: $0) }
     }
 }

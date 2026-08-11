@@ -24,65 +24,47 @@ import Combine
 @MainActor
 final class SkincareViewModel: ObservableObject {
 
-    // MARK: - Published state
-
-    /// User-owned products, sourced from `SkincareProductRepositoryProtocol`.
-    @Published private(set) var products: [SkincareProduct] = []
-
-    /// Active acne types from the user's latest scan (Req 8, 13.4).
-    /// Empty ⇢ Matched Ingredient section is not rendered (Req 13.4).
-    @Published private(set) var activeAcneTypes: [AcneType] = []
-
-    /// Deduplicated, deterministically-ordered matches for the current
-    /// (products, profile) pair. Unique by Canonical_ID (Req 13.2, 13.3).
-    @Published private(set) var matchedIngredients: [MatchedIngredient] = []
-
-    /// Granular loading flag for the matching pipeline (Req 19.3, 19.4).
-    /// The matcher is synchronous today so this flip is effectively instantaneous;
-    /// the property exists so any future async recompute path is observable by the UI
-    /// without changing the public API.
-    @Published private(set) var isMatching: Bool = false
-
-    /// Localized error message surfaced to the user (Bahasa Indonesia, Req 19.2, 19.5).
-    @Published var errorMessage: String? = nil
-
-    /// Two-step confirmation alert (Req 17.1, 17.4, 16.1 for AddSkincare flow — owned by AddVM).
-    @Published var alert: SkincareAlert? = nil
-
-    // MARK: - Dependencies (protocol-based, Req 5.5)
-
-    private let productRepo: SkincareProductRepositoryProtocol
-    private let matcher: IngredientMatchingServicing
-    private let profile: AcneProfileProviding
-
-    // MARK: - Init
+    private let skincareRepository: SkincareProductRepositoryProtocol
+    private let acneRepository: AcneIngredientRepositoryProtocol
+    private let acneProfileProvider: AcneProfileProviding
 
     init(
-        productRepo: SkincareProductRepositoryProtocol,
-        matcher: IngredientMatchingServicing,
-        profile: AcneProfileProviding
+        skincareRepository: SkincareProductRepositoryProtocol,
+        acneRepository: AcneIngredientRepositoryProtocol,
+        acneProfileProvider: AcneProfileProviding
     ) {
-        self.productRepo = productRepo
-        self.matcher = matcher
-        self.profile = profile
+        self.skincareRepository = skincareRepository
+        self.acneRepository = acneRepository
+        self.acneProfileProvider = acneProfileProvider
         loadData()
     }
 
-    // MARK: - Loading
+    var uniqueMatchedRecommendations: [MatchedRecommendation] {
+        var unique: [String: MatchedRecommendation] = [:]
+        for (_, recommendations) in matchedRecommendations {
+            for rec in recommendations {
+                unique[rec.id] = rec
+            }
+        }
+        return Array(unique.values).sorted { $0.recommendation.ingredientName < $1.recommendation.ingredientName }
+    }
 
-    /// Refetches persisted products and the active acne profile, then recomputes
-    /// `matchedIngredients`. Callers should invoke this after any mutation that
-    /// touches the repository.
     func loadData() {
         products = productRepo.fetchProducts()
         activeAcneTypes = profile.getActiveAcneTypes()
         recomputeMatches()
     }
 
-    private func recomputeMatches() {
-        isMatching = true
-        matchedIngredients = matcher.match(products: products, profile: activeAcneTypes)
-        isMatching = false
+    private func calculateAllMatches() {
+        var matches: [UUID: [MatchedRecommendation]] = [:]
+        for product in products {
+            matches[product.id] = IngredientMatcher.getMatches(
+                for: product.ingredients,
+                activeAcneTypes: activeAcneTypes,
+                repository: acneRepository
+            )
+        }
+        self.matchedRecommendations = matches
     }
 
     // MARK: - Mutations
