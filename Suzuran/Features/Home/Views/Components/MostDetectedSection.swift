@@ -12,7 +12,7 @@ struct MostDetectedSection: View {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     HStack {
-                        Text("MOST DETECTED")
+                        Text("Most Detected")
                             .font(AppTypography.caption)
                             .tracking(1.2)
                             .foregroundStyle(.secondary)

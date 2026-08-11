@@ -6,17 +6,18 @@ struct SkinScoreCard: View {
     let score: SkinScorePresentation?
     let state: HomeSummaryState
     var onAction: () -> Void = {}
+    var onInfoAction: () -> Void = {}
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             // Score label title
             HStack {
-                Text(state == .improvement || state == .degradation ? "SKIN SCORE" : "SKIN CONDITION")
+                Text(state == .improvement || state == .degradation ? "Skin Score" : "Skin Condition")
                     .font(AppTypography.caption)
                     .tracking(1.2)
                     .foregroundStyle(.secondary)
                 Spacer()
-                Button(action: {}) { // The info action isn't provided as a callback here, but let's just make it a visual button for consistency or pass a callback
+                Button(action: onInfoAction) {
                     Image(systemName: "info.circle")
                         .font(AppTypography.caption)
                         .foregroundStyle(.secondary)
@@ -66,7 +67,7 @@ struct SkinScoreCard: View {
 
             // Action button
             Button(action: onAction) {
-                Text(state == .empty ? "Scan" : "Details")
+                Text(state == .empty ? "Check my skin" : "Details")
                     .font(AppTypography.bodyBold)
                     .foregroundStyle(Color(uiColor: .systemBackground))
                     .frame(maxWidth: .infinity, minHeight: 44)

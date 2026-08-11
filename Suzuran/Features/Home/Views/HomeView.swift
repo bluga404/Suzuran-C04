@@ -14,6 +14,8 @@ struct HomeView: View {
     @Environment(\.switchToTab) private var switchToTab
     @State private var detailScanID: UUID?
     @State private var isShowingScanSheet = false
+    @State private var isShowingAboutAcne = false
+    @State private var isShowingAboutSkinScore = false
 
     init(viewModel: HomeSummaryViewModel, historyStore: ScanHistoryStore? = nil) {
         self.viewModel = viewModel
@@ -21,26 +23,41 @@ struct HomeView: View {
     }
 
     var body: some View {
-        Group {
-            switch viewModel.state {
-            case .idle, .loading:
-                LoadingStateView(
-                    title: "Memuat",
-                    subtitle: "Mengambil data kulit kamu..."
-                )
-            case .failed(let error):
-                ErrorStateView(
-                    title: "Terjadi Kesalahan",
-                    message: error.userMessage,
-                    primaryActionTitle: "Coba Lagi",
-                    onPrimaryAction: {
-                        Task { await viewModel.load() }
+        NavigationStack {
+            Group {
+                switch viewModel.state {
+                case .idle, .loading:
+                    LoadingStateView(
+                        title: "Memuat",
+                        subtitle: "Mengambil data kulit kamu..."
+                    )
+                case .failed(let error):
+                    ErrorStateView(
+                        title: "Terjadi Kesalahan",
+                        message: error.userMessage,
+                        primaryActionTitle: "Coba Lagi",
+                        onPrimaryAction: {
+                            Task { await viewModel.load() }
+                        }
+                    )
+                case .empty(let title, let message):
+                    EmptyStateView(title: title, message: message)
+                case .loaded(let summary):
+                    loadedContent(summary: summary)
+                }
+            }
+            .navigationTitle("Summary")
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if let summary = loadedSummary, summary.scanAvailability.hasFaceScan {
+                        Button(action: { isShowingScanSheet = true }) {
+                            Image(systemName: "camera")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(AppColor.accentPrimary)
+                        }
+                        .accessibilityLabel("Start face scan")
                     }
-                )
-            case .empty(let title, let message):
-                EmptyStateView(title: title, message: message)
-            case .loaded(let summary):
-                loadedContent(summary: summary)
+                }
             }
         }
         .appScreenContainer()
@@ -49,15 +66,23 @@ struct HomeView: View {
         }
     }
 
+    private var loadedSummary: HomeSummary? {
+        if case .loaded(let summary) = viewModel.state {
+            return summary
+        }
+        return nil
+    }
+
     @ViewBuilder
     private func loadedContent(summary: HomeSummary) -> some View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.lg) {
-                HomeHeader(
-                    date: summary.date,
-                    showCameraButton: summary.scanAvailability.hasFaceScan,
-                    onScanTap: { isShowingScanSheet = true }
-                )
+                // Native title replaces HomeHeader's title, we just show date here
+                Text(formattedDate(for: summary.date))
+                    .font(AppTypography.body)
+                    .foregroundStyle(.secondary)
+                    .padding(.horizontal, AppSpacing.md)
+                    .padding(.top, AppSpacing.xs)
 
                 SkinScoreCard(
                     score: summary.skinScore,
@@ -68,14 +93,16 @@ struct HomeView: View {
                         } else {
                             detailScanID = summary.latestScan?.id
                         }
-                    }
+                    },
+                    onInfoAction: { isShowingAboutSkinScore = true }
                 )
                 .padding(.horizontal, AppSpacing.md)
 
                 if summary.state != .empty {
                     MostDetectedSection(
                         acneType: summary.dominantAcne,
-                        count: dominantCount(in: summary)
+                        count: dominantCount(in: summary),
+                        onInfoTap: { isShowingAboutAcne = true }
                     )
 
                     IngredientSection(
@@ -104,11 +131,23 @@ struct HomeView: View {
         .sheet(item: $detailScanID) { scanID in
             HomeFactory.makeDetailView(scanID: scanID)
         }
+        .sheet(isPresented: $isShowingAboutAcne) {
+            AboutAcneTypeView()
+        }
+        .sheet(isPresented: $isShowingAboutSkinScore) {
+            AboutSkinScoreView()
+        }
     }
 
     /// Returns the detection count of the dominant acne type from the latest scan, if available.
     private func dominantCount(in summary: HomeSummary) -> Int? {
         guard let dominant = summary.dominantAcne, let scan = summary.latestScan else { return nil }
         return scan.acneCounts[dominant]
+    }
+
+    private func formattedDate(for date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "d MMMM, yyyy"
+        return formatter.string(from: date)
     }
 }

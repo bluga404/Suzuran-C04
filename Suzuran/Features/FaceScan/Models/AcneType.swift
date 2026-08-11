@@ -51,18 +51,18 @@ enum AcneType: String, CaseIterable, Identifiable, Equatable, Codable {
 
     var color: Color {
         switch self {
-        case .blackhead:
-            return .brown
-        case .cyst:
-            return .red
-        case .nodule:
-            return .purple
-        case .papule:
-            return .orange
-        case .pustule:
-            return .yellow
         case .whitehead:
-            return .white
+            return Color(red: 0.3, green: 0.65, blue: 0.3)
+        case .blackhead:
+            return Color(red: 0.65, green: 0.7, blue: 0.3)
+        case .papule:
+            return Color(red: 0.3, green: 0.55, blue: 0.75)
+        case .pustule:
+            return Color(red: 0.6, green: 0.3, blue: 0.7)
+        case .nodule:
+            return Color(red: 0.7, green: 0.3, blue: 0.45)
+        case .cyst:
+            return Color(red: 0.7, green: 0.45, blue: 0.3)
         case .unknown:
             return .gray
         }
