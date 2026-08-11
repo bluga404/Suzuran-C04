@@ -7,8 +7,8 @@ struct RootView: View {
     var body: some View {
         Group {
             switch viewModel.phase {
-            case .home:
-                HomeView(viewModel: viewModel.makeHomeViewModel())
+            case .report:
+                ReportFactory.makeView()
             case let .failed(error):
                 ErrorStateView(
                     title: "Startup Failed",
@@ -26,8 +26,7 @@ struct RootView: View {
 #Preview {
     RootView(
         viewModel: RootViewModel(
-            bootstrapper: PreviewBootstrapper(),
-            homeViewModelFactory: { HomeViewModel(welcomeText: AppConstants.homeWelcomeTitle) }
+            bootstrapper: PreviewBootstrapper()
         )
     )
 }

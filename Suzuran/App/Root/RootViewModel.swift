@@ -4,26 +4,19 @@ import Combine
 @MainActor
 final class RootViewModel: ObservableObject {
     enum Phase: Equatable {
-        case home
+        case report
         case failed(AppError)
     }
 
-    @Published private(set) var phase: Phase = .home
+    @Published private(set) var phase: Phase = .report
 
     private let bootstrapper: AppBootstrapping
-    private let homeViewModelFactory: () -> HomeViewModel
     private var hasStarted = false
 
     init(
-        bootstrapper: AppBootstrapping,
-        homeViewModelFactory: @escaping () -> HomeViewModel
+        bootstrapper: AppBootstrapping
     ) {
         self.bootstrapper = bootstrapper
-        self.homeViewModelFactory = homeViewModelFactory
-    }
-
-    func makeHomeViewModel() -> HomeViewModel {
-        homeViewModelFactory()
     }
 
     func start() {
@@ -43,7 +36,7 @@ final class RootViewModel: ObservableObject {
     }
 
     func retry() {
-        phase = .home
+        phase = .report
         hasStarted = false
         start()
     }

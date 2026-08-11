@@ -22,12 +22,7 @@ final class AppContainer: ObservableObject {
         let keyValueStore = UserDefaultsKeyValueStore(userDefaults: .standard)
         let environment = AppEnvironment(logger: logger, keyValueStore: keyValueStore)
         let bootstrapper = AppBootstrapper(environment: environment)
-        let rootViewModel = RootViewModel(
-            bootstrapper: bootstrapper,
-            homeViewModelFactory: {
-                HomeViewModel(welcomeText: AppConstants.homeWelcomeTitle)
-            }
-        )
+        let rootViewModel = RootViewModel(bootstrapper: bootstrapper)
 
         return AppContainer(
             environment: environment,
@@ -36,7 +31,4 @@ final class AppContainer: ObservableObject {
         )
     }
 
-    func makeHomeViewModel() -> HomeViewModel {
-        HomeViewModel(welcomeText: AppConstants.homeWelcomeTitle)
-    }
 }
