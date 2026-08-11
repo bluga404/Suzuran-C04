@@ -43,7 +43,7 @@ final class HistoryViewModel: ObservableObject {
         return (selected[0], selected[1])
     }
 
-    private let historyStore: ScanHistoryStore
+    let historyStore: ScanHistoryStore
     private var cancellable: AnyCancellable?
 
     // MARK: - Init

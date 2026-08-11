@@ -26,9 +26,9 @@ enum HomeFactory {
     }
 
     @MainActor
-    static func makeDetailView(scanID: UUID) -> some View {
+    static func makeDetailView(scanID: UUID, historyStore: ScanHistoryStore? = nil) -> some View {
         let repo: SkinScanRepository = sharedScanRepository
-        let viewModel = ScanDetailViewModel(scanID: scanID, skinScanRepository: repo)
+        let viewModel = ScanDetailViewModel(scanID: scanID, skinScanRepository: repo, historyStore: historyStore)
         return ScanDetailView(viewModel: viewModel)
     }
 

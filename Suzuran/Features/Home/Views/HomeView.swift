@@ -129,8 +129,8 @@ struct HomeView: View {
                 }
             )
         }
-        .sheet(item: $detailScanID) { scanID in
-            HomeFactory.makeDetailView(scanID: scanID)
+        .navigationDestination(item: $detailScanID) { scanID in
+            HomeFactory.makeDetailView(scanID: scanID, historyStore: historyStore)
         }
         .sheet(isPresented: $isShowingAboutAcne) {
             AboutAcneTypeView()
