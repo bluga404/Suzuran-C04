@@ -33,6 +33,7 @@ final class ScanHistoryStore: ObservableObject {
         let frontImageData = result.zoneSummaries
             .first(where: { $0.zone == .front })?.imageData
             
+        var thumbnails: [ScanRecord.FaceArea: Data] = [:]
         var areaCounts: [ScanRecord.AcneAreaCount] = []
         var areaTypeCountsMap: [ScanRecord.FaceArea: [ScanRecord.AcneTypeCount]] = [:]
 
