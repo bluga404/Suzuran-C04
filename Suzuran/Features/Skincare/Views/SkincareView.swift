@@ -114,60 +114,61 @@ struct SkincareView: View {
     }
     
     private var emptyStateView: some View {
-        VStack(spacing: AppSpacing.md) {
-            HStack {
-                Button(action: onDismiss) {
-                    HStack(spacing: 4) {
-                        Image(systemName: "chevron.left")
-                        Text("Kembali")
+        ScrollView {
+            VStack(alignment: .leading, spacing: 0) {
+                // Header
+                HStack {
+                    VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                        Text("Skincare")
+                            .font(.largeTitle.weight(.bold))
+                            .foregroundStyle(.primary)
+                        Text("Your current skincare routine")
+                            .font(AppTypography.body)
+                            .foregroundStyle(.secondary)
                     }
-                    .font(AppTypography.bodyBold)
-                    .foregroundStyle(AppColor.accentPrimary)
+                    Spacer()
                 }
-                Spacer()
-            }
-            .padding(.horizontal, AppSpacing.md)
-            .padding(.top, AppSpacing.sm)
-            
-            Spacer()
-            
-            ZStack {
-                Circle()
-                    .fill(AppColor.accentPrimary.opacity(0.05))
-                    .frame(width: 100, height: 100)
+                .padding(.horizontal, AppSpacing.md)
+                .padding(.vertical, AppSpacing.sm)
                 
-                Image(systemName: "bubbles.and.sparkles")
-                    .font(.system(size: 40))
-                    .foregroundStyle(AppColor.accentPrimary)
+                VStack(spacing: AppSpacing.md) {
+                    ZStack {
+                        Circle()
+                            .fill(AppColor.accentPrimary.opacity(0.05))
+                            .frame(width: 100, height: 100)
+                        
+                        Image(systemName: "bubbles.and.sparkles")
+                            .font(.system(size: 40))
+                            .foregroundStyle(AppColor.accentPrimary)
+                    }
+                    
+                    Text("Belum Ada Catatan Skincare")
+                        .font(AppTypography.subtitle)
+                        .foregroundStyle(AppColor.textPrimary)
+                    
+                    Text("Catat produk skincare yang Anda gunakan saat ini untuk menganalisis kesesuaian bahan aktifnya dengan kondisi jerawat Anda.")
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColor.textSecondary)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal, AppSpacing.lg)
+                    
+                    Button(action: {
+                        isShowingAdd = true
+                    }) {
+                        Text("Catat Skincare Pertama")
+                            .font(AppTypography.bodyBold)
+                            .padding(.horizontal, AppSpacing.lg)
+                            .padding(.vertical, AppSpacing.sm)
+                            .background(AppColor.accentPrimary)
+                            .foregroundStyle(.white)
+                            .cornerRadius(AppCornerRadius.md)
+                    }
+                    .padding(.top, AppSpacing.sm)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.top, 80)
             }
-            
-            Text("Belum Ada Catatan Skincare")
-                .font(AppTypography.subtitle)
-                .foregroundStyle(AppColor.textPrimary)
-            
-            Text("Catat produk skincare yang Anda gunakan saat ini untuk menganalisis kesesuaian bahan aktifnya dengan kondisi jerawat Anda.")
-                .font(AppTypography.caption)
-                .foregroundStyle(AppColor.textSecondary)
-                .multilineTextAlignment(.center)
-                .padding(.horizontal, AppSpacing.lg)
-            
-            Button(action: {
-                isShowingAdd = true
-            }) {
-                Text("Catat Skincare Pertama")
-                    .font(AppTypography.bodyBold)
-                    .padding(.horizontal, AppSpacing.lg)
-                    .padding(.vertical, AppSpacing.sm)
-                    .background(AppColor.accentPrimary)
-                    .foregroundStyle(.white)
-                    .cornerRadius(AppCornerRadius.md)
-            }
-            .padding(.top, AppSpacing.sm)
-            
-            Spacer()
-            Spacer()
         }
-        .frame(maxWidth: .infinity, maxHeight: .infinity)
         .toolbar(.hidden, for: .navigationBar)
     }
 
