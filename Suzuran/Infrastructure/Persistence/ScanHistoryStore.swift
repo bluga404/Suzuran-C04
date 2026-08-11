@@ -34,7 +34,7 @@ final class ScanHistoryStore: ObservableObject {
             .first(where: { $0.zone == .front })?.imageData
 
         let record = ScanRecord(
-            id: UUID(),
+            id: result.id,
             date: today,
             frontImageData: frontImageData,
             skinScore: result.skinScore,

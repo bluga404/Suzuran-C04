@@ -113,19 +113,24 @@ struct ScanDetailView: View {
     @ViewBuilder
     private func summaryHeader(data: ScanDetailData) -> some View {
         HStack(alignment: .top, spacing: AppSpacing.md) {
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("Skin Score")
-                        .font(.custom("AvenirNext-Medium", size: 12))
-                        .foregroundStyle(.primary)
-                    HStack(alignment: .lastTextBaseline, spacing: 2) {
-                        Text(viewModel.selectedRegion == nil ? "\(data.scan.overallScore)" : "-")
-                            .font(.custom("AvenirNext-Bold", size: 36))
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
+                if viewModel.selectedRegion == nil {
+                    VStack(alignment: .leading, spacing: 2) {
+                        Text("Skin Score")
+                            .font(.custom("AvenirNext-Medium", size: 12))
                             .foregroundStyle(.primary)
-                        if viewModel.selectedRegion == nil {
-                            Text("/100")
-                                .font(.custom("AvenirNext-Medium", size: 14))
+                        VStack(alignment: .leading, spacing: -2) {
+                            Text(HomeScoreCalculator().scoreLabel(for: data.scan.overallScore))
+                                .font(.custom("AvenirNext-Bold", size: 38))
                                 .foregroundStyle(.primary)
+                            HStack(alignment: .lastTextBaseline, spacing: 2) {
+                                Text("\(data.scan.overallScore)")
+                                    .font(.custom("AvenirNext-Bold", size: 18))
+                                    .foregroundStyle(.primary)
+                                Text("/100")
+                                    .font(.custom("AvenirNext-Medium", size: 12))
+                                    .foregroundStyle(.primary)
+                            }
                         }
                     }
                 }
