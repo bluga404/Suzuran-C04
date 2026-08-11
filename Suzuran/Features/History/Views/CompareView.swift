@@ -381,32 +381,32 @@ private struct CompareFaceImage: View {
         guard let data = data, !data.isEmpty else { return nil }
         #if canImport(UIKit)
         guard let cropRect = subZoneCrops[area],
-              let rawImage = UIImage(data: data) else { return nil }
+              let sourceImage = UIImage(data: data) else { return nil }
 
-        let normalised: UIImage
-        if rawImage.imageOrientation == .up {
-            normalised = rawImage
-        } else {
-            let renderer = UIGraphicsImageRenderer(size: rawImage.size)
-            normalised = renderer.image { _ in
-                rawImage.draw(in: CGRect(origin: .zero, size: rawImage.size))
-            }
+        let originalSize = sourceImage.size
+        guard originalSize.width > 0, originalSize.height > 0 else { return nil }
+
+        let cropWidth = originalSize.width * cropRect.width
+        let cropHeight = originalSize.height * cropRect.height
+        let targetSize = CGSize(width: cropWidth, height: cropHeight)
+
+        let drawX = -cropRect.origin.x * originalSize.width
+        let drawY = -cropRect.origin.y * originalSize.height
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = sourceImage.scale
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: format)
+
+        let croppedImage = renderer.image { _ in
+            sourceImage.draw(in: CGRect(
+                x: drawX,
+                y: drawY,
+                width: originalSize.width,
+                height: originalSize.height
+            ))
         }
 
-        guard let cgImage = normalised.cgImage else { return nil }
-
-        let width = CGFloat(cgImage.width)
-        let height = CGFloat(cgImage.height)
-
-        let pixelRect = CGRect(
-            x: cropRect.origin.x * width,
-            y: cropRect.origin.y * height,
-            width: cropRect.size.width * width,
-            height: cropRect.size.height * height
-        ).integral
-
-        guard let cropped = cgImage.cropping(to: pixelRect) else { return nil }
-        return UIImage(cgImage: cropped).jpegData(compressionQuality: 0.85)
+        return croppedImage.jpegData(compressionQuality: 0.85)
         #else
         return nil
         #endif
