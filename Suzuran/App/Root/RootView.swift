@@ -7,6 +7,8 @@ struct RootView: View {
     var body: some View {
         Group {
             switch viewModel.phase {
+            case .onboarding:
+                OnboardingView(viewModel: viewModel.makeOnboardingViewModel())
             case .home:
                 MainTabView(viewModel: viewModel)
             case let .failed(error):
