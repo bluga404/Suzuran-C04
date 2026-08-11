@@ -82,11 +82,41 @@ struct HistoryView: View {
 
             Spacer()
 
-            HStack(spacing: 8) {
-                compareButton
-
-                if viewModel.isCompareMode {
-                    xmarkButton
+            GlassEffectContainer {
+                PhaseAnimator([false, true], trigger: viewModel.isCompareMode) { morph in
+                    HStack(spacing: viewModel.isCompareMode ? 5 : -40) {
+                        Button {
+                            if !viewModel.isCompareMode {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                    viewModel.toggleCompareMode()
+                                }
+                            } else if viewModel.canCompare {
+                                navigateToCompare = true
+                            }
+                        } label: {
+                            Text(viewModel.isCompareMode ? "Compare (\(viewModel.selectedCount)/2)" : "Compare")
+                        }
+                        .padding()
+                        .glassEffect()
+                        .transition(.move(edge: .trailing).combined(with: .opacity))
+                        if viewModel.isCompareMode {
+                            Button {
+                                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
+                                    viewModel.toggleCompareMode()
+                                }
+                            } label: {
+                                Image(systemName: "xmark")
+                            }
+                            .padding()
+                            .accessibilityLabel("Batal mode compare")
+                            .glassEffect()
+                            .transition(.move(edge: .trailing).combined(with: .opacity))
+                        }
+                        
+                    }
+                } animation: { morph in
+                    .easeInOut(duration: 0.2)
+                    
                 }
             }
         }
@@ -96,39 +126,6 @@ struct HistoryView: View {
         .background(Color(.systemBackground))
     }
 
-    // MARK: - Compare Button
-
-    private var compareButton: some View {
-        Button {
-            if !viewModel.isCompareMode {
-                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                    viewModel.toggleCompareMode()
-                }
-            } else if viewModel.canCompare {
-                navigateToCompare = true
-            }
-        } label: {
-            Text(viewModel.isCompareMode ? "Compare (\(viewModel.selectedCount)/2)" : "Compare")
-        }
-        .tint(purpleAccent)
-        .disabled(viewModel.isCompareMode && !viewModel.canCompare)
-        .buttonStyle(.glassProminent)
-    }
-
-    // MARK: - X Close Button
-
-    private var xmarkButton: some View {
-        Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                viewModel.toggleCompareMode()
-            }
-        } label: {
-            Image(systemName: "xmark")
-        }
-        .buttonStyle(.glass)
-        .accessibilityLabel("Batal mode compare")
-        .transition(.scale.combined(with: .opacity))
-    }
 
     // MARK: - Scrollable Grid Content
 
