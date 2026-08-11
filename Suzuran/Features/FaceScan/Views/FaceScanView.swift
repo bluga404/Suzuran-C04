@@ -168,30 +168,29 @@ struct FaceScanView: View {
             // Top Overlay Bar
             VStack {
                 HStack(alignment: .center) {
-                    Button {
-                        onDismiss()
-                    } label: {
-                        Image(systemName: "chevron.left")
-                            .font(.custom("AvenirNext-Medium", size: 20, relativeTo: .title3))
-                            .foregroundStyle(.white)
-                            .padding(AppSpacing.sm)
-                            .background(.ultraThinMaterial, in: Circle())
+                    if #available(iOS 26, *) {
+                        Button {
+                            onDismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(.primary)
+                                .padding(12)
+                                .glassEffect(.regular.interactive(), in: Circle())
+                        }
+                    } else {
+                        Button {
+                            onDismiss()
+                        } label: {
+                            Image(systemName: "xmark")
+                                .font(.system(size: 16, weight: .semibold))
+                                .foregroundStyle(.primary)
+                                .padding(12)
+                                .background(.ultraThinMaterial, in: Circle())
+                        }
                     }
 
                     Spacer()
-
-                    TopLightingIndicatorView(condition: viewModel.lightingCondition)
-
-                    Button {
-                        // Info action placeholder
-                    } label: {
-                        Image(systemName: "info.circle")
-                            .font(.custom("AvenirNext-Regular", size: 20, relativeTo: .title3))
-                            .foregroundStyle(.white)
-                            .padding(AppSpacing.sm)
-                            .background(.ultraThinMaterial, in: Circle())
-                    }
-                    .padding(.leading, AppSpacing.sm)
                 }
                 .padding(.horizontal, AppSpacing.lg)
                 .padding(.top, 60) // To clear dynamic island in ignoresSafeArea context
@@ -211,8 +210,12 @@ struct FaceScanView: View {
                 Spacer()
 
                 // Instruction text
-                LightingIndicatorView(readiness: viewModel.readiness)
-                    .padding(.bottom, AppSpacing.xl) // adjusted padding since close button is moved
+                LightingIndicatorView(
+                    readiness: viewModel.readiness,
+                    completedAngles: viewModel.completedAngles,
+                    targetName: viewModel.currentAngleTarget.displayName
+                )
+                    .padding(.bottom, 80) // adjusted padding to move it up slightly
             }
         }
     }

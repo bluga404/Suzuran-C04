@@ -5,17 +5,23 @@ import SwiftUI
 struct LightingIndicatorView: View {
     /// The current readiness state that determines the displayed message.
     let readiness: FaceScanReadiness
+    let completedAngles: Int
+    let targetName: String
 
     var body: some View {
-        Text(readiness.message)
-            .font(.system(size: 24, weight: .bold, design: .rounded))
-            .foregroundStyle(.white)
-            .padding(.horizontal, AppSpacing.xl)
-            .padding(.vertical, AppSpacing.md)
-            .background(Color.black.opacity(0.65))
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
-            .contentTransition(.numericText())
-            .animation(.easeInOut(duration: 0.25), value: readiness)
+        VStack(spacing: AppSpacing.sm) {
+            Text(readiness.message)
+                .font(.system(size: 20, weight: .bold, design: .default))
+                .foregroundStyle(.primary)
+                .multilineTextAlignment(.center)
+                .contentTransition(.numericText())
+                .animation(.easeInOut(duration: 0.25), value: readiness)
+            
+            Text("\(completedAngles)/3 \(targetName)")
+                .font(AppTypography.caption)
+                .foregroundStyle(.primary)
+                .contentTransition(.numericText())
+        }
     }
 }
 
@@ -23,9 +29,9 @@ struct LightingIndicatorView: View {
     ZStack {
         Color.black
         VStack(spacing: AppSpacing.md) {
-            LightingIndicatorView(readiness: .searchingFace)
-            LightingIndicatorView(readiness: .tooFar)
-            LightingIndicatorView(readiness: .ready)
+            LightingIndicatorView(readiness: .searchingFace, completedAngles: 0, targetName: "Front Side")
+            LightingIndicatorView(readiness: .tooFar, completedAngles: 1, targetName: "Left Side")
+            LightingIndicatorView(readiness: .ready, completedAngles: 2, targetName: "Right Side")
         }
     }
 }

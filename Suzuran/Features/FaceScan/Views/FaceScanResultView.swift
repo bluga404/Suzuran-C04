@@ -37,22 +37,27 @@ struct FaceScanResultView: View {
             ScrollView {
                 VStack(alignment: .leading, spacing: 20) {
                     headerSection
-                    fullFacePhotoSection
                     zoneGridSection
-                    acneTypeSummarySection
                 }
                 .padding(.horizontal, AppSpacing.lg)
                 .padding(.bottom, AppSpacing.xl)
             }
             .scrollEdgeEffectStyle(.soft, for: .top)
-            .navigationTitle("Result")
+            .navigationTitle("Scan Result")
             .navigationBarTitleDisplayMode(.large)
-            .toolbarRole(.editor)
+            .navigationBarBackButtonHidden(true)
+            .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    Button(action: onDone) {
+                        Label("Back", systemImage: "chevron.left")
+                            .labelStyle(.iconOnly)
+                    }
+                }
+            }
             .background(Color(.systemBackground))
             .safeAreaInset(edge: .bottom) {
                 saveButton
                     .padding(.horizontal, AppSpacing.lg)
-                    .padding(.bottom, AppSpacing.md)
             }
             // Full-screen zone detail
             .fullScreenCover(item: $selectedSubZone) { subZone in
@@ -66,137 +71,95 @@ struct FaceScanResultView: View {
     // MARK: - Header Section
 
     private var headerSection: some View {
-        HStack(alignment: .top, spacing: AppSpacing.sm) {
-            VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Text("Overall Condition")
-                    .font(.custom("AvenirNext-Bold", size: 22, relativeTo: .title2))
+        HStack(alignment: .top, spacing: AppSpacing.md) {
+            // Left Column
+            VStack(alignment: .leading, spacing: 0) {
+                Text("Skin Score")
+                    .font(.custom("AvenirNext-Regular", size: 16, relativeTo: .body))
                     .foregroundStyle(.primary)
-
-                HStack(spacing: AppSpacing.xxs) {
-                    Text("Skin-Score \(displayScore)")
-                        .font(AppTypography.body)
-                        .foregroundStyle(.secondary)
-                    Image(systemName: "info.circle")
-                        .font(AppTypography.caption)
+                    .padding(.bottom, 4)
+                
+                Text(severityText)
+                    .font(.custom("AvenirNext-Bold", size: 42, relativeTo: .largeTitle))
+                    .foregroundStyle(.primary)
+                    .minimumScaleFactor(0.5)
+                    .lineLimit(1)
+                
+                HStack(alignment: .firstTextBaseline, spacing: 0) {
+                    Text("\(displayScore)")
+                        .font(.custom("AvenirNext-Bold", size: 18, relativeTo: .headline))
+                        .foregroundStyle(.primary)
+                    Text(" /100")
+                        .font(.custom("AvenirNext-Regular", size: 14, relativeTo: .subheadline))
                         .foregroundStyle(.secondary)
                 }
-
-                Text("\(displayScore)%")
-                    .font(.custom("AvenirNext-Bold", size: 56, relativeTo: .largeTitle))
+                
+                Spacer().frame(height: 32)
+                
+                Text("Most Detected Acne Type")
+                    .font(.custom("AvenirNext-Regular", size: 14, relativeTo: .subheadline))
                     .foregroundStyle(.primary)
+                    .padding(.bottom, 4)
+                    .fixedSize(horizontal: false, vertical: true)
+                
+                Text(mostDetectedAcneType)
+                    .font(.custom("AvenirNext-Bold", size: 24, relativeTo: .title2))
+                    .foregroundStyle(.primary)
+                    .minimumScaleFactor(0.5)
                     .lineLimit(1)
-                    .minimumScaleFactor(0.7)
-
-                severityHeartsRow
             }
-
-            Spacer(minLength: 0)
-
-            frontSmallThumbnail
-        }
-        .padding(.top, AppSpacing.xs)
-    }
-
-    // MARK: - Severity Hearts Row
-
-    private var severityHeartsRow: some View {
-        HStack(spacing: AppSpacing.xxs) {
-            ForEach(0..<4, id: \.self) { index in
-                Image(systemName: index < filledHearts ? "heart.fill" : "heart")
-                    .font(.custom("AvenirNext-Regular", size: 18, relativeTo: .headline))
-                    .foregroundStyle(severityColor)
-            }
-            Text(result.overallSeverity.rawValue.uppercased())
-                .font(.custom("AvenirNext-Bold", size: 11, relativeTo: .caption2))
-                .foregroundStyle(.white)
-                .padding(.horizontal, AppSpacing.xs)
-                .padding(.vertical, 3)
-                .background(Capsule().fill(severityColor))
-        }
-    }
-
-    private var filledHearts: Int {
-        switch result.overallSeverity {
-        case .clear:    return 0
-        case .mild:     return 1
-        case .moderate: return 2
-        case .severe:   return 4
-        }
-    }
-
-    private var severityColor: Color {
-        switch result.overallSeverity {
-        case .clear:    return AppColor.scoreVeryGood
-        case .mild:     return AppColor.scoreGood
-        case .moderate: return AppColor.scoreModerate
-        case .severe:   return AppColor.scoreVeryLow
-        }
-    }
-
-    // MARK: - Small Thumbnail (header right corner)
-
-    private var frontSmallThumbnail: some View {
-        Group {
-            if let frontZone = result.zoneSummaries.first(where: { $0.zone == .front }),
-               let imageData = frontZone.imageData,
-               let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFill()
-                    .frame(width: 110, height: 140)
-                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                            .stroke(AppColor.borderSubtle, lineWidth: 0.5)
-                    )
-            } else {
-                RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                    .fill(AppColor.surfacePrimary)
-                    .frame(width: 110, height: 140)
-                    .overlay(
-                        Image(systemName: "person.crop.rectangle")
-                            .font(.custom("AvenirNext-Regular", size: 32, relativeTo: .largeTitle))
-                            .foregroundStyle(.secondary)
-                    )
-            }
-        }
-    }
-
-    // MARK: - Full-Width Front Photo
-
-    private var fullFacePhotoSection: some View {
-        Group {
-            if let frontZone = result.zoneSummaries.first(where: { $0.zone == .front }),
-               let imageData = frontZone.imageData,
-               let uiImage = UIImage(data: imageData) {
-                Image(uiImage: uiImage)
-                    .resizable()
-                    .scaledToFit()
-                    .frame(maxWidth: .infinity)
-                    .overlay(
-                        FaceMaskScanVisualization(markers: frontZone.markers)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                            .stroke(AppColor.borderSubtle, lineWidth: 0.5)
-                    )
-            } else {
-                RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                    .fill(AppColor.surfacePrimary)
-                    .frame(maxWidth: .infinity, minHeight: 200)
-                    .overlay(
-                        VStack(spacing: AppSpacing.xs) {
+            .frame(maxWidth: .infinity, alignment: .leading)
+            
+            // Right Column (Photo)
+            Group {
+                if let frontZone = result.zoneSummaries.first(where: { $0.zone == .front }),
+                   let imageData = frontZone.imageData,
+                   let uiImage = UIImage(data: imageData) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .frame(width: 160, height: 240)
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
+                        .overlay(
+                            FaceMaskScanVisualization(markers: frontZone.markers)
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                                .stroke(Color.primary, lineWidth: 1)
+                        )
+                } else {
+                    RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                        .fill(AppColor.surfacePrimary)
+                        .frame(width: 160, height: 240)
+                        .overlay(
                             Image(systemName: "person.crop.rectangle")
-                                .font(.custom("AvenirNext-Regular", size: 44, relativeTo: .largeTitle))
+                                .font(.custom("AvenirNext-Regular", size: 32, relativeTo: .largeTitle))
                                 .foregroundStyle(.secondary)
-                            Text("Foto belum tersedia")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(.secondary)
-                        }
-                    )
+                        )
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                                .stroke(Color.primary, lineWidth: 1)
+                        )
+                }
             }
         }
+        .padding(.top, AppSpacing.sm)
+    }
+
+    private var severityText: String {
+        switch result.overallSeverity {
+        case .clear: return "Excellent"
+        case .mild: return "Good"
+        case .moderate: return "Moderate"
+        case .severe: return "Severe"
+        }
+    }
+
+    private var mostDetectedAcneType: String {
+        if let highest = result.acneTypeSummaries.max(by: { $0.count < $1.count }), highest.count > 0 {
+            return highest.acneType.displayName
+        }
+        return "None"
     }
 
     // MARK: - Zone Grid
@@ -247,8 +210,10 @@ struct FaceScanResultView: View {
                        let uiImage = UIImage(data: imageData) {
                         Image(uiImage: uiImage)
                             .resizable()
-                            .scaledToFit()
-                            .frame(maxWidth: .infinity)
+                            .scaledToFill()
+                            .aspectRatio(1.0, contentMode: .fill)
+                            .frame(minWidth: 0, maxWidth: .infinity)
+                            .clipped()
                             .background(AppColor.surfacePrimary)
                             .overlay(
                                 FaceMaskScanVisualization(markers: subZone.markers)
@@ -276,57 +241,12 @@ struct FaceScanResultView: View {
         .buttonStyle(.plain)
     }
 
-    // MARK: - Acne Type Summary Section
-
-    private var acneTypeSummarySection: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            Text("Type & Number of Acne")
-                .font(.custom("AvenirNext-DemiBold", size: 20, relativeTo: .title3))
-                .foregroundStyle(.primary)
-                .padding(.bottom, AppSpacing.md)
-
-            VStack(spacing: 0) {
-                ForEach(Array(result.acneTypeSummaries.enumerated()), id: \.element.id) { index, summary in
-                    HStack(spacing: AppSpacing.sm) {
-                        // Colour dot matching bounding box colour
-                        Circle()
-                            .fill(summary.acneType.color)
-                            .frame(width: 10, height: 10)
-
-                        Text(summary.acneType.displayName)
-                            .font(.custom("AvenirNext-Regular", size: 12, relativeTo: .caption))
-                            .foregroundStyle(.primary)
-
-                        Spacer()
-
-                        // Count number (not percentage)
-                        Text("\(summary.count)")
-                            .font(.custom("AvenirNext-DemiBold", size: 13, relativeTo: .caption))
-                            .foregroundStyle(summary.count > 0 ? summary.acneType.color : .secondary)
-                            .padding(.horizontal, AppSpacing.sm)
-                            .padding(.vertical, AppSpacing.xxs)
-                            .background(
-                                RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                                    .fill(summary.count > 0
-                                          ? summary.acneType.color.opacity(0.15)
-                                          : AppColor.surfacePrimary)
-                            )
-                    }
-                    .padding(.vertical, AppSpacing.sm)
-
-                    if index < result.acneTypeSummaries.count - 1 {
-                        Divider()
-                    }
-                }
-            }
-        }
-    }
 
     // MARK: - Save Button
 
     private var saveButton: some View {
         Button(action: onDone) {
-            Text("Save")
+            Text("Save Scan Result")
                 .font(AppTypography.bodyBold)
                 .foregroundStyle(Color(uiColor: .systemBackground))
                 .frame(maxWidth: .infinity, minHeight: 50)

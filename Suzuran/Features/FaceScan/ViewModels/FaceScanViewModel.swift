@@ -304,9 +304,9 @@ final class FaceScanViewModel: NSObject, ObservableObject {
         ) else {
             let direction: String
             switch currentAngleTarget {
-            case .front: direction = "Depan"
-            case .leftAngle: direction = "Kanan" // To capture left cheek, turn right
-            case .rightAngle: direction = "Kiri" // To capture right cheek, turn left
+            case .front: direction = "Front"
+            case .leftAngle: direction = "Right" // To capture left cheek, turn right
+            case .rightAngle: direction = "Left" // To capture right cheek, turn left
             }
             return .wrongAngle(direction)
         }

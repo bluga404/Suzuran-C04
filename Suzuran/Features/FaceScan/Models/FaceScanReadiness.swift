@@ -15,19 +15,19 @@ enum FaceScanReadiness: Equatable {
     var message: String {
         switch self {
         case .countingDown(let seconds):
-            return "Bersiap dalam \(seconds)..."
+            return "Get ready in \(seconds)..."
         case .searchingFace:
-            return "Mencari wajah..."
+            return "Searching for face..."
         case .faceOutOfGuide:
-            return "Wajah di luar area"
+            return "Position your face within the oval"
         case .tooFar:
-            return "Terlalu jauh"
+            return "Move Your Head a Little Closer"
         case .wrongAngle(let direction):
-            return "Putar wajah ke \(direction)"
+            return "Turn your head to the \(direction)"
         case .unstable:
-            return "Tahan posisi..."
+            return "Hold steady..."
         case .ready:
-            return "Siap"
+            return "Ready"
         }
     }
 
