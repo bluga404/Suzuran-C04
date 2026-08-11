@@ -51,7 +51,7 @@ struct OnboardingView: View {
                         // Start Button present on all pages
                         Button(action: {
                             withAnimation(.easeInOut) {
-                                viewModel.nextStep()
+                                viewModel.completeOnboarding()
                             }
                         }) {
                             Text("Start")
