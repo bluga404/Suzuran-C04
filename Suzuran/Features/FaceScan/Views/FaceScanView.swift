@@ -10,7 +10,7 @@ import UIKit
 ///
 /// Requirements: 2.3, 2.4, 4.5, 5.6
 struct FaceScanView: View {
-    @ObservedObject private var viewModel: FaceScanViewModel
+    @StateObject private var viewModel: FaceScanViewModel
     let onScanSaved: (FaceScanSession, FaceScanResultModel) -> Void
     let onDismiss: () -> Void
 
@@ -21,11 +21,11 @@ struct FaceScanView: View {
     private let hapticGenerator = UIImpactFeedbackGenerator(style: .medium)
 
     init(
-        viewModel: FaceScanViewModel,
+        viewModel: @autoclosure @escaping () -> FaceScanViewModel,
         onScanSaved: @escaping (FaceScanSession, FaceScanResultModel) -> Void = { _, _ in },
         onDismiss: @escaping () -> Void
     ) {
-        self._viewModel = ObservedObject(wrappedValue: viewModel)
+        self._viewModel = StateObject(wrappedValue: viewModel())
         self.onScanSaved = onScanSaved
         self.onDismiss = onDismiss
     }

@@ -53,7 +53,6 @@ struct FaceScanResultView: View {
                 saveButton
                     .padding(.horizontal, AppSpacing.lg)
                     .padding(.bottom, AppSpacing.md)
-                    .background(Color(.systemBackground))
             }
             // Full-screen zone detail
             .fullScreenCover(item: $selectedSubZone) { subZone in
@@ -330,9 +329,10 @@ struct FaceScanResultView: View {
             Text("Save")
                 .font(AppTypography.bodyBold)
                 .foregroundStyle(Color(uiColor: .systemBackground))
-                .frame(maxWidth: .infinity, minHeight: 44)
+                .frame(maxWidth: .infinity, minHeight: 50)
                 .background(Color.primary)
                 .clipShape(Capsule())
+                .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
         }
     }
 }

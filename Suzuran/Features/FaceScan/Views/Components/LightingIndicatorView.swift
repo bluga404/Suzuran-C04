@@ -8,12 +8,12 @@ struct LightingIndicatorView: View {
 
     var body: some View {
         Text(readiness.message)
-            .font(.system(size: 15, weight: .medium))
+            .font(.system(size: 24, weight: .bold, design: .rounded))
             .foregroundStyle(.white)
-            .padding(.horizontal, AppSpacing.md)
-            .padding(.vertical, AppSpacing.xs)
-            .background(Color.black.opacity(0.5))
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
+            .padding(.horizontal, AppSpacing.xl)
+            .padding(.vertical, AppSpacing.md)
+            .background(Color.black.opacity(0.65))
+            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
             .contentTransition(.numericText())
             .animation(.easeInOut(duration: 0.25), value: readiness)
     }
