@@ -40,7 +40,6 @@ struct CompareView: View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
                 areaFilterChips
-                dateSelectors
                 faceImages
                     .padding(.top, 0)
                 skinScoreAndInsightCard
@@ -106,25 +105,7 @@ struct CompareView: View {
         }
     }
 
-    // MARK: - Date Selectors (Rounded 8, 16pt margin to photos)
 
-    private var dateSelectors: some View {
-        HStack(spacing: 8) {
-            CompareDateChip(
-                date: viewModel.recordA.date,
-                formatter: CompareViewModel.displayDateFormatter,
-                borderColor: cardBorder
-            )
-            .accessibilityLabel("Before date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordA.date))")
-
-            CompareDateChip(
-                date: viewModel.recordB.date,
-                formatter: CompareViewModel.displayDateFormatter,
-                borderColor: cardBorder
-            )
-            .accessibilityLabel("After date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordB.date))")
-        }
-    }
 
     // MARK: - Face Images (181 x 213 with margin 8)
 
@@ -372,26 +353,7 @@ private struct CompareAreaChip: View {
     }
 }
 
-// MARK: - CompareDateChip
 
-private struct CompareDateChip: View {
-    let date: Date
-    let formatter: DateFormatter
-    let borderColor: Color
-
-    var body: some View {
-        Text(formatter.string(from: date))
-            .font(.system(size: 14, weight: .regular))
-            .foregroundStyle(.primary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(borderColor, lineWidth: 1)
-            )
-    }
-}
 
 // MARK: - CompareFaceImage
 
