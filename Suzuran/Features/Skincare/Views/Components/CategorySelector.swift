@@ -60,13 +60,13 @@ struct CategoryCard: View {
         Button(action: onTap) {
             VStack(spacing: AppSpacing.xs) {
                 Image(systemName: category.iconSystemName)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .symbolRenderingMode(.monochrome)
                     .foregroundStyle(iconColor)
                     .accessibilityHidden(true)
 
                 Text(category.displayName)
-                    .font(AppTypography.caption)
+                    .font(Font.metadata)
                     .fontWeight(isSelected ? .semibold : .regular)
                     .foregroundStyle(labelColor)
                     .lineLimit(1)

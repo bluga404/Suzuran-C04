@@ -20,7 +20,7 @@ struct IngredientDetailView: View {
                         .toolbar {
                             ToolbarItem(placement: .topBarTrailing) {
                                 Button("Tutup") { dismiss() }
-                                    .font(AppTypography.bodyBold)
+                                    .font(Font.description)
                                     .foregroundStyle(AppColor.accentPrimary)
                                     .frame(minHeight: 44)
                             }
@@ -53,12 +53,12 @@ struct IngredientDetailView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text(recommendation.ingredientName)
-                .font(AppTypography.title)
+                .font(Font.screenTitle)
                 .foregroundStyle(AppColor.textPrimary)
 
             if let alternatives = recommendation.alternativesName, !alternatives.isEmpty {
                 Text("Nama lain: \(alternatives)")
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textSecondary)
             }
         }
@@ -67,7 +67,7 @@ struct IngredientDetailView: View {
     private var acneTargetSection: some View {
         detailCard(title: "Target Tipe Jerawat", symbol: "sparkles", tint: AppColor.accentPrimary) {
             Text(recommendation.acneTypes)
-                .font(AppTypography.body)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textPrimary)
         }
     }
@@ -75,14 +75,14 @@ struct IngredientDetailView: View {
     private var descriptionSection: some View {
         detailCard(title: "Deskripsi", symbol: "text.alignleft", tint: AppColor.textPrimary) {
             Text(recommendation.description)
-                .font(AppTypography.body)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textSecondary)
                 .lineLimit(isDescriptionExpanded ? nil : 4)
 
             Button(isDescriptionExpanded ? "Tampilkan Lebih Sedikit" : "Lihat Selengkapnya") {
                 withAnimation(.easeInOut) { isDescriptionExpanded.toggle() }
             }
-            .font(AppTypography.caption)
+            .font(Font.metadata)
             .fontWeight(.semibold)
             .foregroundStyle(AppColor.accentPrimary)
             .frame(minHeight: 44)
@@ -98,12 +98,12 @@ struct IngredientDetailView: View {
                 } label: {
                     HStack {
                         Text("Lihat interaksi dan kombinasi penggunaan")
-                            .font(AppTypography.body)
+                            .font(Font.description)
                             .foregroundStyle(AppColor.textPrimary)
                             .multilineTextAlignment(.leading)
                         Spacer()
                         Image(systemName: isInteractionExpanded ? "chevron.up" : "chevron.down")
-                            .font(AppTypography.caption)
+                            .font(Font.metadata)
                             .foregroundStyle(AppColor.textSecondary)
                     }
                     .frame(minHeight: 44)
@@ -112,7 +112,7 @@ struct IngredientDetailView: View {
 
                 if isInteractionExpanded {
                     Text(interactions)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                 }
             }
@@ -123,13 +123,13 @@ struct IngredientDetailView: View {
         VStack(spacing: AppSpacing.sm) {
             detailCard(title: "Konsentrasi & Penggunaan", symbol: "slider.horizontal.3", tint: AppColor.textPrimary) {
                 Text(recommendation.concentrationAndUsage)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textSecondary)
             }
 
             detailCard(title: "Cara Aplikasi", symbol: "hand.tap", tint: AppColor.textPrimary) {
                 Text(recommendation.application)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textSecondary)
             }
         }
@@ -138,7 +138,7 @@ struct IngredientDetailView: View {
     private var safetySection: some View {
         detailCard(title: "Risiko & Keamanan", symbol: "exclamationmark.triangle", tint: AppColor.accentDanger) {
             Text(recommendation.risksAndSafety)
-                .font(AppTypography.body)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textSecondary)
         }
     }
@@ -152,11 +152,11 @@ struct IngredientDetailView: View {
                 } label: {
                     HStack {
                         Text("Lihat referensi penelitian")
-                            .font(AppTypography.body)
+                            .font(Font.description)
                             .foregroundStyle(AppColor.textPrimary)
                         Spacer()
                         Image(systemName: isSourceExpanded ? "chevron.up" : "chevron.down")
-                            .font(AppTypography.caption)
+                            .font(Font.metadata)
                             .foregroundStyle(AppColor.textSecondary)
                     }
                     .frame(minHeight: 44)
@@ -165,7 +165,7 @@ struct IngredientDetailView: View {
 
                 if isSourceExpanded {
                     Text(papers)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                         .textSelection(.enabled)
                 }
@@ -182,7 +182,7 @@ struct IngredientDetailView: View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 Label(title, systemImage: symbol)
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(tint)
                 content()
             }

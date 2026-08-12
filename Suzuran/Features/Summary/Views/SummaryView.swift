@@ -13,11 +13,11 @@ struct SummaryView: View {
                     AppCard {
                         VStack(alignment: .leading, spacing: AppSpacing.xs) {
                             Text("Selamat Datang di Suzuran")
-                                .font(AppTypography.title)
+                                .font(Font.screenTitle)
                                 .foregroundStyle(.primary)
 
                             Text("Evaluasi perkembangan pemulihan jerawat secara mandiri dengan deteksi AI.")
-                                .font(AppTypography.body)
+                                .font(Font.description)
                                 .foregroundStyle(.secondary)
                         }
                     }
@@ -27,26 +27,26 @@ struct SummaryView: View {
                         AppCard {
                             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                                 Text("Scan Terakhir")
-                                    .font(AppTypography.caption)
+                                    .font(Font.metadata)
                                     .foregroundStyle(.secondary)
 
                                 HStack {
                                     Text("\(latest.skinScore)%")
-                                        .font(.custom("AvenirNext-Bold", size: 44, relativeTo: .largeTitle))
+                                        .font(Font.system(size: 44, weight: .bold))
                                         .foregroundStyle(.primary)
 
                                     Spacer()
 
                                     VStack(alignment: .trailing, spacing: AppSpacing.xxs) {
                                         Text(latest.severity.rawValue.capitalized)
-                                            .font(.custom("AvenirNext-Bold", size: 13, relativeTo: .caption))
+                                            .font(Font.metadata)
                                             .foregroundStyle(.white)
                                             .padding(.horizontal, AppSpacing.sm)
                                             .padding(.vertical, AppSpacing.xxs)
                                             .background(Capsule().fill(severityColor(latest.severity)))
 
                                         Text("\(latest.totalAcneCount) jerawat")
-                                            .font(AppTypography.caption)
+                                            .font(Font.metadata)
                                             .foregroundStyle(.secondary)
                                     }
                                 }
@@ -59,16 +59,16 @@ struct SummaryView: View {
                         VStack(alignment: .leading, spacing: AppSpacing.md) {
                             HStack {
                                 Image(systemName: "face.dashed")
-                                    .font(.custom("AvenirNext-Regular", size: 36, relativeTo: .largeTitle))
+                                    .font(Font.system(size: 36, weight: .regular))
                                     .foregroundStyle(AppColor.accentPrimary)
 
                                 VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                                     Text("Scan Wajah 360°")
-                                        .font(AppTypography.subtitle)
+                                        .font(Font.bodyParagraph)
                                         .foregroundStyle(.primary)
 
                                     Text("Pindai 3 sudut wajah (Depan, Kiri, Kanan)")
-                                        .font(AppTypography.caption)
+                                        .font(Font.metadata)
                                         .foregroundStyle(.secondary)
                                 }
                             }

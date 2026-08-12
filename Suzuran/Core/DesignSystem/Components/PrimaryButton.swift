@@ -33,7 +33,7 @@ struct PrimaryButton: View {
                 }
 
                 Text(title)
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, AppSpacing.sm)

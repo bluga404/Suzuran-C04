@@ -25,12 +25,12 @@ struct ScanInstructionModalView: View {
     private var header: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text("Cara scan ingredient")
-                .font(AppTypography.title)
+                .font(Font.screenTitle)
                 .foregroundStyle(AppColor.textPrimary)
                 .accessibilityAddTraits(.isHeader)
 
             Text("Pastikan daftar komposisi terlihat jelas agar hasil scan lebih akurat.")
-                .font(AppTypography.body)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textSecondary)
         }
     }
@@ -54,11 +54,11 @@ struct ScanInstructionModalView: View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Label("Tips untuk hasil terbaik", systemImage: "lightbulb")
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.accentPrimary)
 
                 Text("Gunakan pencahayaan cukup, hindari pantulan, dan pastikan seluruh daftar ingredient berada di dalam bingkai.")
-                    .font(AppTypography.caption)
+                    .font(Font.metadata)
                     .foregroundStyle(AppColor.textSecondary)
             }
         }
@@ -74,7 +74,7 @@ private struct ScanGuideRow: View {
         AppCard {
             HStack(spacing: AppSpacing.sm) {
                 Image(systemName: symbol)
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.accentPrimary)
                     .frame(width: 44, height: 44)
                     .background(AppColor.accentPrimary.opacity(0.08))
@@ -82,10 +82,10 @@ private struct ScanGuideRow: View {
 
                 VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                     Text(title)
-                        .font(AppTypography.bodyBold)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.textPrimary)
                     Text(detail)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                 }
             }

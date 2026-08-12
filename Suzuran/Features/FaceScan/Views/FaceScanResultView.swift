@@ -75,35 +75,35 @@ struct FaceScanResultView: View {
             // Left Column
             VStack(alignment: .leading, spacing: 0) {
                 Text("Skin Score")
-                    .font(.custom("AvenirNext-Regular", size: 16, relativeTo: .body))
+                    .font(Font.description)
                     .foregroundStyle(.primary)
                     .padding(.bottom, 4)
                 
                 Text(HomeScoreCalculator().scoreLabel(for: displayScore))
-                    .font(.custom("AvenirNext-Bold", size: 42, relativeTo: .largeTitle))
+                    .font(Font.system(size: 42, weight: .bold))
                     .foregroundStyle(.primary)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
                 
                 HStack(alignment: .firstTextBaseline, spacing: 0) {
                     Text("\(displayScore)")
-                        .font(.custom("AvenirNext-Bold", size: 18, relativeTo: .headline))
+                        .font(Font.bodyLarge)
                         .foregroundStyle(.primary)
                     Text(" /100")
-                        .font(.custom("AvenirNext-Regular", size: 14, relativeTo: .subheadline))
+.font(Font.label)
                         .foregroundStyle(.secondary)
                 }
                 
                 Spacer().frame(height: 32)
                 
                 Text("Most Detected Acne Type")
-                    .font(.custom("AvenirNext-Regular", size: 14, relativeTo: .subheadline))
+                    .font(Font.label)
                     .foregroundStyle(.primary)
                     .padding(.bottom, 4)
                     .fixedSize(horizontal: false, vertical: true)
                 
                 Text(mostDetectedAcneType)
-                    .font(.custom("AvenirNext-Bold", size: 24, relativeTo: .title2))
+                    .font(Font.system(size: 24, weight: .bold))
                     .foregroundStyle(.primary)
                     .minimumScaleFactor(0.5)
                     .lineLimit(1)
@@ -133,7 +133,7 @@ struct FaceScanResultView: View {
                         .frame(width: 160, height: 240)
                         .overlay(
                             Image(systemName: "person.crop.rectangle")
-                                .font(.custom("AvenirNext-Regular", size: 32, relativeTo: .largeTitle))
+                                .font(Font.system(size: 32, weight: .regular))
                                 .foregroundStyle(.secondary)
                         )
                         .overlay(
@@ -193,7 +193,7 @@ struct FaceScanResultView: View {
         } label: {
             VStack(spacing: 5) {
                 Text(subZone.label)
-                    .font(.custom("AvenirNext-Bold", size: 11, relativeTo: .caption2))
+                    .font(Font.helperText)
                     .foregroundStyle(.primary)
                     .lineLimit(1)
                     .minimumScaleFactor(0.7)
@@ -224,7 +224,7 @@ struct FaceScanResultView: View {
                 .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
 
                 Text("\(subZone.acneCount) Jerawat")
-                    .font(.custom("AvenirNext-Regular", size: 11, relativeTo: .caption2))
+                    .font(Font.helperText)
                     .foregroundStyle(.primary)
             }
             .padding(AppSpacing.xs)
@@ -240,7 +240,7 @@ struct FaceScanResultView: View {
     private var saveButton: some View {
         Button(action: onDone) {
             Text("Save Scan Result")
-                .font(AppTypography.bodyBold)
+                .font(Font.description)
                 .foregroundStyle(Color(uiColor: .systemBackground))
                 .frame(maxWidth: .infinity, minHeight: 50)
                 .background(Color.primary)

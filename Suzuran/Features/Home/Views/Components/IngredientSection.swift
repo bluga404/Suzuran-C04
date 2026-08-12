@@ -17,7 +17,7 @@ struct IngredientSection: View {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 HStack {
                     Text("Ingredients")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .tracking(1.2)
                         .foregroundStyle(.secondary)
                     Spacer()
@@ -25,7 +25,7 @@ struct IngredientSection: View {
 
                 if visibleRecommendations.isEmpty && showEmptyState {
                     Text("Scan your skincare products to see which ones may suit your skin condition.")
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .foregroundStyle(.secondary)
                 } else {
                     ForEach(Array(visibleRecommendations.enumerated()), id: \.element.id) { index, recommendation in
@@ -40,7 +40,7 @@ struct IngredientSection: View {
                     HStack(spacing: AppSpacing.xs) {
                         Image(systemName: "plus.circle.fill")
                         Text("Track Your Skincare")
-                            .font(AppTypography.bodyBold)
+                            .font(Font.description)
                     }
                     .foregroundStyle(Color(uiColor: .systemBackground))
                     .frame(maxWidth: .infinity, minHeight: 44)

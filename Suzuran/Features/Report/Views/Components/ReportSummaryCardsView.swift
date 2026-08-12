@@ -22,12 +22,12 @@ struct ReportSummaryCardsView: View {
                             .foregroundStyle(AppColor.accentPrimary)
 
                         Text(insight.title)
-                            .font(AppTypography.subtitle)
+                            .font(Font.bodyParagraph)
                             .foregroundStyle(AppColor.textPrimary)
                     }
 
                     Text(insight.body)
-                        .font(AppTypography.body)
+                        .font(Font.bodyParagraph)
                         .foregroundStyle(AppColor.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -40,11 +40,11 @@ struct ReportSummaryCardsView: View {
             HStack(alignment: .top, spacing: AppSpacing.lg) {
                 VStack(alignment: .leading, spacing: AppSpacing.xs) {
                     Text(summary.baselineLabel)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
 
                     Text(summary.headline)
-                        .font(AppTypography.title)
+                        .font(Font.screenTitle)
                         .foregroundStyle(AppColor.textPrimary)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
@@ -54,7 +54,7 @@ struct ReportSummaryCardsView: View {
 
                 VStack(alignment: .center, spacing: AppSpacing.xs) {
                     Text(summary.scoreLabel)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                         .multilineTextAlignment(.center)
 
@@ -80,7 +80,7 @@ struct ReportSummaryCardsView: View {
                 )
 
             Text(verbatim: value)
-                .font(AppTypography.title)
+                .font(Font.screenTitle)
                 .foregroundStyle(AppColor.textPrimary)
         }
         .frame(width: badgeSize, height: badgeSize)

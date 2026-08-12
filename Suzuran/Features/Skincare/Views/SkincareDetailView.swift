@@ -30,7 +30,7 @@ struct SkincareDetailView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button("Edit") { isShowingEdit = true }
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.accentPrimary)
             }
         }
@@ -76,17 +76,17 @@ struct SkincareDetailView: View {
                     Spacer()
 
                     Text(product.isUsedCurrently ? "Sedang Digunakan" : "Tidak Digunakan")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .fontWeight(.semibold)
                         .foregroundStyle(product.isUsedCurrently ? AppColor.accentPrimary : AppColor.textSecondary)
                 }
 
                 Text(product.name)
-                    .font(AppTypography.title)
+                    .font(Font.screenTitle)
                     .foregroundStyle(AppColor.textPrimary)
 
                 Text("Merek: \(product.brand)")
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textSecondary)
             }
         }
@@ -95,7 +95,7 @@ struct SkincareDetailView: View {
     private var matchesSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             Text("Kesesuaian dengan Kulit Anda")
-                .font(AppTypography.bodyBold)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textPrimary)
 
             if matches.isEmpty {
@@ -106,7 +106,7 @@ struct SkincareDetailView: View {
                             .foregroundStyle(AppColor.textSecondary)
 
                         Text("Tidak ada kandungan aktif khusus untuk tipe jerawat Anda saat ini (\(skincareViewModel.activeAcneTypes.map { $0.displayName }.joined(separator: ", "))).")
-                            .font(AppTypography.caption)
+                            .font(Font.metadata)
                             .foregroundStyle(AppColor.textSecondary)
                     }
                 }
@@ -126,12 +126,12 @@ struct SkincareDetailView: View {
     private var ingredientsSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             Text("Semua Komposisi (\(product.ingredients.count))")
-                .font(AppTypography.bodyBold)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textPrimary)
 
             if product.ingredients.isEmpty {
                 Text("Tidak ada informasi komposisi.")
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textSecondary)
             } else {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 120, maximum: 200), spacing: 8)], spacing: 8) {
@@ -154,7 +154,7 @@ struct SkincareDetailView: View {
             HStack {
                 Image(systemName: "trash")
                 Text("Hapus Produk Ini")
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
             }
             .frame(maxWidth: .infinity)
             .padding(.vertical, AppSpacing.md)

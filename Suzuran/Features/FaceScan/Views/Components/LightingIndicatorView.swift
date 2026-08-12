@@ -21,7 +21,7 @@ struct LightingIndicatorView: View {
                 .background(.ultraThinMaterial, in: Capsule())
             
             Text("\(completedAngles)/3 \(targetName)")
-                .font(AppTypography.caption)
+                .font(Font.metadata)
                 .foregroundStyle(.primary)
                 .contentTransition(.numericText())
         }

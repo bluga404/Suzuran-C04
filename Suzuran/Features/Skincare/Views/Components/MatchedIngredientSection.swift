@@ -17,7 +17,7 @@ struct MatchedIngredientSection: View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             HStack {
                 Text("Ingredient yang Cocok")
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
                     .accessibilityAddTraits(.isHeader)
 
@@ -25,7 +25,7 @@ struct MatchedIngredientSection: View {
 
                 if let onShowAll {
                     Button("Lihat Semua", action: onShowAll)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .fontWeight(.semibold)
                         .foregroundStyle(AppColor.accentPrimary)
                         .frame(minHeight: 44)
@@ -63,11 +63,11 @@ struct MatchedIngredientEmptyState: View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text("Belum ada ingredient yang cocok")
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
 
                 Text("Skincare yang kamu simpan belum mengandung ingredient yang cocok untuk kondisi acne kamu saat ini. Coba tambahkan produk lain untuk mendapatkan rekomendasi.")
-                    .font(AppTypography.caption)
+                    .font(Font.metadata)
                     .foregroundStyle(AppColor.textSecondary)
                     .multilineTextAlignment(.leading)
                     .fixedSize(horizontal: false, vertical: true)

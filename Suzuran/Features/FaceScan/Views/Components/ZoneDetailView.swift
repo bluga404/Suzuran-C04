@@ -22,10 +22,10 @@ struct ZoneDetailView: View {
             } else {
                 VStack(spacing: AppSpacing.sm) {
                     Image(systemName: "photo")
-                        .font(.custom("AvenirNext-Regular", size: 56, relativeTo: .largeTitle))
+                        .font(Font.system(size: 56, weight: .regular))
                         .foregroundStyle(.secondary)
                     Text("Foto belum tersedia")
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .foregroundStyle(.secondary)
                 }
             }
@@ -102,21 +102,21 @@ struct ZoneDetailView: View {
             HStack(alignment: .center, spacing: AppSpacing.sm) {
                 Button(action: onDismiss) {
                     Image(systemName: "chevron.left")
-                        .font(.custom("AvenirNext-DemiBold", size: 17, relativeTo: .headline))
+                        .font(Font.bodyLarge)
                         .foregroundStyle(.white)
                         .padding(AppSpacing.sm)
                         .background(Circle().fill(.black.opacity(0.55)))
                 }
 
                 Text(subZone.label)
-                    .font(.custom("AvenirNext-DemiBold", size: 18, relativeTo: .headline))
+                    .font(Font.bodyLarge)
                     .foregroundStyle(.white)
                     .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 1)
 
                 Spacer()
 
                 Text("\(subZone.acneCount) Jerawat")
-                    .font(.custom("AvenirNext-Medium", size: 13, relativeTo: .caption))
+                    .font(Font.metadata)
                     .foregroundStyle(.white)
                     .padding(.horizontal, AppSpacing.sm)
                     .padding(.vertical, AppSpacing.xxs)

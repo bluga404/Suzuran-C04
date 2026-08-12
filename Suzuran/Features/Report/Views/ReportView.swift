@@ -41,7 +41,7 @@ struct ReportView: View {
                 }
                 .padding(AppSpacing.sm)
             }
-            .navigationTitle("Report")
+            .navigationTitle(ScreenTitle.report.title)
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {

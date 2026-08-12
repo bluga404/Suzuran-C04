@@ -9,7 +9,7 @@ struct AppTextField: View {
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text(title)
-                .font(AppTypography.bodyBold)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textPrimary)
 
             TextField(placeholder, text: $text)
@@ -25,7 +25,7 @@ struct AppTextField: View {
 
             if let errorMessage {
                 Text(errorMessage)
-                    .font(AppTypography.caption)
+                    .font(Font.metadata)
                     .foregroundStyle(AppColor.accentDanger)
             }
         }

@@ -7,11 +7,11 @@ struct IngredientRecommendationCard: View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                 Text(recommendation.ingredient.displayName)
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
 
                 Text(recommendation.explanation)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
             }
 
@@ -36,7 +36,7 @@ struct IngredientRecommendationCard: View {
         }()
 
         Text(text)
-            .font(.custom("AvenirNext-Regular", size: 13, relativeTo: .caption))
+            .font(Font.metadata)
             .foregroundStyle(AppColor.textPrimary)
             .padding(.horizontal, 12)
             .padding(.vertical, 6)

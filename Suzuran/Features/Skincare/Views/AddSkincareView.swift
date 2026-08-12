@@ -41,7 +41,7 @@ struct AddSkincareView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Batal") { dismiss() }
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.accentPrimary)
                         .frame(minHeight: 44)
                 }
@@ -100,7 +100,7 @@ struct AddSkincareView: View {
     private var categorySection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             Text("Pilih Kategori")
-                .font(AppTypography.bodyBold)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textPrimary)
 
             CategorySelector(selected: $viewModel.draft.category)
@@ -111,7 +111,7 @@ struct AddSkincareView: View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 Text("Informasi Produk")
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
 
                 labeledField(
@@ -127,7 +127,7 @@ struct AddSkincareView: View {
                 )
 
                 Toggle("Sedang digunakan", isOn: $viewModel.draft.isUsedCurrently)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .tint(AppColor.accentPrimary)
                     .frame(minHeight: 44)
             }
@@ -139,10 +139,10 @@ struct AddSkincareView: View {
             HStack {
                 VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                     Text("Ingredient")
-                        .font(AppTypography.bodyBold)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.textPrimary)
                     Text("Pindai label atau tambahkan bahan secara manual.")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                 }
 
@@ -150,7 +150,7 @@ struct AddSkincareView: View {
 
                 if !viewModel.draft.ingredients.isEmpty {
                     Button("Hapus Semua") { isConfirmingClearAll = true }
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .fontWeight(.semibold)
                         .foregroundStyle(AppColor.accentDanger)
                         .frame(minHeight: 44)
@@ -178,7 +178,7 @@ struct AddSkincareView: View {
         Button { isShowingScanner = true } label: {
             HStack(spacing: AppSpacing.sm) {
                 Image(systemName: "doc.text.viewfinder")
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.accentPrimary)
                     .frame(width: 44, height: 44)
                     .background(AppColor.accentPrimary.opacity(0.08))
@@ -186,16 +186,16 @@ struct AddSkincareView: View {
 
                 VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                     Text("Pindai komposisi produk")
-                        .font(AppTypography.bodyBold)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.textPrimary)
                     Text("Gunakan kamera atau pilih foto label")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                 }
 
                 Spacer()
                 Image(systemName: "chevron.right")
-                    .font(AppTypography.caption)
+                    .font(Font.metadata)
                     .foregroundStyle(AppColor.textSecondary)
             }
             .padding(AppSpacing.sm)
@@ -217,11 +217,11 @@ struct AddSkincareView: View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 Text("Tinjau Hasil Scan")
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
 
                 Text("Hapus kandidat yang kurang tepat atau tambahkan ingredient yang terlewat.")
-                    .font(AppTypography.caption)
+                    .font(Font.metadata)
                     .foregroundStyle(AppColor.textSecondary)
 
                 candidateChips
@@ -250,7 +250,7 @@ struct AddSkincareView: View {
     private var manualCandidateField: some View {
         HStack(spacing: AppSpacing.xs) {
             TextField("Tambah ingredient manual", text: $manualCandidate)
-                .font(AppTypography.body)
+                .font(Font.description)
                 .textInputAutocapitalization(.words)
                 .padding(.horizontal, AppSpacing.sm)
                 .frame(minHeight: 44)
@@ -264,7 +264,7 @@ struct AddSkincareView: View {
 
             Button(action: addManualCandidate) {
                 Image(systemName: "plus")
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .frame(width: 44, height: 44)
             }
             .buttonStyle(.borderedProminent)
@@ -276,7 +276,7 @@ struct AddSkincareView: View {
     private var ingredientSearchAction: some View {
         Button { isShowingSearch = true } label: {
             Label("Cari ingredient secara manual", systemImage: "magnifyingglass")
-                .font(AppTypography.bodyBold)
+                .font(Font.description)
                 .frame(maxWidth: .infinity, minHeight: 44)
         }
         .buttonStyle(.bordered)
@@ -285,7 +285,7 @@ struct AddSkincareView: View {
 
     private var emptyIngredientHint: some View {
         Text("Belum ada ingredient ditambahkan.")
-            .font(AppTypography.caption)
+            .font(Font.metadata)
             .foregroundStyle(AppColor.textSecondary)
             .frame(maxWidth: .infinity, alignment: .leading)
             .padding(AppSpacing.sm)
@@ -309,11 +309,11 @@ struct AddSkincareView: View {
     private func labeledField(title: String, placeholder: String, text: Binding<String>) -> some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text(title)
-                .font(AppTypography.caption)
+                .font(Font.metadata)
                 .foregroundStyle(AppColor.textSecondary)
 
             TextField(placeholder, text: text)
-                .font(AppTypography.body)
+                .font(Font.description)
                 .textInputAutocapitalization(.words)
                 .padding(.horizontal, AppSpacing.sm)
                 .frame(minHeight: 44)

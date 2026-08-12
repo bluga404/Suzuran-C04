@@ -8,18 +8,18 @@ struct RegionBreakdownList: View {
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
             Text("Per Wilayah Wajah")
-                .font(AppTypography.bodyBold)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textPrimary)
                 .padding(.horizontal, AppSpacing.md)
 
             ForEach(regionCounts, id: \.region) { item in
                 HStack {
                     Text(item.region.displayName)
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.textSecondary)
                     Spacer()
                     Text("\(item.count)")
-                        .font(AppTypography.bodyBold)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.textPrimary)
                 }
                 .padding(.horizontal, AppSpacing.md)

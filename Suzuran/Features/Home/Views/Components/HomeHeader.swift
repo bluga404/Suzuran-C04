@@ -12,7 +12,7 @@ struct HomeHeader: View {
                     .font(.largeTitle.weight(.bold))
                     .foregroundStyle(.primary)
                 Text(formattedDate)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(.secondary)
             }
             Spacer()

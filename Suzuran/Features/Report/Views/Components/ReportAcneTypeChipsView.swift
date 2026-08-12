@@ -21,10 +21,10 @@ struct ReportAcneTypeChipsView: View {
                                 .frame(width: 8, height: 8)
 
                             Text(item.acneType.displayName)
-                                .font(AppTypography.caption)
+                                .font(Font.metadata)
 
                             Text("\(scoresByAcneTypeID[item.id] ?? item.latestScore)")
-                                .font(AppTypography.caption.weight(.semibold))
+                                .font(Font.metadata.weight(.semibold))
                         }
                         .foregroundStyle(active ? AppColor.textPrimary : AppColor.textSecondary)
                         .padding(.horizontal, AppSpacing.sm)

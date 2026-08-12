@@ -14,13 +14,13 @@ struct SkinScoreCard: View {
                 // Score label title
             HStack {
                 Text(state == .improvement || state == .degradation ? "Skin Score" : "Skin Condition")
-                    .font(AppTypography.caption)
+                    .font(Font.metadata)
                     .tracking(1.2)
                     .foregroundStyle(.secondary)
                 Spacer()
                 Button(action: onInfoAction) {
                     Image(systemName: "info.circle")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(.secondary)
                 }
                 .accessibilityLabel("Skin condition information")
@@ -29,38 +29,38 @@ struct SkinScoreCard: View {
             if let score = score {
                 // Score title
                 Text(score.title)
-                    .font(.custom("AvenirNext-Bold", size: 48, relativeTo: .largeTitle))
+                    .font(Font.system(size: 48, weight: .bold))
                     .foregroundStyle(.primary)
                     .padding(.bottom, -AppSpacing.xs)
 
                 // Score value
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
                     Text("\(score.value)")
-                        .font(.custom("AvenirNext-Bold", size: 24, relativeTo: .title2))
+                        .font(Font.system(size: 24, weight: .bold))
                         .foregroundStyle(.primary)
                     Text("/100")
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .foregroundStyle(.primary)
                 }
             } else {
                 Text("—")
-                    .font(.custom("AvenirNext-Bold", size: 48, relativeTo: .largeTitle))
+                    .font(Font.system(size: 48, weight: .bold))
                     .foregroundStyle(.primary)
                     .padding(.bottom, -AppSpacing.xs)
 
                 HStack(alignment: .firstTextBaseline, spacing: AppSpacing.xxs) {
                     Text("—")
-                        .font(.custom("AvenirNext-Bold", size: 24, relativeTo: .title2))
+                        .font(Font.system(size: 24, weight: .bold))
                         .foregroundStyle(.primary)
                     Text("/100")
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .foregroundStyle(.primary)
                 }
             }
 
             // Contextual message
             Text(messageText)
-                .font(AppTypography.body)
+                .font(Font.description)
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
                 .padding(.top, AppSpacing.xxs)
@@ -69,7 +69,7 @@ struct SkinScoreCard: View {
             // Action button
             Button(action: onAction) {
                 Text(state == .empty ? "Check my skin" : "Details")
-                    .font(AppTypography.bodyBold)
+                    .font(Font.description)
                     .foregroundStyle(Color(uiColor: .systemBackground))
                     .frame(maxWidth: .infinity, minHeight: 44)
                     .background(Color.primary)

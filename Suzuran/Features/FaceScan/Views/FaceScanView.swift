@@ -98,7 +98,7 @@ struct FaceScanView: View {
                         onDismiss()
                     } label: {
                         Image(systemName: "chevron.left")
-                            .font(.custom("AvenirNext-Medium", size: 20, relativeTo: .title3))
+                            .font(Font.cardTitle)
                             .foregroundStyle(.white)
                             .padding(AppSpacing.sm)
                             .background(.ultraThinMaterial, in: Circle())
@@ -119,15 +119,15 @@ struct FaceScanView: View {
             Color.black.ignoresSafeArea()
             VStack(spacing: AppSpacing.lg) {
                 Image(systemName: "camera.fill")
-                    .font(.custom("AvenirNext-Regular", size: 48, relativeTo: .largeTitle))
+                    .font(Font.system(size: 48, weight: .regular))
                     .foregroundStyle(.white.opacity(0.6))
 
                 Text("Akses Kamera Ditolak")
-                    .font(AppTypography.subtitle)
+                    .font(Font.bodyParagraph)
                     .foregroundStyle(.white)
 
                 Text("Buka Pengaturan untuk mengizinkan akses kamera")
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
 
@@ -135,7 +135,7 @@ struct FaceScanView: View {
                     openSettings()
                 } label: {
                     Text("Buka Pengaturan")
-                        .font(AppTypography.bodyBold)
+                        .font(Font.description)
                         .foregroundStyle(.white)
                         .padding(.horizontal, AppSpacing.lg)
                         .padding(.vertical, AppSpacing.sm)
@@ -149,7 +149,7 @@ struct FaceScanView: View {
                     onDismiss()
                 } label: {
                     Text("Kembali")
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .foregroundStyle(.white.opacity(0.7))
                 }
             }
@@ -249,11 +249,11 @@ struct FaceScanView: View {
                     .tint(.white)
 
                 Text("Menganalisis...")
-                    .font(AppTypography.subtitle)
+                    .font(Font.bodyParagraph)
                     .foregroundStyle(.white)
 
                 Text("Memproses gambar dengan AI")
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(.white.opacity(0.7))
             }
             .padding(AppSpacing.xl)
@@ -272,15 +272,15 @@ struct FaceScanView: View {
 
             VStack(spacing: AppSpacing.lg) {
                 Image(systemName: "exclamationmark.triangle.fill")
-                    .font(.custom("AvenirNext-Regular", size: 44, relativeTo: .largeTitle))
+                    .font(Font.system(size: 44, weight: .regular))
                     .foregroundStyle(AppColor.accentDanger)
 
                 Text("Terjadi Kesalahan")
-                    .font(AppTypography.subtitle)
+                    .font(Font.bodyParagraph)
                     .foregroundStyle(.white)
 
                 Text(message)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(.white.opacity(0.7))
                     .multilineTextAlignment(.center)
 
@@ -289,7 +289,7 @@ struct FaceScanView: View {
                         viewModel.retry()
                     } label: {
                         Text("Coba Lagi")
-                            .font(AppTypography.bodyBold)
+                            .font(Font.description)
                             .foregroundStyle(.white)
                             .frame(maxWidth: .infinity)
                             .padding(.vertical, AppSpacing.sm)
@@ -303,7 +303,7 @@ struct FaceScanView: View {
                         onDismiss()
                     } label: {
                         Text("Kembali")
-                            .font(AppTypography.body)
+                            .font(Font.description)
                             .foregroundStyle(.white.opacity(0.7))
                     }
                 }

@@ -11,11 +11,11 @@ struct IngredientReviewView: View {
             // Instructions
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text("Tinjau Hasil Pindaian")
-                    .font(AppTypography.title)
+                    .font(Font.screenTitle)
                     .foregroundStyle(AppColor.textPrimary)
                 
                 Text("Berikut adalah bahan-bahan yang berhasil dideteksi. Anda dapat menghapus yang kurang tepat atau menambahkan yang terlewat.")
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textSecondary)
             }
             .padding(AppSpacing.md)
@@ -24,7 +24,7 @@ struct IngredientReviewView: View {
             // Add Missing Ingredient Inline Bar
             HStack(spacing: AppSpacing.sm) {
                 TextField("Tambah kandungan manual...", text: $newIngredientName)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .padding(AppSpacing.sm)
                     .background(AppColor.backgroundPrimary)
                     .cornerRadius(AppCornerRadius.sm)
@@ -47,14 +47,14 @@ struct IngredientReviewView: View {
             List {
                 if viewModel.scannedIngredients.isEmpty {
                     Text("Belum ada kandungan terdeteksi. Silakan tambah manual di atas.")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                         .listRowBackground(Color.clear)
                 } else {
                     ForEach(viewModel.scannedIngredients, id: \.self) { ingredient in
                         HStack {
                             Text(ingredient)
-                                .font(AppTypography.body)
+                                .font(Font.description)
                                 .foregroundStyle(AppColor.textPrimary)
                             
                             Spacer()
@@ -82,7 +82,7 @@ struct IngredientReviewView: View {
                     onSave()
                 }) {
                     Text("Gunakan Kandungan Ini (\(viewModel.scannedIngredients.count))")
-                        .font(AppTypography.bodyBold)
+                        .font(Font.description)
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, AppSpacing.md)
                         .background(AppColor.accentPrimary)
