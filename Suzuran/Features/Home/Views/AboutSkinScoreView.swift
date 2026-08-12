@@ -100,11 +100,11 @@ private enum SkinScoreLevelInfo: String, CaseIterable, Identifiable {
     
     var color: Color {
         switch self {
-        case .veryGood: return AppColor.accentPrimary.opacity(0.15)
-        case .good: return AppColor.accentPrimary.opacity(0.35)
-        case .moderate: return AppColor.accentPrimary.opacity(0.55)
-        case .low: return AppColor.accentPrimary.opacity(0.75)
-        case .veryLow: return AppColor.accentPrimary
+        case .veryGood: return AppColor.scoreVeryGood
+        case .good: return AppColor.scoreGood
+        case .moderate: return AppColor.scoreModerate
+        case .low: return AppColor.scoreLow
+        case .veryLow: return AppColor.scoreVeryLow
         }
     }
     

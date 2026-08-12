@@ -2,10 +2,19 @@ import SwiftUI
 
 struct AppCard<Content: View>: View {
     var padding: CGFloat
+    var backgroundColor: Color
+    var borderColor: Color
     private let content: Content
 
-    init(padding: CGFloat = AppSpacing.md, @ViewBuilder content: () -> Content) {
+    init(
+        padding: CGFloat = AppSpacing.md,
+        backgroundColor: Color = AppColor.surfacePrimary,
+        borderColor: Color = AppColor.borderSubtle,
+        @ViewBuilder content: () -> Content
+    ) {
         self.padding = padding
+        self.backgroundColor = backgroundColor
+        self.borderColor = borderColor
         self.content = content()
     }
 
@@ -13,11 +22,11 @@ struct AppCard<Content: View>: View {
         content
             .padding(padding)
             .frame(maxWidth: .infinity, alignment: .leading)
-            .background(AppColor.surfacePrimary)
+            .background(backgroundColor)
             .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
             .overlay(
                 RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                    .stroke(AppColor.borderSubtle, lineWidth: 1)
+                    .stroke(borderColor, lineWidth: 1)
             )
     }
 }

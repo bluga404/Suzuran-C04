@@ -12,10 +12,38 @@ enum AppColor {
     static let accentDanger = Color(red: 0.74, green: 0.20, blue: 0.20)
     static let borderSubtle = Color(.separator)
 
-    // Homepage score severity colors
-    static let scoreVeryGood = Color.green
-    static let scoreGood = Color(red: 0.6, green: 0.8, blue: 0.2) // Yellow-green
-    static let scoreModerate = Color.orange
-    static let scoreLow = Color.red
-    static let scoreVeryLow = Color(red: 0.55, green: 0.0, blue: 0.0) // Dark red
+    // Skin Condition Score Colors (Fixed Hex)
+    static let scoreVeryGood = Color(lightHex: 0xE8E5F9, darkHex: 0xE8E5F9)
+    static let scoreGood     = Color(lightHex: 0xD6D0FF, darkHex: 0xD6D0FF)
+    static let scoreModerate = Color(lightHex: 0xBDB4FA, darkHex: 0xBDB4FA)
+    static let scoreLow      = Color(lightHex: 0x8172E5, darkHex: 0x8172E5)
+    static let scoreVeryLow  = Color(lightHex: 0x5649AC, darkHex: 0x5649AC)
+    
+    // Ingredient recommendation colors (Adaptive)
+    static let accentPurple = Color(lightHex: 0x5B4EB1, darkHex: 0x9388E4)
+    static let accentPurpleBackground = Color(lightHex: 0xF3F0FC, darkHex: 0x251F41)
+    
+    // Acne Type Colors (Fixed Hex)
+    static let acneWhitehead = Color(lightHex: 0x5AB14F, darkHex: 0x5AB14F)
+    static let acneBlackhead = Color(lightHex: 0xA5B14E, darkHex: 0xA5B14E)
+    static let acnePapule    = Color(lightHex: 0x4E8CB2, darkHex: 0x4E8CB2)
+    static let acnePustule   = Color(lightHex: 0xA54EB1, darkHex: 0xA54EB1)
+    static let acneNodule    = Color(lightHex: 0xB14E73, darkHex: 0xB14E73)
+    static let acneCyst      = Color(lightHex: 0xB1744F, darkHex: 0xB1744F)
+    
+    // Custom exact brand colors (Adaptive)
+    static let surfacePurple = Color(lightHex: 0xDDD9F8, darkHex: 0x362D5A)
+    static let buttonPrimaryPurple = Color(lightHex: 0x5B4EB1, darkHex: 0x7668D6)
+}
+
+extension Color {
+    init(lightHex: UInt32, darkHex: UInt32) {
+        self.init(UIColor { traitCollection in
+            let hex = traitCollection.userInterfaceStyle == .dark ? darkHex : lightHex
+            let r = CGFloat((hex >> 16) & 0xFF) / 255.0
+            let g = CGFloat((hex >> 8) & 0xFF) / 255.0
+            let b = CGFloat(hex & 0xFF) / 255.0
+            return UIColor(red: r, green: g, blue: b, alpha: 1.0)
+        })
+    }
 }
