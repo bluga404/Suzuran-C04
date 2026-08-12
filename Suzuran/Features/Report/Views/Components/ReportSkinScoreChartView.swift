@@ -15,7 +15,7 @@ struct ReportSkinScoreChartView: View {
                         x: .value("Day", point.day),
                         y: .value("Score", point.score)
                     )
-                    .interpolationMethod(.linear)
+                    .interpolationMethod(.catmullRom)
                     .foregroundStyle(AppColor.accentPrimary)
 
                     PointMark(

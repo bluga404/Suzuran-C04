@@ -47,7 +47,7 @@ struct AddSkincareView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                AppButton(
+                PrimaryButton(
                     title: viewModel.isEditing ? "Simpan Perubahan" : "Simpan Skincare",
                     isLoading: viewModel.isSaving
                 ) {
@@ -227,7 +227,7 @@ struct AddSkincareView: View {
                 candidateChips
                 manualCandidateField
 
-                AppButton(title: "Gunakan Ingredient Ini") {
+                PrimaryButton(title: "Gunakan Ingredient Ini") {
                     viewModel.commitReview()
                 }
             }
@@ -240,22 +240,9 @@ struct AddSkincareView: View {
             spacing: AppSpacing.xs
         ) {
             ForEach(viewModel.scannedIngredients, id: \.self) { candidate in
-                AppChip {
-                    Text(candidate)
-                        .font(Font.metadata)
-                        .lineLimit(1)
-
-                    Button(action: {
-                        viewModel.removeScannedIngredient(candidate)
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(Font.metadata)
-                            .foregroundStyle(AppColor.textSecondary)
-                    }
-                    .buttonStyle(.plain)
-                    .contentShape(Rectangle())
-                    .accessibilityLabel("Hapus \(candidate)")
-                }
+                IngredientChip(name: candidate, onDelete: {
+                    viewModel.removeScannedIngredient(candidate)
+                })
             }
         }
     }
@@ -312,12 +299,7 @@ struct AddSkincareView: View {
             spacing: AppSpacing.xs
         ) {
             ForEach(viewModel.draft.ingredients) { ingredient in
-                AppChip(isActive: viewModel.isMatched(ingredient), activeColor: AppColor.accentPrimary) {
-                    Text(ingredient.name)
-                        .font(Font.metadata)
-                        .lineLimit(1)
-                }
-                .onTapGesture {
+                IngredientChip(name: ingredient.name, isMatched: viewModel.isMatched(ingredient)) {
                     viewModel.removeIngredient(ingredient)
                 }
             }

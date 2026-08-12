@@ -13,8 +13,8 @@ struct IngredientSection: View {
     }
     
     var body: some View {
-        AppCard {
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+        AppCard(padding: AppSpacing.lg) {
+            VStack(alignment: .leading, spacing: AppSpacing.md) {
                 HStack {
                     Text("Recommended Ingredients")
                         .font(Font.metadata)
