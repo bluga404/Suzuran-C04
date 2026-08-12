@@ -2,7 +2,7 @@ import SwiftUI
 import Charts
 
 struct ReportAcneTypeChartView: View {
-    let points: [AcneSeriesPoint]
+    let series: [AcneTypeSeries]
     let dayLabels: [String]
     let selectedDay: String?
     let onSelectDay: (String) -> Void
@@ -27,22 +27,24 @@ struct ReportAcneTypeChartView: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     ZStack(alignment: .topLeading) {
                         Chart {
-                            ForEach(points) { point in
-                                LineMark(
-                                    x: .value("Day", point.day),
-                                    y: .value("Score", point.score),
-                                    series: .value("Acne Type", point.acneType.displayName)
-                                )
-                                .interpolationMethod(.linear)
-                                .foregroundStyle(by: .value("Acne Type", point.acneType.displayName))
+                            ForEach(series) { entry in
+                                ForEach(entry.points) { point in
+                                    LineMark(
+                                        x: .value("Day", point.day),
+                                        y: .value("Score", point.score),
+                                        series: .value("Acne Type", entry.acneType.displayName)
+                                    )
+                                    .interpolationMethod(.linear)
+                                    .foregroundStyle(by: .value("Acne Type", entry.acneType.displayName))
 
-                                PointMark(
-                                    x: .value("Day", point.day),
-                                    y: .value("Score", point.score)
-                                )
-                                .symbolSize(selectedDay == point.day ? 140 : 70)
-                                .foregroundStyle(by: .value("Acne Type", point.acneType.displayName))
-                                .opacity(selectedDay == point.day ? 1 : 0.75)
+                                    PointMark(
+                                        x: .value("Day", point.day),
+                                        y: .value("Score", point.score)
+                                    )
+                                    .symbolSize(selectedDay == point.day ? 140 : 70)
+                                    .foregroundStyle(by: .value("Acne Type", entry.acneType.displayName))
+                                    .opacity(selectedDay == point.day ? 1 : 0.75)
+                                }
                             }
 
                             if let selectedDay {
@@ -58,7 +60,7 @@ struct ReportAcneTypeChartView: View {
                             }
                         }
                         .chartYAxis {
-                            AxisMarks(position: .leading, values: [0, 25, 50, 75, 100]) { value in
+                            AxisMarks(position: .leading, values: [0, 5, 10, 15, 25]) { value in
                                 if let score = value.as(Double.self) {
                                     if score == 0 {
                                         AxisGridLine(stroke: StrokeStyle(lineWidth: 1))
@@ -73,7 +75,7 @@ struct ReportAcneTypeChartView: View {
                         .chartPlotStyle { plotArea in
                             plotArea.cornerRadius(AppCornerRadius.md)
                         }
-                        .chartYScale(domain: 0...100)
+                        .chartYScale(domain: 0...25)
                         .frame(width: chartWidth(availableWidth: proxy.size.width), height: 240)
                         .padding(.top, 8)
                         .padding(.bottom, 8)
@@ -98,7 +100,7 @@ struct ReportAcneTypeChartView: View {
     }
 
     private func chartWidth(availableWidth: CGFloat) -> CGFloat {
-        let uniqueDaysCount = Set(points.map(\.day)).count
+        let uniqueDaysCount = Set(series.flatMap { $0.points }.map(\.day)).count
         let dataWidth = CGFloat(Swift.max(uniqueDaysCount, 1)) * widthPerPoint
         return Swift.max(availableWidth + (chartPadding * 2), Swift.max(minChartWidth, dataWidth + (chartPadding * 2)))
     }
