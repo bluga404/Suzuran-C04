@@ -119,7 +119,7 @@ struct IngredientSection: View {
                     alternativesName: nil,
                     acneTypes: "Papule, Pustule",
                     description: "Excellent for penetrating pores to dissolve sebum and dead skin cells, helping to clear breakouts.",
-                    concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+                    concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: RisksAndSafety(), researchPapers: nil
                 ),
                 status: .notFound
             )
@@ -139,7 +139,7 @@ struct IngredientSection: View {
                     alternativesName: nil,
                     acneTypes: "Papule, Pustule",
                     description: "Excellent for penetrating pores to dissolve sebum and dead skin cells, helping to clear breakouts.",
-                    concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+                    concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: RisksAndSafety(), researchPapers: nil
                 ),
                 status: .notFound
             )

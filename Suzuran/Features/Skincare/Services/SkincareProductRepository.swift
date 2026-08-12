@@ -24,7 +24,7 @@ final class SkincareProductRepository: SkincareProductRepositoryProtocol {
         guard let data = userDefaults.data(forKey: userDefaultsKey) else {
             return []
         }
-        
+
         do {
             return try JSONDecoder().decode([SkincareProduct].self, from: data)
         } catch {

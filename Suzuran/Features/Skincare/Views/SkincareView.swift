@@ -22,19 +22,7 @@ struct SkincareView: View {
             }
             .navigationTitle(ScreenTitle.skincare.title)
             .toolbarTitleDisplayMode(.inlineLarge)
-            .toolbar {
-                if !viewModel.products.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: { isShowingAdd = true }) {
-                            Image(systemName: "plus")
-                                .font(Font.description)
-                                .foregroundStyle(AppColor.accentPrimary)
-                                .frame(minWidth: 44, minHeight: 44)
-                        }
-                        .accessibilityLabel(Text(SkincareStrings.addSkincare))
-                    }
-                }
-            }
+
             .sheet(isPresented: $isShowingAdd) {
                 AddSkincareView(
                     skincareViewModel: viewModel,
@@ -53,11 +41,13 @@ struct SkincareView: View {
                 MatchedIngredientListView(matched: viewModel.matchedIngredients)
             }
             .sheet(item: $selectedMatched) { matched in
-                IngredientDetailView(recommendation: matched.recommendation)
+                IngredientDetailView(
+                    recommendation: matched.recommendation
+                )
             }
             .alert(item: $viewModel.alert, content: makeAlert)
             .alert(
-                "Terjadi Kesalahan",
+                "An Error Occurred",
                 isPresented: Binding(
                     get: { viewModel.errorMessage != nil },
                     set: { if !$0 { viewModel.errorMessage = nil } }
@@ -77,7 +67,7 @@ struct SkincareView: View {
         List {
             VStack(alignment: .leading, spacing: AppSpacing.lg) {
                 matchPreview
-                
+
                 Text(SkincareStrings.currentSkincare)
                     .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
@@ -126,21 +116,27 @@ struct SkincareView: View {
 
     @ViewBuilder
     private var matchPreview: some View {
-        if !viewModel.activeAcneTypes.isEmpty {
-            if viewModel.matchedIngredients.isEmpty {
-                VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                    Text("Ingredient yang Cocok")
-                        .font(Font.description)
-                        .foregroundStyle(AppColor.textPrimary)
-                    MatchedIngredientEmptyState()
-                }
-            } else {
-                MatchedIngredientSection(
-                    matched: viewModel.matchedIngredients,
-                    onSelect: { selectedMatched = $0 },
-                    onShowAll: { isShowingMatchedList = true }
-                )
+        if viewModel.activeAcneTypes.isEmpty {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                Text("Matched Ingredients")
+                    .font(Font.description)
+                    .foregroundStyle(AppColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
+                MatchedIngredientNeedsScanState()
             }
+        } else if viewModel.matchedIngredients.isEmpty {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                Text("Matched Ingredients")
+                    .font(Font.description)
+                    .foregroundStyle(AppColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
+                MatchedIngredientEmptyState()
+            }
+        } else {
+            MatchedIngredientSection(
+                matched: viewModel.matchedIngredients,
+                onSelect: { selectedMatched = $0 }
+            )
         }
     }
 
@@ -167,7 +163,7 @@ struct SkincareView: View {
             Button(role: .destructive) {
                 viewModel.requestDelete(product)
             } label: {
-                Label("Hapus", systemImage: "trash")
+                Label("Delete", systemImage: "trash")
             }
         }
     }
@@ -178,17 +174,17 @@ struct SkincareView: View {
         switch alert {
         case .deleteProduct(let product):
             Alert(
-                title: Text("Hapus Produk"),
-                message: Text("Hapus \"\(product.name)\" dari catatan skincare Anda?"),
-                primaryButton: .destructive(Text("Hapus")) { viewModel.confirmDelete(product) },
-                secondaryButton: .cancel(Text("Batal"))
+                title: Text("Delete Product"),
+                message: Text("Remove \"\(product.name)\" from your skincare record?"),
+                primaryButton: .destructive(Text("Delete")) { viewModel.confirmDelete(product) },
+                secondaryButton: .cancel(Text("Cancel"))
             )
         case .deleteLastProduct(let product):
             Alert(
-                title: Text("Hapus Produk Terakhir"),
-                message: Text("\"\(product.name)\" adalah produk terakhir. Menghapusnya akan mengembalikan halaman ke kondisi kosong."),
-                primaryButton: .destructive(Text("Hapus")) { viewModel.confirmDelete(product) },
-                secondaryButton: .cancel(Text("Batal"))
+                title: Text("Delete Last Product"),
+                message: Text("\"\(product.name)\" is your last product. Removing it will return the page to an empty state."),
+                primaryButton: .destructive(Text("Delete")) { viewModel.confirmDelete(product) },
+                secondaryButton: .cancel(Text("Cancel"))
             )
         case .saveEmpty:
             Alert(title: Text(""))

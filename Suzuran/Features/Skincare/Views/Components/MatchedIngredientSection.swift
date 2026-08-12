@@ -6,42 +6,25 @@ import SwiftUI
 struct MatchedIngredientSection: View {
     let matched: [MatchedIngredient]
     let onSelect: (MatchedIngredient) -> Void
-    var onShowAll: (() -> Void)? = nil
-    var previewLimit: Int = 2
-
-    private var previewItems: ArraySlice<MatchedIngredient> {
-        matched.prefix(previewLimit)
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             HStack {
-                Text("Ingredient yang Cocok")
+                Text("Matched Ingredients")
                     .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
                     .accessibilityAddTraits(.isHeader)
-
-                Spacer()
-
-                if let onShowAll {
-                    Button("Lihat Semua", action: onShowAll)
-                        .font(Font.metadata)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(AppColor.accentPrimary)
-                        .frame(minHeight: 44)
-                        .accessibilityHint("Buka semua ingredient yang cocok")
-                }
             }
 
             LazyVStack(spacing: AppSpacing.sm) {
-                ForEach(previewItems) { item in
+                ForEach(matched) { item in
                     Button { onSelect(item) } label: {
                         RecommendationCard(matched: item)
                     }
                     .buttonStyle(.plain)
                     .accessibilityElement(children: .combine)
                     .accessibilityLabel(Text(accessibilityLabel(for: item)))
-                    .accessibilityHint(Text("Ketuk untuk melihat detail ingredient"))
+                    .accessibilityHint(Text("Tap to view ingredient detail"))
                 }
             }
         }
@@ -50,9 +33,9 @@ struct MatchedIngredientSection: View {
     private func accessibilityLabel(for item: MatchedIngredient) -> String {
         let acneTypeNames = item.matchedAcneTypes.map(\.displayName).joined(separator: ", ")
         guard !acneTypeNames.isEmpty else {
-            return "\(item.recommendation.ingredientName), cocok untuk kondisi acne kamu"
+            return "\(item.recommendation.ingredientName), matches your acne condition"
         }
-        return "\(item.recommendation.ingredientName), cocok untuk \(acneTypeNames)"
+        return "\(item.recommendation.ingredientName), matches \(acneTypeNames)"
     }
 }
 
@@ -62,11 +45,30 @@ struct MatchedIngredientEmptyState: View {
     var body: some View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Text("Belum ada ingredient yang cocok")
+                Text("No matched ingredients yet")
                     .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
 
-                Text("Skincare yang kamu simpan belum mengandung ingredient yang cocok untuk kondisi acne kamu saat ini. Coba tambahkan produk lain untuk mendapatkan rekomendasi.")
+                Text("Your saved skincare doesn't contain ingredients that match your current acne condition. Try adding other products to get recommendations.")
+                    .font(Font.metadata)
+                    .foregroundStyle(AppColor.textSecondary)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+}
+
+struct MatchedIngredientNeedsScanState: View {
+    var body: some View {
+        AppCard {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                Text("Discover Skincare Compatibility")
+                    .font(Font.description)
+                    .foregroundStyle(AppColor.textPrimary)
+
+                Text("Scan your face from the main menu to see if your saved skincare matches your current acne condition.")
                     .font(Font.metadata)
                     .foregroundStyle(AppColor.textSecondary)
                     .multilineTextAlignment(.leading)

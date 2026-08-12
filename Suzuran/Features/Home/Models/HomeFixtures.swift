@@ -19,7 +19,7 @@ enum HomeFixtures {
             alternativesName: nil,
             acneTypes: "Papule, Pustule",
             description: "Helps reduce sebum production and minimizes pore appearance, effective for blackhead-prone skin.",
-            concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+            concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: RisksAndSafety(), researchPapers: nil
         ),
         status: .notFound
     )
@@ -32,7 +32,7 @@ enum HomeFixtures {
             alternativesName: nil,
             acneTypes: "Blackhead, Whitehead",
             description: "A BHA that penetrates pores to dissolve debris and reduce blackhead formation.",
-            concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+            concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: RisksAndSafety(), researchPapers: nil
         ),
         status: .found(products: [
             SkincareProduct(name: "Facewash", brand: "Unknown", category: .cleanser)
@@ -47,7 +47,7 @@ enum HomeFixtures {
             alternativesName: nil,
             acneTypes: "Pustule",
             description: "Kills acne-causing bacteria and helps clear pustules by reducing inflammation.",
-            concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+            concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: RisksAndSafety(), researchPapers: nil
         ),
         status: .notFound
     )

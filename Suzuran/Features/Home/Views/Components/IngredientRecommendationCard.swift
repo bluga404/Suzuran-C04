@@ -77,7 +77,7 @@ struct IngredientRecommendationCard: View {
                 alternativesName: nil,
                 acneTypes: "Papule, Pustule",
                 description: "Excellent for penetrating pores to dissolve sebum and dead skin cells, helping to clear breakouts.",
-                concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+                concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: RisksAndSafety(), researchPapers: nil
             ),
             status: .notFound
         ),
@@ -95,7 +95,7 @@ struct IngredientRecommendationCard: View {
                 alternativesName: nil,
                 acneTypes: "Blackhead, Whitehead",
                 description: "A beta hydroxy acid that exfoliates the skin and keeps pores clear.",
-                concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+                concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: RisksAndSafety(), researchPapers: nil
             ),
             status: .found(products: [
                 SkincareProduct(name: "Wardah Lightening Gentle Wash", brand: "Wardah", category: .cleanser)
@@ -115,7 +115,7 @@ struct IngredientRecommendationCard: View {
                 alternativesName: nil,
                 acneTypes: "Papule, Pustule",
                 description: "Excellent for penetrating pores to dissolve sebum and dead skin cells, helping to clear breakouts.",
-                concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+                concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: RisksAndSafety(), researchPapers: nil
             ),
             status: .notFound
         ),

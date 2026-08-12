@@ -1,8 +1,8 @@
 import SwiftUI
 
-/// Add/Edit form built as a custom scroll layout instead of `Form` so its
-/// hierarchy follows the mid-fidelity flow: category → product information →
-/// scan/review ingredients → persistent bottom save action.
+/// Add/Edit form built with native `Form` sections, following the reference on
+/// `feature/integrate-ingredients`: kategori produk → nama produk → ingredients
+/// → save. Kategori memakai `Picker` gaya `.menu` bawaan iOS.
 struct AddSkincareView: View {
     @Environment(\.dismiss) private var dismiss
     @ObservedObject var skincareViewModel: SkincareViewModel
@@ -26,189 +26,164 @@ struct AddSkincareView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.lg) {
-                    categorySection
-                    productInformationSection
-                    ingredientSection
+        Form {
+            Section("Product Information") {
+                Picker("Select Category", selection: $viewModel.draft.category) {
+                    Text("Select Category").tag(Optional<SkincareCategory>.none)
+                    ForEach(SkincareCategory.allCases) { category in
+                        Text(category.displayName).tag(Optional(category))
+                    }
                 }
-                .padding(AppSpacing.md)
-            }
-            .background(AppColor.backgroundPrimary)
-            .navigationTitle(viewModel.isEditing ? "Edit Skincare" : "Tambah Skincare")
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Batal") { dismiss() }
-                        .font(Font.description)
-                        .foregroundStyle(AppColor.accentPrimary)
-                        .frame(minHeight: 44)
-                }
-            }
-            .safeAreaInset(edge: .bottom) {
-                AppButton(
-                    title: viewModel.isEditing ? "Simpan Perubahan" : "Simpan Skincare",
-                    isLoading: viewModel.isSaving
-                ) {
-                    viewModel.save(into: skincareViewModel)
-                }
-                .disabled(!viewModel.isFormValid)
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.vertical, AppSpacing.sm)
-                .background(.regularMaterial)
-            }
-            .disabled(viewModel.alert != nil)
-            .sheet(isPresented: $isShowingSearch) {
-                IngredientSearchView(repository: ingredientRepo) { name in
-                    viewModel.addIngredient(name)
-                }
-            }
-            .sheet(isPresented: $isShowingScanner) {
-                IngredientScanView(viewModel: viewModel)
-            }
-            .confirmationDialog(
-                "Hapus semua bahan?",
-                isPresented: $isConfirmingClearAll,
-                titleVisibility: .visible
-            ) {
-                Button("Hapus Semua", role: .destructive) { viewModel.confirmClearAll() }
-                Button("Batal", role: .cancel) {}
-            } message: {
-                Text("Semua bahan kandungan pada draft ini akan dihapus. Nama, merek, dan kategori tetap dipertahankan.")
-            }
-            .alert(item: $viewModel.alert, content: makeSaveEmptyAlert)
-            .alert(
-                "Data Belum Lengkap",
-                isPresented: Binding(
-                    get: { viewModel.errorMessage != nil },
-                    set: { if !$0 { viewModel.errorMessage = nil } }
-                )
-            ) {
-                Button("OK", role: .cancel) { viewModel.errorMessage = nil }
-            } message: {
-                Text(viewModel.errorMessage ?? "")
-            }
-            .onChange(of: viewModel.didSave) { _, saved in
-                if saved { dismiss() }
-            }
-        }
-    }
-
-    // MARK: - Sections
-
-    private var categorySection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Pilih Kategori")
+                .pickerStyle(.menu)
                 .font(Font.description)
-                .foregroundStyle(AppColor.textPrimary)
 
-            CategorySelector(selected: $viewModel.draft.category)
+                TextField("Product Name", text: $viewModel.draft.name)
+                    .font(Font.description)
+                    .textInputAutocapitalization(.words)
+            }
+
+            ingredientSection
         }
-    }
-
-    private var productInformationSection: some View {
-        AppCard {
-            VStack(alignment: .leading, spacing: AppSpacing.md) {
-                Text("Informasi Produk")
+        .scrollContentBackground(.hidden)
+        .background(AppColor.backgroundPrimary)
+        .navigationTitle(viewModel.isEditing ? "Edit Skincare" : "Add Skincare")
+        .navigationBarTitleDisplayMode(.inline)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button("Cancel") { dismiss() }
                     .font(Font.description)
-                    .foregroundStyle(AppColor.textPrimary)
-
-                labeledField(
-                    title: "Nama Produk",
-                    placeholder: "Contoh: Hydrating Serum",
-                    text: $viewModel.draft.name
-                )
-
-                labeledField(
-                    title: "Merek",
-                    placeholder: "Contoh: CeraVe",
-                    text: $viewModel.draft.brand
-                )
-
-                Toggle("Sedang digunakan", isOn: $viewModel.draft.isUsedCurrently)
-                    .font(Font.description)
-                    .tint(AppColor.accentPrimary)
+                    .foregroundStyle(AppColor.accentPrimary)
                     .frame(minHeight: 44)
             }
         }
+        .safeAreaInset(edge: .bottom) {
+            AppButton(
+                title: viewModel.isEditing ? "Save Changes" : "Save Skincare",
+                isLoading: viewModel.isSaving
+            ) {
+                viewModel.save(into: skincareViewModel)
+            }
+            .disabled(!viewModel.isFormValid)
+            .padding(.horizontal, AppSpacing.md)
+            .padding(.vertical, AppSpacing.sm)
+            .background(.regularMaterial)
+        }
+        .disabled(viewModel.alert != nil)
+        .sheet(isPresented: $isShowingSearch) {
+            IngredientSearchView(repository: ingredientRepo) { name in
+                viewModel.addIngredient(name)
+            }
+        }
+        .fullScreenCover(isPresented: $isShowingScanner) {
+            IngredientScanView(viewModel: viewModel)
+        }
+        .alert(
+            "Remove all ingredients?",
+            isPresented: $isConfirmingClearAll
+        ) {
+            Button("Remove All", role: .destructive) { viewModel.confirmClearAll() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("All ingredient in this draft will be removed. Name and category will be kept.")
+        }
+        .alert(item: $viewModel.alert, content: makeSaveEmptyAlert)
+        .alert(
+            "Incomplete Data",
+            isPresented: Binding(
+                get: { viewModel.errorMessage != nil },
+                set: { if !$0 { viewModel.errorMessage = nil } }
+            )
+        ) {
+            Button("OK", role: .cancel) { viewModel.errorMessage = nil }
+        } message: {
+            Text(viewModel.errorMessage ?? "")
+        }
+        .onChange(of: viewModel.didSave) { _, saved in
+            if saved { dismiss() }
+        }
     }
 
+    // MARK: - Ingredients section
+
+    @ViewBuilder
     private var ingredientSection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            HStack {
-                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                    Text("Ingredient")
+        Section {
+            Button {
+                isShowingScanner = true
+            } label: {
+                HStack(spacing: AppSpacing.sm) {
+                    Image(systemName: "doc.text.viewfinder")
+                        .font(Font.description)
+                        .foregroundStyle(AppColor.accentPrimary)
+                        .frame(width: 24)
+
+                    Text("Scan product composition")
                         .font(Font.description)
                         .foregroundStyle(AppColor.textPrimary)
-                    Text("Pindai label atau tambahkan bahan secara manual.")
-                        .font(Font.metadata)
-                        .foregroundStyle(AppColor.textSecondary)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.footnote)
+                        .foregroundStyle(.tertiary)
                 }
+            }
+
+            Button {
+                isShowingSearch = true
+            } label: {
+                HStack(spacing: AppSpacing.sm) {
+                    Image(systemName: "magnifyingglass")
+                        .font(Font.description)
+                        .foregroundStyle(AppColor.accentPrimary)
+                        .frame(width: 24)
+
+                    Text("Search ingredient manually")
+                        .font(Font.description)
+                        .foregroundStyle(AppColor.textPrimary)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.footnote)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+        } header: {
+            HStack {
+                Text("INGREDIENT")
+                    .textCase(.uppercase)
+                    .foregroundStyle(.secondary)
+                    .font(.footnote)
 
                 Spacer()
 
                 if !viewModel.draft.ingredients.isEmpty {
-                    Button("Hapus Semua") { isConfirmingClearAll = true }
+                    Button("Remove All") { isConfirmingClearAll = true }
                         .font(Font.metadata)
                         .fontWeight(.semibold)
                         .foregroundStyle(AppColor.accentDanger)
-                        .frame(minHeight: 44)
+                        .textCase(nil)
                 }
             }
+        }
 
-            scanAction
+        if !viewModel.scannedIngredients.isEmpty {
+            scannedReviewSection
+                .listRowBackground(Color.clear)
+                .listRowInsets(EdgeInsets())
+        }
 
-            if !viewModel.scannedIngredients.isEmpty {
-                scannedReviewSection
-            }
-
-            ingredientSearchAction
-
+        Section {
             if viewModel.draft.ingredients.isEmpty {
-                emptyIngredientHint
+                Text("Your skincare ingredients will appear here.")
+                    .font(Font.description)
+                    .foregroundStyle(AppColor.textSecondary)
             } else {
                 ingredientChips
+                    .padding(.vertical, AppSpacing.xxs)
             }
         }
-    }
-
-    /// Large primary scan affordance, matching the visual priority of mockups 01/03.
-    private var scanAction: some View {
-        Button { isShowingScanner = true } label: {
-            HStack(spacing: AppSpacing.sm) {
-                Image(systemName: "doc.text.viewfinder")
-                    .font(Font.description)
-                    .foregroundStyle(AppColor.accentPrimary)
-                    .frame(width: 44, height: 44)
-                    .background(AppColor.accentPrimary.opacity(0.08))
-                    .clipShape(Circle())
-
-                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                    Text("Pindai komposisi produk")
-                        .font(Font.description)
-                        .foregroundStyle(AppColor.textPrimary)
-                    Text("Gunakan kamera atau pilih foto label")
-                        .font(Font.metadata)
-                        .foregroundStyle(AppColor.textSecondary)
-                }
-
-                Spacer()
-                Image(systemName: "chevron.right")
-                    .font(Font.metadata)
-                    .foregroundStyle(AppColor.textSecondary)
-            }
-            .padding(AppSpacing.sm)
-            .frame(maxWidth: .infinity, minHeight: 72)
-            .background(AppColor.surfacePrimary)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
-            .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.md)
-                    .stroke(AppColor.borderSubtle, lineWidth: 1)
-            )
-        }
-        .buttonStyle(.plain)
-        .accessibilityHint("Buka pilihan kamera atau galeri untuk membaca label")
     }
 
     /// OCR candidates stay in the Add screen for review and manual correction,
@@ -216,18 +191,18 @@ struct AddSkincareView: View {
     private var scannedReviewSection: some View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                Text("Tinjau Hasil Scan")
+                Text("Review Scan Results")
                     .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
 
-                Text("Hapus kandidat yang kurang tepat atau tambahkan ingredient yang terlewat.")
+                Text("Remove inaccurate candidates or add missed ingredients.")
                     .font(Font.metadata)
                     .foregroundStyle(AppColor.textSecondary)
 
                 candidateChips
                 manualCandidateField
 
-                AppButton(title: "Gunakan Ingredient Ini") {
+                AppButton(title: "Use These Ingredients") {
                     viewModel.commitReview()
                 }
             }
@@ -240,29 +215,16 @@ struct AddSkincareView: View {
             spacing: AppSpacing.xs
         ) {
             ForEach(viewModel.scannedIngredients, id: \.self) { candidate in
-                AppChip {
-                    Text(candidate)
-                        .font(Font.metadata)
-                        .lineLimit(1)
-
-                    Button(action: {
-                        viewModel.removeScannedIngredient(candidate)
-                    }) {
-                        Image(systemName: "xmark")
-                            .font(Font.metadata)
-                            .foregroundStyle(AppColor.textSecondary)
-                    }
-                    .buttonStyle(.plain)
-                    .contentShape(Rectangle())
-                    .accessibilityLabel("Hapus \(candidate)")
-                }
+                IngredientChip(name: candidate, onDelete: {
+                    viewModel.removeScannedIngredient(candidate)
+                })
             }
         }
     }
 
     private var manualCandidateField: some View {
         HStack(spacing: AppSpacing.xs) {
-            TextField("Tambah ingredient manual", text: $manualCandidate)
+            TextField("Add ingredient manually", text: $manualCandidate)
                 .font(Font.description)
                 .textInputAutocapitalization(.words)
                 .padding(.horizontal, AppSpacing.sm)
@@ -282,29 +244,10 @@ struct AddSkincareView: View {
             }
             .buttonStyle(.borderedProminent)
             .tint(AppColor.accentPrimary)
-            .accessibilityLabel("Tambah ingredient manual")
+            .accessibilityLabel("Add ingredient manually")
         }
     }
 
-    private var ingredientSearchAction: some View {
-        Button { isShowingSearch = true } label: {
-            Label("Cari ingredient secara manual", systemImage: "magnifyingglass")
-                .font(Font.description)
-                .frame(maxWidth: .infinity, minHeight: 44)
-        }
-        .buttonStyle(.bordered)
-        .tint(AppColor.accentPrimary)
-    }
-
-    private var emptyIngredientHint: some View {
-        Text("Belum ada ingredient ditambahkan.")
-            .font(Font.metadata)
-            .foregroundStyle(AppColor.textSecondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(AppSpacing.sm)
-            .background(AppColor.surfacePrimary)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
-    }
 
     private var ingredientChips: some View {
         LazyVGrid(
@@ -312,35 +255,10 @@ struct AddSkincareView: View {
             spacing: AppSpacing.xs
         ) {
             ForEach(viewModel.draft.ingredients) { ingredient in
-                AppChip(isActive: viewModel.isMatched(ingredient), activeColor: AppColor.accentPrimary) {
-                    Text(ingredient.name)
-                        .font(Font.metadata)
-                        .lineLimit(1)
-                }
-                .onTapGesture {
+                IngredientChip(name: ingredient.name, isMatched: viewModel.isMatched(ingredient)) {
                     viewModel.removeIngredient(ingredient)
                 }
             }
-        }
-    }
-
-    private func labeledField(title: String, placeholder: String, text: Binding<String>) -> some View {
-        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text(title)
-                .font(Font.metadata)
-                .foregroundStyle(AppColor.textSecondary)
-
-            TextField(placeholder, text: text)
-                .font(Font.description)
-                .textInputAutocapitalization(.words)
-                .padding(.horizontal, AppSpacing.sm)
-                .frame(minHeight: 44)
-                .background(AppColor.backgroundPrimary)
-                .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
-                .overlay(
-                    RoundedRectangle(cornerRadius: AppCornerRadius.sm)
-                        .stroke(AppColor.borderSubtle, lineWidth: 1)
-                )
         }
     }
 
@@ -355,12 +273,12 @@ struct AddSkincareView: View {
         switch alert {
         case .saveEmpty:
             Alert(
-                title: Text("Simpan Tanpa Bahan?"),
-                message: Text("Produk ini belum memiliki bahan kandungan, sehingga tidak akan menghasilkan rekomendasi ingredient yang cocok. Tetap simpan?"),
-                primaryButton: .default(Text("Simpan Tetap")) {
+                title: Text("Save Without Ingredients?"),
+                message: Text("This product has no ingredients yet, so it won't generate any ingredient recommendations. Save anyway?"),
+                primaryButton: .default(Text("Save Anyway")) {
                     viewModel.confirmSaveEmpty(into: skincareViewModel)
                 },
-                secondaryButton: .cancel(Text("Batal"))
+                secondaryButton: .cancel(Text("Cancel"))
             )
         case .deleteProduct, .deleteLastProduct:
             Alert(title: Text(""))

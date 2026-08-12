@@ -51,3 +51,4 @@ DevFeature/
 integration/candidates.txt
 integration/allowed.txt
 integration/cross_scope.txt
+SuzuranTests/Features/Skincare/ViewModels/AddSkincareMatchingTests.swift

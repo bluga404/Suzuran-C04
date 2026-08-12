@@ -15,7 +15,7 @@ struct ScanInstructionModalView: View {
                     header
                     acquisitionMethods
                     tips
-                    AppButton(title: "Mengerti", action: onDismiss)
+                    AppButton(title: "Got It", action: onDismiss)
                 }
                 .padding(AppSpacing.lg)
             }
@@ -24,12 +24,12 @@ struct ScanInstructionModalView: View {
 
     private var header: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xs) {
-            Text("Cara scan ingredient")
+            Text("How to scan ingredients")
                 .font(Font.screenTitle)
                 .foregroundStyle(AppColor.textPrimary)
                 .accessibilityAddTraits(.isHeader)
 
-            Text("Pastikan daftar komposisi terlihat jelas agar hasil scan lebih akurat.")
+            Text("Make sure the ingredient list is clearly visible for more accurate scan results.")
                 .font(Font.description)
                 .foregroundStyle(AppColor.textSecondary)
         }
@@ -39,13 +39,13 @@ struct ScanInstructionModalView: View {
         VStack(spacing: AppSpacing.sm) {
             ScanGuideRow(
                 symbol: "camera.fill",
-                title: "Ambil foto label",
-                detail: "Arahkan kamera ke daftar ingredient pada kemasan."
+                title: "Take a photo of the label",
+                detail: "Point the camera at the ingredient list on the packaging."
             )
             ScanGuideRow(
                 symbol: "photo.on.rectangle.angled",
-                title: "Pilih dari galeri",
-                detail: "Unggah foto label yang tajam dan tidak terpotong."
+                title: "Choose from gallery",
+                detail: "Upload a sharp and uncut photo of the label."
             )
         }
     }
@@ -53,11 +53,11 @@ struct ScanInstructionModalView: View {
     private var tips: some View {
         AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Label("Tips untuk hasil terbaik", systemImage: "lightbulb")
+                Label("Tips for best results", systemImage: "lightbulb")
                     .font(Font.description)
                     .foregroundStyle(AppColor.accentPrimary)
 
-                Text("Gunakan pencahayaan cukup, hindari pantulan, dan pastikan seluruh daftar ingredient berada di dalam bingkai.")
+                Text("Use adequate lighting, avoid glare, and make sure the entire ingredient list is within the frame.")
                     .font(Font.metadata)
                     .foregroundStyle(AppColor.textSecondary)
             }

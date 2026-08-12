@@ -19,7 +19,7 @@ import Foundation
 struct SkincareDraft {
     var name: String
     var brand: String
-    var category: SkincareCategory
+    var category: SkincareCategory?
     var ingredients: [IngredientReference]
     var isUsedCurrently: Bool
 
@@ -27,22 +27,19 @@ struct SkincareDraft {
     /// pembuatan produk baru.
     ///
     /// - Parameter product: Produk yang sedang diedit. Bila `nil`, draft dimulai
-    ///   dengan field kosong, kategori default `.moisturizer`, dan
+    ///   dengan field kosong, kategori belum dipilih (`nil`), dan
     ///   `isUsedCurrently = true`.
     init(from product: SkincareProduct? = nil) {
         self.name = product?.name ?? ""
         self.brand = product?.brand ?? ""
-        self.category = product?.category ?? .moisturizer
+        self.category = product?.category
         self.ingredients = product?.ingredients ?? []
         self.isUsedCurrently = product?.isUsedCurrently ?? true
     }
 
-    /// `true` bila `name` dan `brand` non-empty setelah trim whitespace.
-    ///
-    /// `category` selalu valid karena `SkincareCategory` adalah enum non-optional;
+    /// `true` bila `name` non-empty setelah trim whitespace dan category sudah dipilih.
     var isValid: Bool {
-        !name.trimmingCharacters(in: .whitespaces).isEmpty &&
-        !brand.trimmingCharacters(in: .whitespaces).isEmpty
+        !name.trimmingCharacters(in: .whitespaces).isEmpty && category != nil
     }
 
     /// Bentuk `SkincareProduct` dari state draft saat ini.
@@ -50,12 +47,13 @@ struct SkincareDraft {
     /// - Parameter existingID: `id` produk yang sedang diedit; `nil` untuk produk
     ///   baru (akan dibuat `UUID()` baru).
     /// - Returns: `SkincareProduct` dengan `name`/`brand` yang sudah di-trim.
+    ///   Bila `category` belum dipilih, digunakan `.moisturizer` sebagai fallback.
     func toProduct(existingID: UUID?) -> SkincareProduct {
         SkincareProduct(
             id: existingID ?? UUID(),
             name: name.trimmingCharacters(in: .whitespaces),
             brand: brand.trimmingCharacters(in: .whitespaces),
-            category: category,
+            category: category ?? .moisturizer,
             ingredients: ingredients,
             isUsedCurrently: isUsedCurrently
         )

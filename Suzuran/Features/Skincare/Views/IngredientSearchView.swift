@@ -4,7 +4,7 @@ struct IngredientSearchView: View {
     @Environment(\.dismiss) private var dismiss
     let repository: IngredientRepositoryProtocol
     let onSelect: (String) -> Void
-    
+
     @State private var query = ""
     @State private var results: [String] = []
 
@@ -15,14 +15,14 @@ struct IngredientSearchView: View {
                 HStack(spacing: AppSpacing.sm) {
                     Image(systemName: "magnifyingglass")
                         .foregroundStyle(AppColor.textSecondary)
-                    
-                    TextField("Cari kandungan (contoh: Niacinamide)", text: $query)
+
+                    TextField("Search ingredient (e.g. Niacinamide)", text: $query)
                         .font(Font.description)
                         .textFieldStyle(.plain)
                         .onChange(of: query) { _, newQuery in
                             performSearch(query: newQuery)
                         }
-                    
+
                     if !query.isEmpty {
                         Button(action: { query = "" }) {
                             Image(systemName: "xmark.circle.fill")
@@ -38,11 +38,11 @@ struct IngredientSearchView: View {
                         .stroke(AppColor.borderSubtle, lineWidth: 1)
                 )
                 .padding(AppSpacing.md)
-                
+
                 // Search Results
-                List {
-                    if !query.isEmpty && !results.contains(where: { $0.caseInsensitiveCompare(query) == .orderedSame }) {
-                        Section("Kandungan Baru") {
+                if !query.isEmpty {
+                    List {
+                        if !results.contains(where: { $0.caseInsensitiveCompare(query) == .orderedSame }) {
                             Button(action: {
                                 onSelect(query)
                                 dismiss()
@@ -50,25 +50,17 @@ struct IngredientSearchView: View {
                                 HStack {
                                     Image(systemName: "plus.circle.fill")
                                         .foregroundStyle(AppColor.accentPrimary)
-                                    Text("Tambah \"\(query)\"")
+                                    Text("Add \"\(query)\"")
                                         .font(Font.description)
                                         .foregroundStyle(AppColor.accentPrimary)
                                 }
                             }
                         }
-                    }
-                    
-                    Section("Hasil Pencarian") {
+
                         if results.isEmpty {
-                            if query.isEmpty {
-                                Text("Ketik untuk mencari kandungan skincare...")
-                                    .font(Font.metadata)
-                                    .foregroundStyle(AppColor.textSecondary)
-                            } else {
-                                Text("Tidak ada hasil ditemukan")
-                                    .font(Font.metadata)
-                                    .foregroundStyle(AppColor.textSecondary)
-                            }
+                            Text("No results found")
+                                .font(Font.metadata)
+                                .foregroundStyle(AppColor.textSecondary)
                         } else {
                             ForEach(results, id: \.self) { ingredient in
                                 Button(action: {
@@ -88,15 +80,17 @@ struct IngredientSearchView: View {
                             }
                         }
                     }
+                    .listStyle(.insetGrouped)
+                } else {
+                    Spacer()
                 }
-                .listStyle(.insetGrouped)
             }
             .background(AppColor.backgroundPrimary)
-            .navigationTitle("Cari Kandungan")
+            .navigationTitle("Search Ingredient")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Batal") {
+                    Button("Cancel") {
                         dismiss()
                     }
                     .font(Font.description)

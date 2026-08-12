@@ -52,6 +52,7 @@ final class AddSkincareViewModel: ObservableObject {
     private let ingredientRepo: IngredientRepositoryProtocol
     private let acneRepo: AcneIngredientRepositoryProtocol
     private let productRepo: SkincareProductRepositoryProtocol
+    private let profile: AcneProfileProviding
     private let logger: AppLogging
 
     private let editingProductID: UUID?
@@ -65,12 +66,14 @@ final class AddSkincareViewModel: ObservableObject {
         ingredientRepo: IngredientRepositoryProtocol,
         acneRepo: AcneIngredientRepositoryProtocol,
         productRepo: SkincareProductRepositoryProtocol,
+        profile: AcneProfileProviding,
         logger: AppLogging
     ) {
         self.ocr = ocr
         self.ingredientRepo = ingredientRepo
         self.acneRepo = acneRepo
         self.productRepo = productRepo
+        self.profile = profile
         self.logger = logger
         self.editingProductID = editingProduct?.id
         self.isEditing = editingProduct != nil
@@ -81,11 +84,12 @@ final class AddSkincareViewModel: ObservableObject {
 
     var isFormValid: Bool { draft.isValid }
 
-    /// Whether the ingredient has a reference recommendation (used for chip styling).
-    /// Independent of the active acne profile — mirrors the legacy behavior of
-    /// highlighting known active ingredients in the form.
+    /// Whether the ingredient matches the user's active acne profile.
     func isMatched(_ reference: IngredientReference) -> Bool {
-        acneRepo.recommendation(byCanonicalID: reference.id) != nil
+        let activeTypes = profile.getActiveAcneTypes()
+        guard !activeTypes.isEmpty else { return false }
+        let matchedTypes = acneRepo.matchedAcneTypes(for: reference.id, activeTypes: activeTypes)
+        return !matchedTypes.isEmpty
     }
 
     // MARK: - Ingredient management (operates on draft only, Req 15.2)

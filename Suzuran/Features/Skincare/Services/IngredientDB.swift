@@ -61,18 +61,24 @@ final class IngredientDB: ObservableObject {
     // MARK: - Loading
 
     private func load() {
-        let acne = Self.decodeAcneRecommendations(logger: self.logger)
-        let acneIndex = Self.indexAcneRecommendations(acne)
-        let (cosingEntries, cosingIndex) = Self.decodeCosingEntries(logger: self.logger)
+        DispatchQueue.global(qos: .userInitiated).async { [weak self] in
+            guard let self else { return }
 
-        self.cosingEntries = cosingEntries
-        self.cosingIndexByCanonicalID = cosingIndex
-        self.acneRecommendations = acne
-        self.acneRecommendationIndexByCanonicalID = acneIndex
-        self.isLoaded = true
-        self.logger.info(
-            "[Skincare] IngredientDB loaded: cosing=\(cosingEntries.count), acne=\(acne.count)"
-        )
+            let acne = Self.decodeAcneRecommendations(logger: self.logger)
+            let acneIndex = Self.indexAcneRecommendations(acne)
+            let (cosingEntries, cosingIndex) = Self.decodeCosingEntries(logger: self.logger)
+
+            DispatchQueue.main.async {
+                self.cosingEntries = cosingEntries
+                self.cosingIndexByCanonicalID = cosingIndex
+                self.acneRecommendations = acne
+                self.acneRecommendationIndexByCanonicalID = acneIndex
+                self.isLoaded = true
+                self.logger.info(
+                    "[Skincare] IngredientDB loaded: cosing=\(cosingEntries.count), acne=\(acne.count)"
+                )
+            }
+        }
     }
 
     // MARK: - Decoders

@@ -2,11 +2,6 @@ import SwiftUI
 
 /// Card that renders a single ``MatchedIngredient`` — the ingredient name, any
 /// alias, the matched acne-type badges, and a truncated description.
-///
-/// away from the removed `MatchedRecommendation`). The optional `onTapDetail`
-/// affordance drives the inline "Detail" button; when the whole card is already
-/// wrapped in a `Button` (see ``MatchedIngredientSection``) callers can omit it.
-///
 struct RecommendationCard: View {
     let matched: MatchedIngredient
     var onTapDetail: () -> Void = {}
@@ -41,7 +36,7 @@ struct RecommendationCard: View {
 
                 // Matched Acne Types Badges
                 HStack(spacing: AppSpacing.xs) {
-                    Text("Cocok untuk:")
+                    Text("Matches:")
                         .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
 

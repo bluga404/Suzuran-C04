@@ -25,7 +25,7 @@ struct SkincareDetailView: View {
             .padding(AppSpacing.md)
         }
         .background(AppColor.backgroundPrimary)
-        .navigationTitle("Detail Skincare")
+        .navigationTitle("Skincare Detail")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
@@ -36,15 +36,19 @@ struct SkincareDetailView: View {
         }
         .sheet(isPresented: $isShowingEdit) {
             if let latest = skincareViewModel.products.first(where: { $0.id == product.id }) {
-                AddSkincareView(
-                    skincareViewModel: skincareViewModel,
-                    ingredientRepo: ingredientRepo,
-                    makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: latest) }
-                )
+                NavigationStack {
+                    AddSkincareView(
+                        skincareViewModel: skincareViewModel,
+                        ingredientRepo: ingredientRepo,
+                        makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: latest) }
+                    )
+                }
             }
         }
         .sheet(item: $selectedRecommendation) { rec in
-            IngredientDetailView(recommendation: rec)
+            IngredientDetailView(
+                recommendation: rec
+            )
         }
         .alert(item: $skincareViewModel.alert, content: makeDeleteAlert)
         .onChange(of: skincareViewModel.products) { _, products in
@@ -75,7 +79,7 @@ struct SkincareDetailView: View {
 
                     Spacer()
 
-                    Text(product.isUsedCurrently ? "Sedang Digunakan" : "Tidak Digunakan")
+                    Text(product.isUsedCurrently ? "Currently Used" : "Not Used")
                         .font(Font.metadata)
                         .fontWeight(.semibold)
                         .foregroundStyle(product.isUsedCurrently ? AppColor.accentPrimary : AppColor.textSecondary)
@@ -84,17 +88,13 @@ struct SkincareDetailView: View {
                 Text(product.name)
                     .font(Font.screenTitle)
                     .foregroundStyle(AppColor.textPrimary)
-
-                Text("Merek: \(product.brand)")
-                    .font(Font.description)
-                    .foregroundStyle(AppColor.textSecondary)
             }
         }
     }
 
     private var matchesSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Kesesuaian dengan Kulit Anda")
+            Text("Skin Compatibility")
                 .font(Font.description)
                 .foregroundStyle(AppColor.textPrimary)
 
@@ -105,7 +105,7 @@ struct SkincareDetailView: View {
                             .font(.system(size: 20))
                             .foregroundStyle(AppColor.textSecondary)
 
-                        Text("Tidak ada kandungan aktif khusus untuk tipe jerawat Anda saat ini (\(skincareViewModel.activeAcneTypes.map { $0.displayName }.joined(separator: ", "))).")
+                        Text("No active ingredients found for your current acne types (\(skincareViewModel.activeAcneTypes.map { $0.displayName }.joined(separator: ", "))).")
                             .font(Font.metadata)
                             .foregroundStyle(AppColor.textSecondary)
                     }
@@ -125,12 +125,12 @@ struct SkincareDetailView: View {
 
     private var ingredientsSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Semua Komposisi (\(product.ingredients.count))")
+            Text("All Ingredients (\(product.ingredients.count))")
                 .font(Font.description)
                 .foregroundStyle(AppColor.textPrimary)
 
             if product.ingredients.isEmpty {
-                Text("Tidak ada informasi komposisi.")
+                Text("No ingredient information available.")
                     .font(Font.description)
                     .foregroundStyle(AppColor.textSecondary)
             } else {
@@ -140,11 +140,7 @@ struct SkincareDetailView: View {
                         Button(action: {
                             if let matched { selectedRecommendation = matched.recommendation }
                         }) {
-                            AppChip(isActive: matched != nil, activeColor: AppColor.accentPrimary) {
-                                Text(ingredient.name)
-                                    .font(Font.metadata)
-                                    .lineLimit(1)
-                            }
+                            IngredientChip(name: ingredient.name, isMatched: matched != nil)
                         }
                         .disabled(matched == nil)
                     }
@@ -157,7 +153,7 @@ struct SkincareDetailView: View {
         Button(action: { skincareViewModel.requestDelete(product) }) {
             HStack {
                 Image(systemName: "trash")
-                Text("Hapus Produk Ini")
+                Text("Delete This Product")
                     .font(Font.description)
             }
             .frame(maxWidth: .infinity)
@@ -179,17 +175,17 @@ struct SkincareDetailView: View {
         switch alert {
         case .deleteProduct(let target):
             return Alert(
-                title: Text("Hapus Produk"),
-                message: Text("Hapus \"\(target.name)\" dari catatan skincare Anda?"),
-                primaryButton: .destructive(Text("Hapus")) { skincareViewModel.confirmDelete(target) },
-                secondaryButton: .cancel(Text("Batal"))
+                title: Text("Delete Product"),
+                message: Text("Remove \"\(target.name)\" from your skincare record?"),
+                primaryButton: .destructive(Text("Delete")) { skincareViewModel.confirmDelete(target) },
+                secondaryButton: .cancel(Text("Cancel"))
             )
         case .deleteLastProduct(let target):
             return Alert(
-                title: Text("Hapus Produk Terakhir"),
-                message: Text("\"\(target.name)\" adalah produk terakhir. Menghapusnya akan mengembalikan halaman ke kondisi kosong."),
-                primaryButton: .destructive(Text("Hapus")) { skincareViewModel.confirmDelete(target) },
-                secondaryButton: .cancel(Text("Batal"))
+                title: Text("Delete Last Product"),
+                message: Text("\"\(target.name)\" is your last product. Removing it will return the page to an empty state."),
+                primaryButton: .destructive(Text("Delete")) { skincareViewModel.confirmDelete(target) },
+                secondaryButton: .cancel(Text("Cancel"))
             )
         case .saveEmpty:
             return Alert(title: Text(""))
