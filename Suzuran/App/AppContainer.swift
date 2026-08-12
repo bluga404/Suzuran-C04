@@ -32,8 +32,12 @@ final class AppContainer: ObservableObject {
         let rootViewModel = RootViewModel(
             bootstrapper: bootstrapper,
             scanHistoryStore: scanHistoryStore,
-            homeSummaryViewModelFactory: {
-                HomeFactory.makeViewModel()
+            homeSummaryViewModelFactory: { [weak scanHistoryStore] in
+                guard let store = scanHistoryStore else {
+                    // Fallback (should never happen in normal flow)
+                    return HomeFactory.makeViewModel(historyStore: ScanHistoryStore())
+                }
+                return HomeFactory.makeViewModel(historyStore: store)
             }
         )
 
