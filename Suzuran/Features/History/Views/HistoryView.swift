@@ -1,9 +1,7 @@
 import SwiftUI
 
 /// History tab — displays all past scans in a 3-column grid grouped by month.
-/// Features a floating top header overlay with "History" title and iOS 26 Liquid Glass buttons:
-/// - Capsule-shaped "Compare" / "Compare (x/2)" control
-/// - 44pt circular "X" control
+/// Uses native iOS Large Title navigation and toolbar items for Compare actions.
 struct HistoryView: View {
     @ObservedObject private var viewModel: HistoryViewModel
 
@@ -51,24 +49,56 @@ struct HistoryView: View {
 
     var body: some View {
         NavigationStack {
-            ZStack(alignment: .top) {
-                // Scrollable content underneath
-                Group {
-                    if viewModel.records.isEmpty {
-                        ContentUnavailableView(
-                            "Belum Ada Riwayat",
-                            systemImage: "clock.arrow.circlepath",
-                            description: Text("Mulai scan wajah untuk melihat riwayat di sini.")
-                        )
-                    } else {
-                        scrollContent
-                    }
+            Group {
+                if viewModel.records.isEmpty {
+                    ContentUnavailableView(
+                        "Belum Ada Riwayat",
+                        systemImage: "clock.arrow.circlepath",
+                        description: Text("Mulai scan wajah untuk melihat riwayat di sini.")
+                    )
+                } else {
+                    scrollContent
                 }
-
-                // Floating header overlay
-                floatingHeader
             }
-            .toolbar(.hidden, for: .navigationBar)
+            .navigationTitle("History")
+            .navigationBarTitleDisplayMode(.large)
+            .toolbar {
+                ToolbarItem(placement: .topBarTrailing) {
+                    HStack(spacing: 6) {
+                        Button {
+                            if viewModel.isCompareMode {
+                                if let (first, second) = viewModel.selectedPair {
+                                    activePayload = ComparePayload(recordA: first, recordB: second)
+                                }
+                            } else {
+                                withAnimation(.snappy(duration: 0.35)) {
+                                    viewModel.toggleCompareMode()
+                                }
+                            }
+                        } label: {
+                            Text(viewModel.isCompareMode
+                                 ? "Compare (\(viewModel.selectedCount)/2)"
+                                 : "Compare")
+                        }
+                        .disabled(viewModel.isCompareMode && !viewModel.canCompare)
+                        .glassEffect(.regular.interactive(), in: .capsule)
+
+                        if viewModel.isCompareMode {
+                            Button {
+                                withAnimation(.snappy(duration: 0.35)) {
+                                    viewModel.toggleCompareMode()
+                                }
+                            } label: {
+                                Image(systemName: "xmark")
+                            }
+                            .glassEffect(.regular.interactive(), in: .circle)
+                            .transition(.scale.combined(with: .opacity))
+                            .accessibilityLabel("Cancel compare")
+                        }
+                    }
+                    .animation(.snappy(duration: 0.35), value: viewModel.isCompareMode)
+                }
+            }
             .toolbar(.visible, for: .tabBar)
             .navigationDestination(item: $activePayload) { payload in
                 HistoryFactory.makeCompareView(
@@ -81,84 +111,6 @@ struct HistoryView: View {
                 HomeFactory.makeDetailView(scanID: scanID, historyStore: viewModel.historyStore)
             }
         }
-    }
-
-    // MARK: - Floating Header Overlay
-
-    private var floatingHeader: some View {
-        HStack(alignment: .center) {
-            Text("History")
-                .font(.custom("AvenirNext-Bold", size: 30, relativeTo: .largeTitle))
-                .foregroundStyle(.primary)
-
-            Spacer()
-
-            if viewModel.isCompareMode {
-                HStack(spacing: 8) {
-                    // Compare (x/2) capsule button with native purple liquid glass tint
-                    Button {
-                        if let (first, second) = viewModel.selectedPair {
-                            activePayload = ComparePayload(recordA: first, recordB: second)
-                        }
-                    } label: {
-                        Text("Compare (\(viewModel.selectedCount)/2)")
-                            .font(.body.weight(.medium))
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .contentShape(.capsule)
-                    }
-                    .buttonStyle(.plain)
-                    .disabled(!viewModel.canCompare)
-                    .tint(purpleAccent)
-                    .glassEffect(.regular.interactive(), in: .capsule)
-                    .opacity(viewModel.canCompare ? 1.0 : 0.5)
-
-                    // 44pt circular X close button
-                    Button {
-                        withAnimation(.snappy(duration: 0.35)) {
-                            viewModel.toggleCompareMode()
-                        }
-                    } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 15, weight: .bold))
-                            .frame(width: 44, height: 44)
-                            .contentShape(.circle)
-                    }
-                    .buttonStyle(.plain)
-                    .glassEffect(.regular.interactive(), in: .circle)
-                    .accessibilityLabel("Cancel compare")
-                }
-                .transition(.asymmetric(
-                    insertion: .scale(scale: 0.85, anchor: .trailing).combined(with: .opacity),
-                    removal: .scale(scale: 0.85, anchor: .trailing).combined(with: .opacity)
-                ))
-            } else {
-                // Standalone Compare capsule button with native purple liquid glass tint
-                Button {
-                    withAnimation(.snappy(duration: 0.35)) {
-                        viewModel.toggleCompareMode()
-                    }
-                } label: {
-                    Text("Compare")
-                        .font(.body.weight(.medium))
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 10)
-                        .contentShape(.capsule)
-                }
-                .buttonStyle(.plain)
-                .tint(purpleAccent)
-                .glassEffect(.regular.interactive(), in: .capsule)
-                .transition(.asymmetric(
-                    insertion: .scale(scale: 0.85, anchor: .trailing).combined(with: .opacity),
-                    removal: .scale(scale: 0.85, anchor: .trailing).combined(with: .opacity)
-                ))
-            }
-        }
-        .padding(.horizontal, 16)
-        .padding(.top, 8)
-        .padding(.bottom, 8)
-        .background(Color(.systemBackground), ignoresSafeAreaEdges: .top)
-        .animation(.snappy(duration: 0.35), value: viewModel.isCompareMode)
     }
 
     // MARK: - Scrollable Grid Content
@@ -182,7 +134,7 @@ struct HistoryView: View {
                 }
             }
             .padding(.horizontal, 16)
-            .padding(.top, 64) // Clear floating top header
+            .padding(.top, 8)
             .padding(.bottom, 90) // Clear floating tab bar space
         }
         .scrollEdgeEffectStyle(.soft, for: .top)

@@ -59,7 +59,7 @@ struct CompareView: View {
         }
     }
 
-    // MARK: - Area Filter Chips
+    // MARK: - Area Filter Chips (Text-only chips per design specification)
 
     private var areaFilterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -68,7 +68,6 @@ struct CompareView: View {
                 CompareAreaChip(
                     label: "All",
                     isSelected: viewModel.selectedArea == nil,
-                    imageData: nil,
                     activeColor: primaryPurple
                 ) {
                     withAnimation(.easeInOut(duration: 0.18)) {
@@ -80,7 +79,6 @@ struct CompareView: View {
                     CompareAreaChip(
                         label: area.rawValue,
                         isSelected: viewModel.selectedArea == area,
-                        imageData: viewModel.recordB.subZoneThumbnails?[area] ?? viewModel.recordA.subZoneThumbnails?[area] ?? CompareFaceImage.cropImageData(viewModel.recordB.frontImageData ?? viewModel.recordA.frontImageData ?? Data(), area: area),
                         activeColor: primaryPurple
                     ) {
                         withAnimation(.easeInOut(duration: 0.18)) {
@@ -93,7 +91,7 @@ struct CompareView: View {
         }
     }
 
-    // MARK: - Date Selectors (Rounded 8, 16pt margin to photos)
+    // MARK: - Date Selectors (Rounded 8, 16pt margin to photos, text-only without chevron)
 
     private var dateSelectors: some View {
         HStack(spacing: 8) {
@@ -316,53 +314,42 @@ struct CompareView: View {
     }
 }
 
-// MARK: - CompareAreaChip
+// MARK: - CompareAreaChip (Text-only pill chip)
 
 private struct CompareAreaChip: View {
     let label: String
     let isSelected: Bool
-    let imageData: Data?
     let activeColor: Color
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
-                if let data = imageData, let uiImage = UIImage(data: data) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 22, height: 22)
-                        .clipShape(Circle())
-                }
-                
-                Text(label)
-                    .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
-            }
-            .foregroundStyle(isSelected ? .white : .primary)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(
-                Capsule().fill(
-                    isSelected
-                        ? activeColor
-                        : Color(.systemBackground)
-                )
-            )
-            .overlay(
-                Capsule()
-                    .stroke(
-                        isSelected ? Color.clear : Color(.systemGray4),
-                        lineWidth: 1
+            Text(label)
+                .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule().fill(
+                        isSelected
+                            ? activeColor
+                            : Color(.systemBackground)
                     )
-            )
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(
+                            isSelected ? Color.clear : Color(.systemGray4),
+                            lineWidth: 1
+                        )
+                )
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isSelected ? "\(label), selected" : label)
     }
 }
 
-// MARK: - CompareDateChip
+// MARK: - CompareDateChip (Clean date chip without chevron icon)
 
 private struct CompareDateChip: View {
     let date: Date
@@ -371,15 +358,11 @@ private struct CompareDateChip: View {
 
     var body: some View {
         HStack {
+            Spacer()
             Text(formatter.string(from: date))
                 .font(.system(size: 14, weight: .regular))
                 .foregroundStyle(.primary)
-
             Spacer()
-
-            Image(systemName: "chevron.down")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(.primary)
         }
         .padding(.horizontal, 12)
         .padding(.vertical, 10)
