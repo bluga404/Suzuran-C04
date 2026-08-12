@@ -44,7 +44,9 @@ struct SkincareView: View {
                 MatchedIngredientListView(matched: viewModel.matchedIngredients)
             }
             .sheet(item: $selectedMatched) { matched in
-                IngredientDetailView(recommendation: matched.recommendation)
+                IngredientDetailView(
+                    recommendation: matched.recommendation
+                )
             }
             .alert(item: $viewModel.alert, content: makeAlert)
             .alert(
@@ -136,8 +138,7 @@ struct SkincareView: View {
         } else {
             MatchedIngredientSection(
                 matched: viewModel.matchedIngredients,
-                onSelect: { selectedMatched = $0 },
-                onShowAll: { isShowingMatchedList = true }
+                onSelect: { selectedMatched = $0 }
             )
         }
     }

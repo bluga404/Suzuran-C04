@@ -6,12 +6,6 @@ import SwiftUI
 struct MatchedIngredientSection: View {
     let matched: [MatchedIngredient]
     let onSelect: (MatchedIngredient) -> Void
-    var onShowAll: (() -> Void)? = nil
-    var previewLimit: Int = 2
-
-    private var previewItems: ArraySlice<MatchedIngredient> {
-        matched.prefix(previewLimit)
-    }
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
@@ -20,21 +14,10 @@ struct MatchedIngredientSection: View {
                     .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
                     .accessibilityAddTraits(.isHeader)
-
-                Spacer()
-
-                if let onShowAll {
-                    Button("Lihat Semua", action: onShowAll)
-                        .font(Font.metadata)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(AppColor.accentPrimary)
-                        .frame(minHeight: 44)
-                        .accessibilityHint("Buka semua ingredient yang cocok")
-                }
             }
 
             LazyVStack(spacing: AppSpacing.sm) {
-                ForEach(previewItems) { item in
+                ForEach(matched) { item in
                     Button { onSelect(item) } label: {
                         RecommendationCard(matched: item)
                     }

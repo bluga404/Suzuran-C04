@@ -60,14 +60,21 @@ struct RecommendationCard: View {
                     }
                 }
 
-                Divider()
-                    .background(AppColor.borderSubtle)
-
-                Text(matched.recommendation.description)
-                    .font(Font.metadata)
-                    .foregroundStyle(AppColor.textSecondary)
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
+                if !matched.foundInProducts.isEmpty {
+                    Divider()
+                        .background(AppColor.borderSubtle)
+                    
+                    HStack(alignment: .top, spacing: AppSpacing.xs) {
+                        Image(systemName: "shippingbox.fill")
+                            .font(.system(size: 12))
+                            .foregroundStyle(AppColor.accentPrimary)
+                        
+                        Text("Ditemukan di skincare: **\(matched.foundInProducts.joined(separator: ", "))**")
+                            .font(Font.metadata)
+                            .foregroundStyle(AppColor.textSecondary)
+                            .multilineTextAlignment(.leading)
+                    }
+                }
             }
         }
     }

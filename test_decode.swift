@@ -18,9 +18,7 @@ struct RisksAndSafety: Codable, Hashable {
     }
 }
 
-struct SkincareIngredientRecommendation: Identifiable, Codable, Hashable {
-    var id: String { ingredientName }
-
+struct SkincareIngredientRecommendation: Codable {
     let ingredientName: String
     let alternativesName: String?
     let acneTypes: String
@@ -42,4 +40,12 @@ struct SkincareIngredientRecommendation: Identifiable, Codable, Hashable {
         case risksAndSafety = "Risks & Safety"
         case researchPapers = "Research Papers"
     }
+}
+
+do {
+    let data = try Data(contentsOf: URL(fileURLWithPath: "Suzuran/Infrastructure/JSON/AcneIngredients.json"))
+    let recommendations = try JSONDecoder().decode([SkincareIngredientRecommendation].self, from: data)
+    print("Success! Count: \(recommendations.count)")
+} catch {
+    print("Error: \(error)")
 }

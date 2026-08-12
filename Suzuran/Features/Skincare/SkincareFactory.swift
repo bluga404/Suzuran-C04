@@ -68,6 +68,7 @@ enum SkincareFactory {
             ingredientRepo: CosingIngredientRepository(db: sharedDB),
             acneRepo: AcneIngredientRepository(db: sharedDB),
             productRepo: SkincareProductRepository(),
+            profile: AcneProfileProvider(latestRecordProvider: { scanHistoryStoreProvider?() }),
             logger: AppLogger()
         )
     }

@@ -8,10 +8,15 @@ struct IngredientChip: View {
 
     var body: some View {
         HStack(spacing: AppSpacing.xxs) {
+            if isMatched {
+                Image(systemName: "sparkles")
+                    .font(.system(size: 10))
+                    .foregroundStyle(AppColor.accentPrimary)
+            }
             Text(name)
                 .font(Font.metadata)
-                .fontWeight(.regular)
-                .foregroundStyle(AppColor.textPrimary)
+                .fontWeight(isMatched ? .semibold : .regular)
+                .foregroundStyle(isMatched ? AppColor.accentPrimary : AppColor.textPrimary)
                 .lineLimit(1)
 
             if let onDelete {

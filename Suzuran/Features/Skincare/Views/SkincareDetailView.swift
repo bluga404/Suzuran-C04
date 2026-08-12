@@ -46,7 +46,9 @@ struct SkincareDetailView: View {
             }
         }
         .sheet(item: $selectedRecommendation) { rec in
-            IngredientDetailView(recommendation: rec)
+            IngredientDetailView(
+                recommendation: rec
+            )
         }
         .alert(item: $skincareViewModel.alert, content: makeDeleteAlert)
         .onChange(of: skincareViewModel.products) { _, products in

@@ -62,39 +62,48 @@ struct IngredientMatchingService: IngredientMatchingServicing {
         // Empty profile → no active acne types → nothing can match (Req 8.2 propagation).
         guard !profile.isEmpty else { return [] }
 
-        // Track already-emitted Canonical_IDs so a repeated ingredient across
-        // multiple products contributes exactly one MatchedIngredient (Req 7.2, 13.2).
-        var seen: Set<String> = []
-        var results: [MatchedIngredient] = []
+        // Track products containing each canonical ID (Req 7.2, 13.2).
+        var productNamesForID: [String: Set<String>] = [:]
+        var referenceForID: [String: IngredientReference] = [:]
 
         for product in products {
             for ingredient in product.ingredients {
-                // 1. Dedupe by Canonical_ID.
-                guard !seen.contains(ingredient.id) else { continue }
-
-                // 2. Must have a reference recommendation in AcneIngredients.json.
-                guard let recommendation = acneRepo.recommendation(byCanonicalID: ingredient.id) else {
-                    continue
+                referenceForID[ingredient.id] = ingredient
+                if productNamesForID[ingredient.id] == nil {
+                    productNamesForID[ingredient.id] = [product.name]
+                } else {
+                    productNamesForID[ingredient.id]?.insert(product.name)
                 }
-
-                // 3. Must target at least one of the user's active acne types.
-                let matchedTypes = acneRepo.matchedAcneTypes(
-                    for: ingredient.id,
-                    activeTypes: profile
-                )
-                guard !matchedTypes.isEmpty else { continue }
-
-                // 4. Emit — sort matched acne types by rawValue for deterministic
-                //    per-ingredient ordering (Req 7.4, 7.5).
-                seen.insert(ingredient.id)
-                results.append(
-                    MatchedIngredient(
-                        reference: ingredient,
-                        recommendation: recommendation,
-                        matchedAcneTypes: matchedTypes.sorted { $0.rawValue < $1.rawValue }
-                    )
-                )
             }
+        }
+
+        var results: [MatchedIngredient] = []
+
+        for (id, reference) in referenceForID {
+            // 2. Must have a reference recommendation in AcneIngredients.json.
+            guard let recommendation = acneRepo.recommendation(byCanonicalID: id) else {
+                continue
+            }
+
+            // 3. Must target at least one of the user's active acne types.
+            let matchedTypes = acneRepo.matchedAcneTypes(
+                for: id,
+                activeTypes: profile
+            )
+            guard !matchedTypes.isEmpty else { continue }
+
+            // 4. Emit — sort matched acne types by rawValue for deterministic
+            //    per-ingredient ordering (Req 7.4, 7.5).
+            let productNames = Array(productNamesForID[id] ?? []).sorted()
+            
+            results.append(
+                MatchedIngredient(
+                    reference: reference,
+                    recommendation: recommendation,
+                    matchedAcneTypes: matchedTypes.sorted { $0.rawValue < $1.rawValue },
+                    foundInProducts: productNames
+                )
+            )
         }
 
         // 5. Stable, deterministic output ordering by Canonical_ID ascending (Req 7.5).

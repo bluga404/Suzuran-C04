@@ -3,7 +3,7 @@ import Testing
 @testable import Suzuran
 
 @Suite("LocalSummaryService")
-struct LocalSummaryServiceTests {
+struct GeminiSummaryServiceTests {
     @Test("builds a summary for a single scan record")
     func singleRecordSummary() async throws {
         let service = LocalSummaryService()

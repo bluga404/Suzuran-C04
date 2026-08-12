@@ -24,6 +24,9 @@ struct MatchedIngredient: Identifiable, Equatable {
     /// The subset of the user's active acne types that this ingredient targets.
     let matchedAcneTypes: [AcneType]
 
+    /// The names of the user's products that contain this ingredient.
+    let foundInProducts: [String]
+
     /// Identity is derived from the Canonical_ID so deduplication across products is
     /// deterministic and matches the semantics used by ``IngredientMatchingServicing`` (Req 13.2).
     var id: String { reference.id }
