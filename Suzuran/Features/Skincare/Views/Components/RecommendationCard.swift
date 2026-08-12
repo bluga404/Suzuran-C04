@@ -17,12 +17,12 @@ struct RecommendationCard: View {
                 HStack(alignment: .top) {
                     VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                         Text(matched.recommendation.ingredientName)
-                            .font(AppTypography.bodyBold)
+                            .font(Font.description)
                             .foregroundStyle(AppColor.accentPrimary)
 
                         if let alternative = matched.recommendation.alternativesName {
                             Text("Alias: \(alternative)")
-                                .font(AppTypography.caption)
+                                .font(Font.metadata)
                                 .foregroundStyle(AppColor.textSecondary)
                         }
                     }
@@ -31,7 +31,7 @@ struct RecommendationCard: View {
 
                     HStack(spacing: 2) {
                         Text("Detail")
-                            .font(AppTypography.caption)
+                            .font(Font.metadata)
                             .fontWeight(.semibold)
                         Image(systemName: "chevron.right")
                             .font(.system(size: 10, weight: .bold))
@@ -42,7 +42,7 @@ struct RecommendationCard: View {
                 // Matched Acne Types Badges
                 HStack(spacing: AppSpacing.xs) {
                     Text("Cocok untuk:")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
 
                     ScrollView(.horizontal, showsIndicators: false) {
@@ -64,7 +64,7 @@ struct RecommendationCard: View {
                     .background(AppColor.borderSubtle)
 
                 Text(matched.recommendation.description)
-                    .font(AppTypography.caption)
+                    .font(Font.metadata)
                     .foregroundStyle(AppColor.textSecondary)
                     .lineLimit(3)
                     .multilineTextAlignment(.leading)

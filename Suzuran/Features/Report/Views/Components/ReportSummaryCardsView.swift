@@ -32,13 +32,13 @@ struct ReportSummaryCardsView: View {
                             .foregroundStyle(iconColor)
 
                         Text(insight.title)
-                            .font(AppTypography.subtitle)
+                            .font(Font.bodyParagraph)
                             .foregroundStyle(AppColor.textPrimary)
                     }
 
                     Text(insight.body)
-                        .font(AppTypography.body)
-                        .foregroundStyle(insight.source == .error ? Color.red : AppColor.textSecondary)
+                        .font(Font.bodyParagraph)
+                        .foregroundStyle(AppColor.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
 
                     if let ts = insight.timestamp, insight.source == .cached {
@@ -71,11 +71,11 @@ struct ReportSummaryCardsView: View {
             HStack(alignment: .top, spacing: AppSpacing.lg) {
                 VStack(alignment: .leading, spacing: AppSpacing.xs) {
                     Text(summary.baselineLabel)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
 
                     Text(summary.headline)
-                        .font(AppTypography.title)
+                        .font(Font.screenTitle)
                         .foregroundStyle(AppColor.textPrimary)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
@@ -85,7 +85,7 @@ struct ReportSummaryCardsView: View {
 
                 VStack(alignment: .center, spacing: AppSpacing.xs) {
                     Text(summary.scoreLabel)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                         .multilineTextAlignment(.center)
 
@@ -111,7 +111,7 @@ struct ReportSummaryCardsView: View {
                 )
 
             Text(verbatim: value)
-                .font(AppTypography.title)
+                .font(Font.screenTitle)
                 .foregroundStyle(AppColor.textPrimary)
         }
         .frame(width: badgeSize, height: badgeSize)

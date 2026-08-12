@@ -7,11 +7,11 @@ struct TopLightingIndicatorView: View {
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.xxs) {
             Text(condition.title)
-                .font(.custom("AvenirNext-Bold", size: 11, relativeTo: .caption2))
+                .font(Font.helperText)
                 .foregroundStyle(.primary)
             
             Text(condition.subtitle)
-                .font(.custom("AvenirNext-Regular", size: 10, relativeTo: .caption2))
+                .font(Font.system(size: 10, weight: .regular))
                 .foregroundStyle(.secondary)
         }
         .padding(.horizontal, AppSpacing.md)

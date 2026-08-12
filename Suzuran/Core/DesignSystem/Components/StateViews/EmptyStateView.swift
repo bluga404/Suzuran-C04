@@ -13,11 +13,11 @@ struct EmptyStateView: View {
                 .foregroundStyle(AppColor.textSecondary)
 
             Text(title)
-                .font(AppTypography.subtitle)
+                .font(Font.bodyParagraph)
                 .foregroundStyle(AppColor.textPrimary)
 
             Text(message)
-                .font(AppTypography.body)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textSecondary)
                 .multilineTextAlignment(.center)
 

@@ -14,7 +14,7 @@ struct AcneTypeSelector: View {
                         selected = type
                     } label: {
                         Text(type.displayName)
-                            .font(AppTypography.caption)
+                            .font(Font.metadata)
                             .foregroundStyle(selected == type ? AppColor.surfacePrimary : AppColor.textPrimary)
                             .padding(.horizontal, AppSpacing.sm)
                             .padding(.vertical, AppSpacing.xs)

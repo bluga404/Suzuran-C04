@@ -9,7 +9,7 @@ struct IngredientChip: View {
     var body: some View {
         HStack(spacing: AppSpacing.xxs) {
             Text(name)
-                .font(AppTypography.caption)
+                .font(Font.metadata)
                 .fontWeight(isMatched ? .semibold : .regular)
                 .foregroundStyle(isMatched ? AppColor.accentPrimary : AppColor.textPrimary)
                 .lineLimit(1)
@@ -17,7 +17,7 @@ struct IngredientChip: View {
             if let onDelete {
                 Button(action: onDelete) {
                     Image(systemName: "xmark")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(isMatched ? AppColor.accentPrimary : AppColor.textSecondary)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())

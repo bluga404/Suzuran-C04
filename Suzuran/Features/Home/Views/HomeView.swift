@@ -46,7 +46,7 @@ struct HomeView: View {
                     loadedContent(summary: summary)
                 }
             }
-            .navigationTitle("Summary")
+            .navigationTitle(ScreenTitle.summary.title)
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -80,7 +80,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: AppSpacing.lg) {
                 // Native title replaces HomeHeader's title, we just show date here
                 Text(formattedDate(for: summary.date))
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.top, AppSpacing.xs)

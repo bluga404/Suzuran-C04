@@ -16,43 +16,41 @@ struct IngredientSection: View {
             AppCard(padding: AppSpacing.lg, backgroundColor: AppColor.surfacePurple, borderColor: .clear) {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     Text("Ingredients")
-                        .font(AppTypography.bodyBold)
-                        .foregroundStyle(AppColor.textPrimary)
-                    
-                    Text("Scan your skincare products to get ingredients recommendations")
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColor.textPrimary)
-                    
-                    Button(action: onTrackTap) {
-                        HStack(spacing: AppSpacing.xs) {
-                            Image(systemName: "plus")
-                            Text("Track your Skincare")
-                                .font(AppTypography.bodyBold)
-                        }
-                        .foregroundStyle(Color.white)
-                        .frame(maxWidth: .infinity, minHeight: 44)
-                        .background(AppColor.buttonPrimaryPurple)
-                        .clipShape(Capsule())
-                    }
-                    .padding(.top, AppSpacing.xs)
+                        .font(Font.metadata)
+                        .tracking(1.2)
+                        .foregroundStyle(.secondary)
+                    Spacer()
                 }
-            }
-            .padding(.horizontal, AppSpacing.md)
-        } else if !visibleRecommendations.isEmpty {
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                Text("Recommended Ingredients")
-                    .font(AppTypography.bodyBold)
-                    .foregroundStyle(AppColor.textPrimary)
-                    .padding(.horizontal, AppSpacing.md)
-                
-                VStack(spacing: 12) {
+
+                if visibleRecommendations.isEmpty && showEmptyState {
+                    Text("Scan your skincare products to see which ones may suit your skin condition.")
+                        .font(Font.description)
+                        .foregroundStyle(.secondary)
+                } else {
                     ForEach(Array(visibleRecommendations.enumerated()), id: \.element.id) { index, recommendation in
                         IngredientRecommendationCard(recommendation: recommendation)
+                        if index < visibleRecommendations.count - 1 {
+                            Divider()
+                        }
                     }
                 }
-                .padding(.horizontal, AppSpacing.md)
+                
+                Button(action: onTrackTap) {
+                    HStack(spacing: AppSpacing.xs) {
+                        Image(systemName: "plus.circle.fill")
+                        Text("Track Your Skincare")
+                            .font(Font.description)
+                    }
+                    .foregroundStyle(Color(uiColor: .systemBackground))
+                    .frame(maxWidth: .infinity, minHeight: 44)
+                    .background(Color.primary)
+                    .clipShape(Capsule())
+                }
+                .padding(.top, AppSpacing.xs)
+                .accessibilityLabel("Track skincare products")
             }
         }
+        .padding(.horizontal, AppSpacing.md)
     }
 }
 

@@ -26,12 +26,12 @@ struct SkincareCard: View {
                 // Middle Texts
                 VStack(alignment: .leading, spacing: AppSpacing.xxs) {
                     Text(product.category.displayName)
-                        .font(AppTypography.bodyBold)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.textPrimary)
                         .lineLimit(1)
                     
                     Text(product.name)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                         .lineLimit(1)
                 }
@@ -41,14 +41,14 @@ struct SkincareCard: View {
                 if let onEdit = onEdit {
                     Button(action: onEdit) {
                         Image(systemName: "pencil")
-                            .font(AppTypography.body)
+                            .font(Font.description)
                             .foregroundStyle(AppColor.textSecondary)
                             .padding(AppSpacing.xs)
                     }
                     .buttonStyle(.borderless)
                 } else if recommendationsCount > 0 {
                     Label("\(recommendationsCount) Cocok", systemImage: "sparkles")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .fontWeight(.semibold)
                         .foregroundStyle(AppColor.accentPrimary)
                         .padding(.horizontal, AppSpacing.sm)

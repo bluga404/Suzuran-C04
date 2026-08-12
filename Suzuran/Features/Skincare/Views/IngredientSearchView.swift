@@ -17,7 +17,7 @@ struct IngredientSearchView: View {
                         .foregroundStyle(AppColor.textSecondary)
                     
                     TextField("Cari kandungan (contoh: Niacinamide)", text: $query)
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .textFieldStyle(.plain)
                         .onChange(of: query) { _, newQuery in
                             performSearch(query: newQuery)
@@ -51,7 +51,7 @@ struct IngredientSearchView: View {
                                     Image(systemName: "plus.circle.fill")
                                         .foregroundStyle(AppColor.accentPrimary)
                                     Text("Tambah \"\(query)\"")
-                                        .font(AppTypography.bodyBold)
+                                        .font(Font.description)
                                         .foregroundStyle(AppColor.accentPrimary)
                                 }
                             }
@@ -62,11 +62,11 @@ struct IngredientSearchView: View {
                         if results.isEmpty {
                             if query.isEmpty {
                                 Text("Ketik untuk mencari kandungan skincare...")
-                                    .font(AppTypography.caption)
+                                    .font(Font.metadata)
                                     .foregroundStyle(AppColor.textSecondary)
                             } else {
                                 Text("Tidak ada hasil ditemukan")
-                                    .font(AppTypography.caption)
+                                    .font(Font.metadata)
                                     .foregroundStyle(AppColor.textSecondary)
                             }
                         } else {
@@ -77,7 +77,7 @@ struct IngredientSearchView: View {
                                 }) {
                                     HStack {
                                         Text(ingredient)
-                                            .font(AppTypography.body)
+                                            .font(Font.description)
                                             .foregroundStyle(AppColor.textPrimary)
                                         Spacer()
                                         Image(systemName: "plus")
@@ -99,7 +99,7 @@ struct IngredientSearchView: View {
                     Button("Batal") {
                         dismiss()
                     }
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.accentPrimary)
                 }
             }

@@ -15,18 +15,18 @@ struct DetailIngredientCard: View {
             } label: {
                 HStack {
                     Text(recommendation.ingredient.displayName)
-                        .font(AppTypography.bodyBold)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.textPrimary)
                     Spacer()
                     Image(systemName: isExpanded ? "chevron.up" : "chevron.down")
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
                 }
             }
 
             if isExpanded {
                 Text(recommendation.explanation)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textSecondary)
             }
         }

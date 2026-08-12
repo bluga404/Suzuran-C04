@@ -21,7 +21,7 @@ struct ReportFilterHeaderView: View {
 
             HStack {
                 Text(selectedMetric.rawValue)
-                    .font(AppTypography.subtitle)
+                    .font(Font.bodyParagraph)
                     .foregroundStyle(AppColor.textPrimary)
 
                 Spacer()

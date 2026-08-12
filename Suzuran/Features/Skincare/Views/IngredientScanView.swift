@@ -31,11 +31,11 @@ struct IngredientScanView: View {
                     }
 
                     Text("Pindai Label Komposisi")
-                        .font(AppTypography.title)
+                        .font(Font.screenTitle)
                         .foregroundStyle(AppColor.textPrimary)
 
                     Text("Posisikan kamera tepat pada tulisan 'Ingredients' atau 'Komposisi' di botol/kemasan skincare Anda.")
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, AppSpacing.lg)
@@ -48,7 +48,7 @@ struct IngredientScanView: View {
                         HStack {
                             Image(systemName: "camera.fill")
                             Text("Ambil Foto Label")
-                                .font(AppTypography.bodyBold)
+                                .font(Font.description)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, AppSpacing.md)
@@ -61,7 +61,7 @@ struct IngredientScanView: View {
                         HStack {
                             Image(systemName: "photo.on.rectangle.angled")
                             Text("Pilih dari Galeri")
-                                .font(AppTypography.bodyBold)
+                                .font(Font.description)
                         }
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, AppSpacing.md)
@@ -83,7 +83,7 @@ struct IngredientScanView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
                     Button("Batal") { dismiss() }
-                        .font(AppTypography.body)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.accentPrimary)
                 }
 
@@ -124,7 +124,7 @@ struct IngredientScanView: View {
                             ProgressView()
                                 .tint(AppColor.accentPrimary)
                             Text("Membaca teks komposisi...")
-                                .font(AppTypography.bodyBold)
+                                .font(Font.description)
                                 .foregroundStyle(AppColor.textPrimary)
                         }
                         .padding(AppSpacing.lg)

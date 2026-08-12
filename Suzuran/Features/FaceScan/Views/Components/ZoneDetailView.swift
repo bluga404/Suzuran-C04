@@ -17,38 +17,24 @@ struct ZoneDetailView: View {
             ZStack {
                 Color(.systemBackground).ignoresSafeArea()
 
-                if let imageData = subZone.imageData,
-                   let uiImage = UIImage(data: imageData) {
-                    imageContentView(uiImage)
-                } else {
-                    VStack(spacing: AppSpacing.sm) {
-                        Image(systemName: "photo")
-                            .font(.custom("AvenirNext-Regular", size: 56, relativeTo: .largeTitle))
-                            .foregroundStyle(.secondary)
-                        Text("Foto belum tersedia")
-                            .font(AppTypography.body)
-                            .foregroundStyle(.secondary)
-                    }
+            if let imageData = subZone.imageData,
+               let uiImage = UIImage(data: imageData) {
+                imageContentView(uiImage)
+            } else {
+                VStack(spacing: AppSpacing.sm) {
+                    Image(systemName: "photo")
+                        .font(Font.system(size: 56, weight: .regular))
+                        .foregroundStyle(.secondary)
+                    Text("Foto belum tersedia")
+                        .font(Font.description)
+                        .foregroundStyle(.secondary)
                 }
             }
-            .navigationTitle(subZone.label)
-            .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: onDismiss) {
-                        Image(systemName: "xmark")
-                            .font(.body.weight(.semibold))
-                            .foregroundStyle(.primary)
-                    }
-                }
-                
-                // Native iOS 26 Toolbar Spacer
-                if #available(iOS 26, *) {
-                    ToolbarSpacer(.fixed)
-                }
-            }
-            .toolbarBackground(.visible, for: .navigationBar)
+
+            // Header overlay: back button + label + count badge
+            headerOverlay
         }
+        .preferredColorScheme(.dark)
     }
 
     // MARK: - Image Content View
@@ -127,5 +113,47 @@ struct ZoneDetailView: View {
             y: (containerSize.height - renderedSize.height) / 2
         )
         return CGRect(origin: origin, size: renderedSize)
+    }
+
+    // MARK: - Header Overlay
+
+    private var headerOverlay: some View {
+        VStack {
+            HStack(alignment: .center, spacing: AppSpacing.sm) {
+                Button(action: onDismiss) {
+                    Image(systemName: "chevron.left")
+                        .font(Font.bodyLarge)
+                        .foregroundStyle(.white)
+                        .padding(AppSpacing.sm)
+                        .background(Circle().fill(.black.opacity(0.55)))
+                }
+
+                Text(subZone.label)
+                    .font(Font.bodyLarge)
+                    .foregroundStyle(.white)
+                    .shadow(color: .black.opacity(0.6), radius: 4, x: 0, y: 1)
+
+                Spacer()
+
+                Text("\(subZone.acneCount) Jerawat")
+                    .font(Font.metadata)
+                    .foregroundStyle(.white)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .padding(.vertical, AppSpacing.xxs)
+                    .background(Capsule().fill(.black.opacity(0.50)))
+            }
+            .padding(.horizontal, AppSpacing.md)
+            .padding(.top, 56)
+            .padding(.bottom, AppSpacing.sm)
+            .background(
+                LinearGradient(
+                    colors: [.black.opacity(0.55), .clear],
+                    startPoint: .top,
+                    endPoint: .bottom
+                )
+            )
+
+            Spacer()
+        }
     }
 }

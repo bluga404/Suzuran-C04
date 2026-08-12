@@ -20,19 +20,18 @@ struct SkincareView: View {
                     productContent
                 }
             }
-            .background(AppColor.backgroundPrimary)
-            .navigationTitle("Skincare")
-            .navigationBarTitleDisplayMode(.large)
+            .navigationTitle(ScreenTitle.skincare.title)
+            .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 if !viewModel.products.isEmpty {
                     ToolbarItem(placement: .topBarTrailing) {
                         Button(action: { isShowingAdd = true }) {
                             Image(systemName: "plus")
-                                .font(AppTypography.bodyBold)
+                                .font(Font.description)
                                 .foregroundStyle(AppColor.accentPrimary)
                                 .frame(minWidth: 44, minHeight: 44)
                         }
-                        .accessibilityLabel(Text("Tambah Skincare"))
+                        .accessibilityLabel(Text(SkincareStrings.addSkincare))
                     }
                 }
             }
@@ -79,8 +78,8 @@ struct SkincareView: View {
             VStack(alignment: .leading, spacing: AppSpacing.lg) {
                 matchPreview
                 
-                Text("Skincare Saat Ini")
-                    .font(AppTypography.bodyBold)
+                Text(SkincareStrings.currentSkincare)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
                     .accessibilityAddTraits(.isHeader)
             }
@@ -95,8 +94,8 @@ struct SkincareView: View {
 
             let inactiveProducts = viewModel.products.filter { !$0.isUsedCurrently }
             if !inactiveProducts.isEmpty {
-                Text("Produk Tersimpan")
-                    .font(AppTypography.caption)
+                Text(SkincareStrings.savedProducts)
+                    .font(Font.metadata)
                     .foregroundStyle(AppColor.textSecondary)
                     .padding(.top, AppSpacing.xs)
                     .listRowInsets(EdgeInsets(top: AppSpacing.md, leading: AppSpacing.md, bottom: AppSpacing.xs, trailing: AppSpacing.md))
@@ -111,8 +110,8 @@ struct SkincareView: View {
             Button {
                 isShowingAdd = true
             } label: {
-                Label("Tambah Skincare Baru", systemImage: "plus")
-                    .font(AppTypography.bodyBold)
+                Label(SkincareStrings.addNewSkincare, systemImage: "plus")
+                    .font(Font.description)
                     .frame(maxWidth: .infinity, minHeight: 44)
             }
             .buttonStyle(.bordered)
@@ -131,7 +130,7 @@ struct SkincareView: View {
             if viewModel.matchedIngredients.isEmpty {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     Text("Ingredient yang Cocok")
-                        .font(AppTypography.bodyBold)
+                        .font(Font.description)
                         .foregroundStyle(AppColor.textPrimary)
                     MatchedIngredientEmptyState()
                 }

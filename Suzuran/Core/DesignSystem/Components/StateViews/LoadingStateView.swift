@@ -10,11 +10,11 @@ struct LoadingStateView: View {
                 .tint(AppColor.accentPrimary)
 
             Text(title)
-                .font(AppTypography.subtitle)
+                .font(Font.bodyParagraph)
                 .foregroundStyle(AppColor.textPrimary)
 
             Text(subtitle)
-                .font(AppTypography.body)
+                .font(Font.description)
                 .foregroundStyle(AppColor.textSecondary)
                 .multilineTextAlignment(.center)
         }

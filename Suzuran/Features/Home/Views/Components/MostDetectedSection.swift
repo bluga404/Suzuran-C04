@@ -13,24 +13,24 @@ struct MostDetectedSection: View {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     HStack {
                         Text("Most Detected")
-                            .font(AppTypography.caption)
+                            .font(Font.metadata)
                             .tracking(1.2)
                             .foregroundStyle(.secondary)
                         Spacer()
                         Button(action: onInfoTap) {
                             Image(systemName: "info.circle")
-                                .font(AppTypography.caption)
+                                .font(Font.metadata)
                                 .foregroundStyle(.secondary)
                         }
                         .accessibilityLabel("Most detected information")
                     }
 
                     Text(type.displayName)
-                        .font(.custom("AvenirNext-Bold", size: 34, relativeTo: .largeTitle))
+                        .font(Font.pageTitle)
                         .foregroundStyle(.primary)
 
                     Text(countText)
-                        .font(AppTypography.caption)
+                        .font(Font.metadata)
                         .foregroundStyle(.secondary)
                 }
             }

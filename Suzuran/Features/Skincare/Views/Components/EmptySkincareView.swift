@@ -27,20 +27,20 @@ struct EmptySkincareView: View {
                     .foregroundStyle(AppColor.accentPrimary)
             }
 
-            Text("Belum Ada Catatan Skincare")
-                .font(AppTypography.subtitle)
+            Text(SkincareStrings.emptyTitle)
+                .font(Font.bodyParagraph)
                 .foregroundStyle(AppColor.textPrimary)
                 .multilineTextAlignment(.center)
 
-            Text("Catat produk skincare yang Anda gunakan saat ini untuk menganalisis kesesuaian bahan aktifnya dengan kondisi jerawat Anda.")
-                .font(AppTypography.caption)
+            Text(SkincareStrings.emptyMessage)
+                .font(Font.metadata)
                 .foregroundStyle(AppColor.textSecondary)
                 .multilineTextAlignment(.center)
                 .padding(.horizontal, AppSpacing.lg)
 
             Button(action: onAdd) {
-                Text("Catat Skincare Pertama")
-                    .font(AppTypography.bodyBold)
+                Text(SkincareStrings.addFirstProduct)
+                    .font(Font.description)
                     .padding(.horizontal, AppSpacing.lg)
                     .padding(.vertical, AppSpacing.sm)
                     .background(AppColor.accentPrimary)
@@ -48,7 +48,7 @@ struct EmptySkincareView: View {
                     .cornerRadius(AppCornerRadius.md)
             }
             .padding(.top, AppSpacing.sm)
-            .accessibilityLabel(Text("Tambah Skincare"))
+            .accessibilityLabel(Text(SkincareStrings.addSkincare))
 
             Spacer(minLength: AppSpacing.xl)
         }

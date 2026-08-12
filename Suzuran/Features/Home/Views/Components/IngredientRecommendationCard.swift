@@ -7,11 +7,11 @@ struct IngredientRecommendationCard: View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text(recommendation.ingredient.displayName)
-                    .font(AppTypography.h3)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
 
                 Text(recommendation.explanation)
-                    .font(AppTypography.body)
+                    .font(Font.description)
                     .foregroundStyle(AppColor.textPrimary)
                     .lineSpacing(2)
             }
@@ -40,11 +40,11 @@ struct IngredientRecommendationCard: View {
         }()
 
         Text(text)
-            .font(.custom("AvenirNext-DemiBold", size: 13, relativeTo: .caption))
-            .foregroundStyle(AppColor.accentPurple)
-            .padding(.horizontal, AppSpacing.sm)
-            .padding(.vertical, AppSpacing.xs)
-            .background(AppColor.accentPurpleBackground)
+            .font(Font.metadata)
+            .foregroundStyle(AppColor.textPrimary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .background(AppColor.borderSubtle.opacity(0.5))
             .clipShape(Capsule())
     }
 }

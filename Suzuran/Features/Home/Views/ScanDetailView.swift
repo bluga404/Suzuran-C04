@@ -61,7 +61,7 @@ struct ScanDetailView: View {
                 if !data.recommendations.isEmpty {
                     VStack(alignment: .leading, spacing: AppSpacing.sm) {
                         Text("Rekomendasi Bahan")
-                            .font(AppTypography.bodyBold)
+                            .font(Font.description)
                             .foregroundStyle(.primary)
                             .padding(.horizontal, AppSpacing.md)
 
@@ -99,7 +99,7 @@ struct ScanDetailView: View {
     private func filterPill(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
             Text(title)
-                .font(.custom("AvenirNext-DemiBold", size: 14))
+                .font(Font.label)
                 .padding(.horizontal, AppSpacing.md)
                 .padding(.vertical, 8)
                 .foregroundStyle(isSelected ? AppColor.textOnAccent : .primary)
@@ -122,18 +122,17 @@ struct ScanDetailView: View {
                 if viewModel.selectedRegion == nil {
                     VStack(alignment: .leading, spacing: 2) {
                         Text("Skin Score")
-                            .font(.custom("AvenirNext-Medium", size: 12))
-                            .foregroundStyle(.primary)
+                            .font(Font.graphLabel)
                         VStack(alignment: .leading, spacing: -2) {
                             Text(HomeScoreCalculator().scoreLabel(for: data.scan.overallScore))
-                                .font(.custom("AvenirNext-Bold", size: 38))
+                                .font(Font.system(size: 38, weight: .bold))
                                 .foregroundStyle(.primary)
                             HStack(alignment: .lastTextBaseline, spacing: 2) {
                                 Text("\(data.scan.overallScore)")
-                                    .font(.custom("AvenirNext-Bold", size: 18))
+                                    .font(Font.bodyLarge)
                                     .foregroundStyle(.primary)
                                 Text("/100")
-                                    .font(.custom("AvenirNext-Medium", size: 12))
+                                    .font(Font.graphLabel)
                                     .foregroundStyle(.primary)
                             }
                         }
@@ -142,10 +141,10 @@ struct ScanDetailView: View {
                 
                 VStack(alignment: .leading, spacing: viewModel.selectedRegion == nil ? 2 : 4) {
                     Text("Most Detected Acne Type")
-                        .font(.custom("AvenirNext-Medium", size: viewModel.selectedRegion == nil ? 12 : 14))
+                        .font(Font.system(size: viewModel.selectedRegion == nil ? 12 : 14, weight: .medium))
                         .foregroundStyle(.primary)
                     Text(viewModel.mostDetectedAcneType?.rawValue ?? "-")
-                        .font(.custom("AvenirNext-Bold", size: viewModel.selectedRegion == nil ? 16 : 32))
+                        .font(Font.system(size: viewModel.selectedRegion == nil ? 16 : 32, weight: .bold))
                         .foregroundStyle(.primary)
                 }
             }
@@ -189,17 +188,17 @@ struct ScanDetailView: View {
                 // Header
                 HStack {
                     Text("Total Acne")
-                        .font(.custom("AvenirNext-DemiBold", size: 18))
+                        .font(Font.bodyLarge)
                         .foregroundStyle(.primary)
                     
                     Spacer()
                     
                     VStack(spacing: 0) {
                         Text("\(viewModel.totalCountForSelected)")
-                            .font(.custom("AvenirNext-DemiBold", size: 16))
+                            .font(Font.description)
                             .foregroundStyle(AppColor.accentPrimary)
                         Text("Acne spots")
-                            .font(.custom("AvenirNext-Medium", size: 10))
+                            .font(Font.system(size: 10, weight: .medium))
                             .foregroundStyle(AppColor.accentPrimary.opacity(0.8))
                     }
                     .padding(.horizontal, 12)
@@ -215,7 +214,7 @@ struct ScanDetailView: View {
                 // List of Acne Types
                 HStack {
                     Text("Acne Type")
-                        .font(.custom("AvenirNext-DemiBold", size: 12))
+                        .font(Font.graphLabel)
                         .foregroundStyle(.secondary)
                     Button {
                         isShowingAboutAcne = true
@@ -232,11 +231,11 @@ struct ScanDetailView: View {
                     ForEach(viewModel.acneCountsForSelected, id: \.type) { item in
                         HStack {
                             Text(item.type.rawValue)
-                                .font(.custom("AvenirNext-Regular", size: 15))
+                                .font(Font.label)
                                 .foregroundStyle(.primary)
                             Spacer()
                             Text("\(item.count)")
-                                .font(.custom("AvenirNext-DemiBold", size: 15))
+                                .font(Font.label)
                                 .foregroundStyle(.primary)
                         }
                     }
