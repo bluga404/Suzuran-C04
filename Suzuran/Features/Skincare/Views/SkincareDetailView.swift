@@ -140,7 +140,11 @@ struct SkincareDetailView: View {
                         Button(action: {
                             if let matched { selectedRecommendation = matched.recommendation }
                         }) {
-                            IngredientChip(name: ingredient.name, isMatched: matched != nil)
+                            AppChip(isActive: matched != nil, activeColor: AppColor.accentPrimary) {
+                                Text(ingredient.name)
+                                    .font(Font.metadata)
+                                    .lineLimit(1)
+                            }
                         }
                         .disabled(matched == nil)
                     }

@@ -33,7 +33,7 @@ struct ReportAcneTypeChartView: View {
                                     y: .value("Score", point.score),
                                     series: .value("Acne Type", point.acneType.displayName)
                                 )
-                                .interpolationMethod(.catmullRom)
+                                .interpolationMethod(.linear)
                                 .foregroundStyle(by: .value("Acne Type", point.acneType.displayName))
 
                                 PointMark(

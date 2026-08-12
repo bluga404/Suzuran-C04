@@ -33,7 +33,7 @@ struct ReportSummaryCardsView: View {
 
                         Text(insight.title)
                             .font(Font.bodyParagraph)
-                            .foregroundStyle(AppColor.textPrimary)
+                            .foregroundStyle(AppColor.accentPrimary)
                     }
 
                     Text(insight.body)
@@ -67,16 +67,16 @@ struct ReportSummaryCardsView: View {
     }
 
     private func summaryCard(summary: ReportComparisonSummary) -> some View {
-        AppCard {
-            HStack(alignment: .top, spacing: AppSpacing.lg) {
+        AppCard(backgroundColor: AppColor.surfacePurple, borderColor: .clear, borderWidth: 0) {
+            HStack(alignment: .center, spacing: AppSpacing.lg) {
                 VStack(alignment: .leading, spacing: AppSpacing.xs) {
                     Text(summary.baselineLabel)
                         .font(Font.metadata)
                         .foregroundStyle(AppColor.textSecondary)
 
                     Text(summary.headline)
-                        .font(Font.screenTitle)
-                        .foregroundStyle(AppColor.textPrimary)
+                        .font(Font.sectionTitle)
+                        .foregroundStyle(AppColor.accentPrimary)
                         .lineLimit(2)
                         .fixedSize(horizontal: false, vertical: true)
                 }
@@ -84,12 +84,8 @@ struct ReportSummaryCardsView: View {
                 Spacer()
 
                 VStack(alignment: .center, spacing: AppSpacing.xs) {
-                    Text(summary.scoreLabel)
-                        .font(Font.metadata)
-                        .foregroundStyle(AppColor.textSecondary)
-                        .multilineTextAlignment(.center)
 
-                    numberedBadge(summary.deltaText)
+                    numberedBadge(label: "Total", value: summary.deltaText)
                 }
                 .frame(minWidth: badgeSize, alignment: .center)
             }
@@ -100,7 +96,7 @@ struct ReportSummaryCardsView: View {
         AppSpacing.lg * 2 + AppSpacing.sm
     }
 
-    private func numberedBadge(_ value: String) -> some View {
+    private func numberedBadge(label: String, value: String) -> some View {
         ZStack {
             Circle()
                 .fill(AppColor.surfacePrimary)
@@ -110,9 +106,14 @@ struct ReportSummaryCardsView: View {
                         .stroke(AppColor.borderSubtle, lineWidth: 1)
                 )
 
-            Text(verbatim: value)
-                .font(Font.screenTitle)
-                .foregroundStyle(AppColor.textPrimary)
+            VStack(spacing: 0) {
+                Text(label)
+                    .font(Font.metadata)
+                        .foregroundStyle(AppColor.accentPrimary)
+                Text(verbatim: value)
+                    .font(Font.bodyLarge)
+                        .foregroundStyle(AppColor.accentPrimary)
+            }
         }
         .frame(width: badgeSize, height: badgeSize)
     }

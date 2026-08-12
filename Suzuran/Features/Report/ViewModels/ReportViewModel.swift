@@ -209,8 +209,10 @@ final class ReportViewModel: ObservableObject {
     }
 
     private func acneDayLabels(for snapshot: ReportDataSnapshot?) -> [String] {
-        guard let series = snapshot?.acneTypeSeriesByRange[selectedRange]?.first else { return [] }
-        return series.points.map(\.day)
+        guard let labels = snapshot?.skinScoreSeriesByRange[selectedRange]?.map(\.day), !labels.isEmpty else {
+            return snapshot?.acneTypeSeriesByRange[selectedRange]?.first?.points.map(\.day) ?? []
+        }
+        return labels
     }
 
     private var selectedRangeLabel: String {
