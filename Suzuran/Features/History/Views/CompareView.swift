@@ -14,7 +14,7 @@ struct CompareView: View {
 
     // MARK: - Color & Style Tokens
 
-    private let primaryPurple = Color(red: 91/255, green: 67/255, blue: 177/255)  // #5B43B1
+    private let primaryPurple = AppColor.accentPrimary
     private let cardBorder    = Color(red: 206/255, green: 202/255, blue: 232/255) // #CECAE8
     private let cardFill      = Color(red: 206/255, green: 202/255, blue: 232/255).opacity(0.28) // #CECAE8 28%
 
@@ -68,29 +68,32 @@ struct CompareView: View {
     private var areaFilterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             HStack(spacing: 8) {
-                // "All" chip
-                CompareAreaChip(
-                    label: "All",
-                    isSelected: viewModel.selectedArea == nil,
-                    activeColor: primaryPurple
-                ) {
+                Button {
                     withAnimation(.easeInOut(duration: 0.18)) {
                         lastSelectedArea = nil
                         viewModel.selectedArea = nil
                     }
+                } label: {
+                    AppChip(isActive: viewModel.selectedArea == nil, activeColor: primaryPurple) {
+                        Text("All")
+                            .font(.system(size: 14, weight: viewModel.selectedArea == nil ? .semibold : .regular))
+                    }
                 }
-                // Per-area chips
+                .buttonStyle(.plain)
+
                 ForEach(ScanRecord.FaceArea.allCases) { area in
-                    CompareAreaChip(
-                        label: area.rawValue,
-                        isSelected: viewModel.selectedArea == area,
-                        activeColor: primaryPurple
-                    ) {
+                    Button {
                         withAnimation(.easeInOut(duration: 0.18)) {
                             lastSelectedArea = area
                             viewModel.selectedArea = area
                         }
+                    } label: {
+                        AppChip(isActive: viewModel.selectedArea == area, activeColor: primaryPurple) {
+                            Text(area.rawValue)
+                                .font(.system(size: 14, weight: viewModel.selectedArea == area ? .semibold : .regular))
+                        }
                     }
+                    .buttonStyle(.plain)
                 }
             }
             .padding(.vertical, 2)
@@ -308,44 +311,6 @@ struct CompareView: View {
         }
     }
 }
-
-// MARK: - CompareAreaChip
-
-private struct CompareAreaChip: View {
-    let label: String
-    let isSelected: Bool
-    let activeColor: Color
-    let action: () -> Void
-
-    var body: some View {
-        Button(action: action) {
-            Text(label)
-                .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
-                .foregroundStyle(isSelected ? .white : .primary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule().fill(
-                        isSelected
-                            ? activeColor
-                            : Color(.systemBackground)
-                    )
-                )
-                .overlay(
-                    Capsule()
-                        .stroke(
-                            isSelected ? Color.clear : Color(.systemGray4),
-                            lineWidth: 1
-                        )
-                )
-        }
-        .buttonStyle(.plain)
-        .contentShape(Capsule())
-        .accessibilityLabel(isSelected ? "\(label), selected" : label)
-    }
-}
-
-
 
 // MARK: - CompareFaceImage
 

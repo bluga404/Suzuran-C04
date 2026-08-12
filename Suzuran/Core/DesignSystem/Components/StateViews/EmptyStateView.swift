@@ -22,7 +22,7 @@ struct EmptyStateView: View {
                 .multilineTextAlignment(.center)
 
             if let actionTitle, let onAction {
-                PrimaryButton(title: actionTitle, style: .bordered, action: onAction)
+                AppButton(title: actionTitle, variant: .bordered, action: onAction)
                     .padding(.top, AppSpacing.xs)
             }
         }

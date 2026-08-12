@@ -52,44 +52,107 @@ final class ReportDataService {
     // MARK: - Real data builders
 
     private func buildSkinScoreSeries(for range: ReportRange, from records: [ScanRecord]) -> [ReportPoint] {
-        let filtered = filteredRecords(for: range, in: records)
-        guard !filtered.isEmpty else { return [] }
+        let groups = groupedRecords(for: range, in: records).filter { !$0.records.isEmpty }
+        guard !groups.isEmpty else { return [] }
 
-        return filtered.enumerated().map { index, record in
-            let label = shortLabel(for: record.date, in: range, index: index)
-            return ReportPoint(day: label, score: record.skinScore)
+        return groups.map { group in
+            let count = group.records.count
+            let averageScore = count > 0
+                ? Int(round(Double(group.records.map(\.skinScore).reduce(0, +)) / Double(count)))
+                : 0
+            return ReportPoint(day: group.label, score: averageScore)
         }
     }
 
     private func buildAcneTypeSeries(for range: ReportRange, from records: [ScanRecord]) -> [AcneTypeSeries] {
-        let filtered = filteredRecords(for: range, in: records)
-        guard !filtered.isEmpty else { return [] }
+        let groups = groupedRecords(for: range, in: records).filter { !$0.records.isEmpty }
+        guard !groups.isEmpty else { return [] }
 
         let relevantTypes = AcneType.allCases.filter { $0 != .unknown }
         var series: [AcneTypeSeries] = []
 
         for acneType in relevantTypes {
-            let points = filtered.enumerated().map { index, record in
-                let count = record.acneCount(for: acneType)
-                let normalizedScore: Int
-
-                if record.totalAcneCount > 0 {
-                    normalizedScore = Int((Double(count) / Double(record.totalAcneCount)) * 100.0)
-                } else {
-                    normalizedScore = 0
+            let points = groups.map { group -> ReportPoint in
+                let totalCount = group.records.reduce(0) { partialResult, record in
+                    partialResult + record.acneCount(for: acneType)
                 }
-
-                let label = shortLabel(for: record.date, in: range, index: index)
-                return ReportPoint(day: label, score: normalizedScore)
+                let averageCount = group.records.isEmpty
+                    ? 0
+                    : Int(round(Double(totalCount) / Double(group.records.count)))
+                return ReportPoint(day: group.label, score: averageCount)
             }
 
             let hasVisibleData = points.contains { $0.score > 0 }
-            if hasVisibleData || filtered.count == 1 {
+            if hasVisibleData || groups.count == 1 {
                 series.append(AcneTypeSeries(acneType: acneType, points: points))
             }
         }
 
         return series
+    }
+
+    private func groupedRecords(for range: ReportRange, in records: [ScanRecord]) -> [(label: String, records: [ScanRecord])] {
+        let filtered = filteredRecords(for: range, in: records)
+        guard !filtered.isEmpty else { return [] }
+
+        switch range {
+        case .oneWeek:
+            return filtered.map { record in
+                (
+                    label: DateFormatters.dayShort.string(from: record.date),
+                    records: [record]
+                )
+            }
+        case .oneMonth:
+            return weeklyBuckets(for: filtered, spanDays: 30)
+        case .oneYear:
+            return monthlyBuckets(for: filtered)
+        }
+    }
+
+    private func weeklyBuckets(for records: [ScanRecord], spanDays: Int) -> [(label: String, records: [ScanRecord])] {
+        let calendar = Calendar.current
+        let endDate = calendar.startOfDay(for: Date())
+        guard let startDate = calendar.date(byAdding: .day, value: -(spanDays - 1), to: endDate) else {
+            return []
+        }
+
+        let bucketCount = Int(ceil(Double(spanDays) / 7.0))
+        var buckets: [Int: [ScanRecord]] = [:]
+
+        for record in records {
+            let dayOffset = calendar.dateComponents([.day], from: startDate, to: calendar.startOfDay(for: record.date)).day ?? 0
+            let bucketIndex = max(0, min(bucketCount - 1, dayOffset / 7))
+            buckets[bucketIndex, default: []].append(record)
+        }
+
+        return (0..<bucketCount).map { index in
+            let bucketRecords = (buckets[index] ?? []).sorted { $0.date < $1.date }
+            return (label: "Week \(index + 1)", records: bucketRecords)
+        }
+    }
+
+    private func monthlyBuckets(for records: [ScanRecord]) -> [(label: String, records: [ScanRecord])] {
+        let calendar = Calendar.current
+
+        struct YearMonth: Hashable {
+            let year: Int
+            let month: Int
+        }
+
+        let grouped = Dictionary(grouping: records) { record in
+            let components = calendar.dateComponents([.year, .month], from: record.date)
+            return YearMonth(year: components.year ?? 0, month: components.month ?? 0)
+        }
+
+        return grouped.keys.sorted { lhs, rhs in
+            if lhs.year == rhs.year { return lhs.month < rhs.month }
+            return lhs.year < rhs.year
+        }.map { key in
+            let date = calendar.date(from: DateComponents(year: key.year, month: key.month)) ?? Date()
+            let records = grouped[key]!.sorted { $0.date < $1.date }
+            return (label: DateFormatters.monthShort.string(from: date), records: records)
+        }
     }
 
     private func buildInsightSummary(from records: [ScanRecord]) async -> ReportInsightSummary {

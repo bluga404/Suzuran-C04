@@ -1,25 +1,25 @@
 import SwiftUI
 
-struct PrimaryButton: View {
-    enum Style {
-        case filled
+struct AppButton: View {
+    enum Variant {
+        case primary
         case bordered
         case destructive
     }
 
     let title: String
-    let style: Style
+    let variant: Variant
     let isLoading: Bool
     let action: () -> Void
 
     init(
         title: String,
-        style: Style = .filled,
+        variant: Variant = .primary,
         isLoading: Bool = false,
         action: @escaping () -> Void
     ) {
         self.title = title
-        self.style = style
+        self.variant = variant
         self.isLoading = isLoading
         self.action = action
     }
@@ -41,7 +41,7 @@ struct PrimaryButton: View {
             .foregroundStyle(foregroundColor)
             .overlay(
                 RoundedRectangle(cornerRadius: AppCornerRadius.md)
-                    .stroke(borderColor, lineWidth: style == .bordered ? 1 : 0)
+                    .stroke(borderColor, lineWidth: borderWidth)
             )
             .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
         }
@@ -49,8 +49,8 @@ struct PrimaryButton: View {
     }
 
     private var backgroundColor: Color {
-        switch style {
-        case .filled:
+        switch variant {
+        case .primary:
             return AppColor.accentPrimary
         case .bordered:
             return .clear
@@ -60,8 +60,8 @@ struct PrimaryButton: View {
     }
 
     private var foregroundColor: Color {
-        switch style {
-        case .filled, .destructive:
+        switch variant {
+        case .primary, .destructive:
             return .white
         case .bordered:
             return AppColor.textPrimary
@@ -69,20 +69,24 @@ struct PrimaryButton: View {
     }
 
     private var borderColor: Color {
-        switch style {
+        switch variant {
         case .bordered:
             return AppColor.borderSubtle
-        case .filled, .destructive:
+        case .primary, .destructive:
             return .clear
         }
+    }
+
+    private var borderWidth: CGFloat {
+        variant == .bordered ? 1 : 0
     }
 }
 
 #Preview {
     VStack(spacing: AppSpacing.sm) {
-        PrimaryButton(title: "Primary") {}
-        PrimaryButton(title: "Bordered", style: .bordered) {}
-        PrimaryButton(title: "Deleting", style: .destructive, isLoading: true) {}
+        AppButton(title: "Primary") {}
+        AppButton(title: "Bordered", variant: .bordered) {}
+        AppButton(title: "Deleting", variant: .destructive, isLoading: true) {}
     }
     .padding()
 }

@@ -124,19 +124,10 @@ struct ScanDetailView: View {
     @ViewBuilder
     private func filterPill(title: String, isSelected: Bool, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            Text(title)
-                .font(Font.label)
-                .padding(.horizontal, AppSpacing.md)
-                .padding(.vertical, 8)
-                .foregroundStyle(isSelected ? AppColor.textOnAccent : .primary)
-                .background(
-                    RoundedRectangle(cornerRadius: 20)
-                        .fill(isSelected ? AppColor.accentPrimary : Color(uiColor: .systemBackground))
-                )
-                .overlay(
-                    RoundedRectangle(cornerRadius: 20)
-                        .stroke(isSelected ? Color.clear : AppColor.borderSubtle, lineWidth: 1)
-                )
+            AppChip(isActive: isSelected, activeColor: AppColor.accentPrimary) {
+                Text(title)
+                    .font(Font.label)
+            }
         }
         .buttonStyle(.plain)
     }
@@ -222,16 +213,19 @@ struct ScanDetailView: View {
     
     @ViewBuilder
     private func totalAcneCard() -> some View {
-        AppCard(padding: AppSpacing.md) {
+        AppCard(
+            backgroundColor: AppColor.surfacePurple,
+            borderColor: .clear,
+            borderWidth: 0
+        ) {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
-                // Header
                 HStack {
                     Text("Total Acne")
                         .font(Font.bodyLarge)
                         .foregroundStyle(.primary)
-                    
+
                     Spacer()
-                    
+
                     VStack(spacing: 0) {
                         Text("\(viewModel.totalCountForSelected)")
                             .font(Font.description)
@@ -247,25 +241,26 @@ struct ScanDetailView: View {
                             .fill(AppColor.accentPrimary.opacity(0.15))
                     )
                 }
-                
+
                 Divider()
-                
-                // List of Acne Types
-                HStack {
+
+                HStack(spacing: AppSpacing.xs) {
                     Text("Acne Type")
-                        .font(Font.graphLabel)
-                        .foregroundStyle(.secondary)
+                        .font(Font.metadata)
+                        .foregroundStyle(AppColor.accentPrimary)
+
                     Button {
                         isShowingAboutAcne = true
                     } label: {
                         Image(systemName: "info.circle")
-                            .font(.system(size: 10))
-                            .foregroundStyle(.secondary)
+                            .font(Font.system(size: 10))
+                            .foregroundStyle(AppColor.accentPrimary)
                     }
                     .accessibilityLabel("Acne type information")
+
                     Spacer()
                 }
-                
+
                 VStack(spacing: AppSpacing.sm) {
                     ForEach(viewModel.acneCountsForSelected, id: \.type) { item in
                         HStack {

@@ -73,7 +73,7 @@ struct SummaryView: View {
                                 }
                             }
 
-                            PrimaryButton(
+                            AppButton(
                                 title: "Mulai Scan Wajah",
                                 action: onStartScan
                             )

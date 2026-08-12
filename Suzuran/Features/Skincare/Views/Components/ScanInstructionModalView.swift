@@ -15,7 +15,7 @@ struct ScanInstructionModalView: View {
                     header
                     acquisitionMethods
                     tips
-                    PrimaryButton(title: "Mengerti", action: onDismiss)
+                    AppButton(title: "Mengerti", action: onDismiss)
                 }
                 .padding(AppSpacing.lg)
             }

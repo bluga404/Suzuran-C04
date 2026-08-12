@@ -9,7 +9,7 @@ struct SkinScoreCard: View {
     var onInfoAction: () -> Void = {}
 
     var body: some View {
-        AppCard(padding: AppSpacing.lg, backgroundColor: AppColor.surfacePurple, borderColor: .clear) {
+        AppCard(backgroundColor: AppColor.surfacePurple, borderColor: .clear) {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 // Score label title
             HStack {
