@@ -26,17 +26,10 @@ struct SummaryCalculator {
         ingredientScan: IngredientScanData?,
         products: [SkincareProduct]
     ) -> HomeSummary {
-        let validLatestScan = latestScan.flatMap { Calendar.current.isDateInToday($0.createdAt) ? $0 : nil }
-        
         let hasIngredientScan = ingredientScan != nil
-        let state = scoreCalculator.determineHomeState(
-            latestScan: validLatestScan,
-            previousScan: previousScan,
-            hasIngredientScan: hasIngredientScan
-        )
 
-        // If empty, return minimal summary
-        guard let scan = validLatestScan else {
+        // If no scan at all, return minimal empty summary
+        guard let scan = latestScan else {
             return HomeSummary(
                 state: .empty,
                 date: Date(),
@@ -49,9 +42,31 @@ struct SummaryCalculator {
             )
         }
 
-        let trend = scoreCalculator.calculateTrend(latest: validLatestScan, previous: previousScan)
-        let label = scoreCalculator.scoreLabel(for: scan.overallScore)
+        // Always compute score and dominant acne from the latest scan
         let dominantAcne = scoreCalculator.dominantAcneType(from: scan.acneCounts)
+        let label = scoreCalculator.scoreLabel(for: scan.overallScore)
+
+        // Only compute trend when the latest scan is from today
+        let isTodayScan = Calendar.current.isDateInToday(scan.createdAt)
+        let trend: ScoreTrend
+        if isTodayScan {
+            trend = scoreCalculator.calculateTrend(latest: latestScan, previous: previousScan)
+        } else {
+            trend = .noPreviousData
+        }
+
+        // Use today-aware state: trend states only when scan is from today
+        let state: HomeSummaryState
+        if isTodayScan {
+            state = scoreCalculator.determineHomeState(
+                latestScan: latestScan,
+                previousScan: previousScan,
+                hasIngredientScan: hasIngredientScan
+            )
+        } else {
+            // Scan exists but is from a previous day — show score but prompt to scan again
+            state = hasIngredientScan ? .complete : .faceOnly
+        }
 
         // Build message based on state (Bahasa Indonesia)
         let message: String
@@ -91,7 +106,7 @@ struct SummaryCalculator {
         return HomeSummary(
             state: state,
             date: Date(),
-            latestScan: validLatestScan,
+            latestScan: latestScan,
             previousScan: previousScan,
             skinScore: skinScore,
             dominantAcne: dominantAcne,

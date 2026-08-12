@@ -52,7 +52,10 @@ struct MainTabView: View {
         viewModel: RootViewModel(
             bootstrapper: PreviewBootstrapper(),
             scanHistoryStore: ScanHistoryStore(),
-            homeSummaryViewModelFactory: { HomeFactory.makeViewModel() }
+            homeSummaryViewModelFactory: {
+                let store = ScanHistoryStore()
+                return HomeFactory.makeViewModel(historyStore: store)
+            }
         )
     )
 }
