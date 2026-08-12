@@ -6,6 +6,12 @@ import Foundation
 /// No I/O, no async — trivially unit-testable.
 struct SummaryCalculator {
     let scoreCalculator: HomeScoreCalculator
+    private let acneIngredientRepo: AcneIngredientRepositoryProtocol
+    
+    init(scoreCalculator: HomeScoreCalculator, acneIngredientRepo: AcneIngredientRepositoryProtocol = AcneIngredientRepository(db: IngredientDB.shared)) {
+        self.scoreCalculator = scoreCalculator
+        self.acneIngredientRepo = acneIngredientRepo
+    }
 
     /// Computes a complete HomeSummary from repository data.
     /// - Parameters:
@@ -108,9 +114,10 @@ struct SummaryCalculator {
         dominantAcne: AcneType,
         products: [SkincareProduct]
     ) -> [IngredientRecommendation] {
-        let ingredients = recommendedIngredients(for: dominantAcne)
+        let recommendations = acneIngredientRepo.recommendations(for: [dominantAcne])
 
-        return ingredients.prefix(5).map { ingredient in
+        return recommendations.prefix(5).map { rec in
+            let ingredient = Ingredient(name: rec.ingredientName.lowercased(), displayName: rec.ingredientName)
             let status = ingredientStatus(for: ingredient, in: products)
             return IngredientRecommendation(
                 id: UUID(),
@@ -118,32 +125,6 @@ struct SummaryCalculator {
                 explanation: explanation(for: ingredient, dominantAcne: dominantAcne),
                 status: status
             )
-        }
-    }
-
-    /// Maps dominant acne type to a list of recommended ingredients.
-    private func recommendedIngredients(for acneType: AcneType) -> [Ingredient] {
-        switch acneType {
-        case .blackhead, .whitehead:
-            return [
-                Ingredient(name: "niacinamide", displayName: "Niacinamide"),
-                Ingredient(name: "salicylic acid", displayName: "Salicylic Acid"),
-                Ingredient(name: "retinol", displayName: "Retinol")
-            ]
-        case .papule, .pustule:
-            return [
-                Ingredient(name: "benzoyl peroxide", displayName: "Benzoyl Peroxide"),
-                Ingredient(name: "niacinamide", displayName: "Niacinamide"),
-                Ingredient(name: "tea tree oil", displayName: "Tea Tree Oil")
-            ]
-        case .nodule, .cyst:
-            return [
-                Ingredient(name: "benzoyl peroxide", displayName: "Benzoyl Peroxide"),
-                Ingredient(name: "adapalene", displayName: "Adapalene"),
-                Ingredient(name: "azelaic acid", displayName: "Azelaic Acid")
-            ]
-        case .unknown:
-            return []
         }
     }
 
