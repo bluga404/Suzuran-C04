@@ -13,8 +13,12 @@ struct CompareView: View {
         let imageData: Data?
         let title: String
         let dateText: String
+
+        static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
+        func hash(into hasher: inout Hasher) { hasher.combine(id) }
     }
 
+    @State private var selectedArea: ScanRecord.FaceArea? = nil
     @State private var activeDetailPayload: PhotoDetailPayload? = nil
     @State private var showAboutSkinScore = false
 
@@ -58,6 +62,9 @@ struct CompareView: View {
                 dateText: payload.dateText
             )
         }
+        .onAppear {
+            viewModel.selectedArea = selectedArea
+        }
         .sheet(isPresented: $showAboutSkinScore) {
             NavigationStack {
                 AboutSkinScoreView()
@@ -73,10 +80,11 @@ struct CompareView: View {
                 // "All" chip
                 CompareAreaChip(
                     label: "All",
-                    isSelected: viewModel.selectedArea == nil,
+                    isSelected: selectedArea == nil,
                     activeColor: primaryPurple
                 ) {
                     withAnimation(.easeInOut(duration: 0.18)) {
+                        selectedArea = nil
                         viewModel.selectedArea = nil
                     }
                 }
@@ -84,10 +92,11 @@ struct CompareView: View {
                 ForEach(ScanRecord.FaceArea.allCases) { area in
                     CompareAreaChip(
                         label: area.rawValue,
-                        isSelected: viewModel.selectedArea == area,
+                        isSelected: selectedArea == area,
                         activeColor: primaryPurple
                     ) {
                         withAnimation(.easeInOut(duration: 0.18)) {
+                            selectedArea = area
                             viewModel.selectedArea = area
                         }
                     }
@@ -123,7 +132,7 @@ struct CompareView: View {
         HStack(spacing: 8) {
             CompareFaceImage(
                 record: viewModel.recordA,
-                selectedArea: viewModel.selectedArea,
+                selectedArea: selectedArea,
                 borderColor: cardBorder
             ) { imageData, title, dateText in
                 activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
@@ -131,7 +140,7 @@ struct CompareView: View {
 
             CompareFaceImage(
                 record: viewModel.recordB,
-                selectedArea: viewModel.selectedArea,
+                selectedArea: selectedArea,
                 borderColor: cardBorder
             ) { imageData, title, dateText in
                 activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
@@ -435,16 +444,75 @@ private struct CompareFaceImage: View {
         #endif
     }
 
-    private var currentImageData: Data? {
-        guard let area = selectedArea else { return record.frontImageData }
-        if let thumbnail = record.subZoneThumbnails?[area] {
-            return thumbnail
+    static func drawMarkersOnImage(imageData: Data?, markers: [MarkerModel]) -> Data? {
+        guard let imageData = imageData, !imageData.isEmpty,
+              let uiImage = UIImage(data: imageData) else { return imageData }
+        guard !markers.isEmpty else { return imageData }
+
+        #if canImport(UIKit)
+        let size = uiImage.size
+        guard size.width > 0, size.height > 0 else { return imageData }
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = uiImage.scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+
+        let renderedImage = renderer.image { _ in
+            uiImage.draw(in: CGRect(origin: .zero, size: size))
+
+            let strokeWidth = max(3.0, size.width / 200.0)
+
+            for marker in markers {
+                let box = marker.normalizedBoundingBox
+                let rect = CGRect(
+                    x: box.minX * size.width,
+                    y: box.minY * size.height,
+                    width: box.width * size.width,
+                    height: box.height * size.height
+                )
+
+                let color = uiMarkerColor(for: marker.acneType)
+                color.setStroke()
+
+                let path = UIBezierPath(roundedRect: rect, cornerRadius: max(3.0, strokeWidth / 2))
+                path.lineWidth = strokeWidth
+                path.stroke()
+            }
         }
-        if let front = record.frontImageData,
-           let cropped = Self.cropImageData(front, area: area) {
-            return cropped
+
+        return renderedImage.jpegData(compressionQuality: 0.85) ?? imageData
+        #else
+        return imageData
+        #endif
+    }
+
+    private static func uiMarkerColor(for type: AcneType) -> UIColor {
+        switch type {
+        case .blackhead:  return .brown
+        case .cyst:       return .red
+        case .nodule:     return .purple
+        case .papule:     return .orange
+        case .pustule:    return .yellow
+        case .whitehead:  return .white
+        case .unknown:    return .gray
         }
-        return record.frontImageData
+    }
+
+    private var renderedImageData: Data? {
+        let rawData: Data?
+        let activeMarkers: [MarkerModel]
+
+        if let area = selectedArea {
+            rawData = record.subZoneThumbnails?[area]
+                ?? Self.cropImageData(record.frontImageData, area: area)
+                ?? record.frontImageData
+            activeMarkers = record.areaMarkers?[area] ?? []
+        } else {
+            rawData = record.frontImageData
+            activeMarkers = record.frontMarkers ?? []
+        }
+
+        return Self.drawMarkersOnImage(imageData: rawData, markers: activeMarkers)
     }
 
     private var photoTitle: String {
@@ -452,62 +520,36 @@ private struct CompareFaceImage: View {
     }
 
     var body: some View {
-        let displayImageData = currentImageData
+        let displayImageData = renderedImageData
         let displayTitle = photoTitle
         let dateStr = CompareViewModel.displayDateFormatter.string(from: record.date)
-        let activeMarkers: [MarkerModel] = {
-            if let area = selectedArea {
-                return record.areaMarkers?[area] ?? []
-            } else {
-                return record.frontMarkers ?? []
-            }
-        }()
 
         Button {
             onTap(displayImageData, displayTitle, dateStr)
         } label: {
-            ZStack {
-                Group {
-                    if let data = displayImageData, let uiImage = UIImage(data: data) {
-                        Image(uiImage: uiImage)
-                            .resizable()
-                            .scaledToFill()
-                            .id(selectedArea?.rawValue ?? "All")
-                            .transition(.opacity)
-                    } else {
-                        Rectangle()
-                            .fill(Color(.systemBackground))
-                            .overlay(
-                                VStack(spacing: 8) {
-                                    Image(systemName: "person.crop.rectangle")
-                                        .font(.system(size: 36))
-                                        .foregroundStyle(.secondary)
-                                    Text("No Image")
-                                        .font(.system(size: 11))
-                                        .foregroundStyle(.secondary)
-                                }
-                            )
-                    }
-                }
-                .animation(.easeInOut(duration: 0.25), value: selectedArea)
-
-                // Bounding box overlay
-                if !activeMarkers.isEmpty {
-                    GeometryReader { geo in
-                        ForEach(activeMarkers) { marker in
-                            let box = marker.normalizedBoundingBox
-                            let x = box.minX * geo.size.width
-                            let y = box.minY * geo.size.height
-                            let w = box.width * geo.size.width
-                            let h = box.height * geo.size.height
-                            RoundedRectangle(cornerRadius: 3)
-                                .stroke(markerColor(for: marker.acneType), lineWidth: 1.5)
-                                .frame(width: w, height: h)
-                                .position(x: x + w / 2, y: y + h / 2)
-                        }
-                    }
+            Group {
+                if let data = displayImageData, let uiImage = UIImage(data: data) {
+                    Image(uiImage: uiImage)
+                        .resizable()
+                        .scaledToFill()
+                        .id(selectedArea?.rawValue ?? "All")
+                        .transition(.opacity)
+                } else {
+                    Rectangle()
+                        .fill(Color(.systemBackground))
+                        .overlay(
+                            VStack(spacing: 8) {
+                                Image(systemName: "person.crop.rectangle")
+                                    .font(.system(size: 36))
+                                    .foregroundStyle(.secondary)
+                                Text("No Image")
+                                    .font(.system(size: 11))
+                                    .foregroundStyle(.secondary)
+                            }
+                        )
                 }
             }
+            .animation(.easeInOut(duration: 0.25), value: selectedArea)
             .frame(width: 181, height: 213)
             .clipped()
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -519,19 +561,8 @@ private struct CompareFaceImage: View {
         .buttonStyle(.plain)
         .accessibilityLabel(record.frontImageData != nil ? "\(displayTitle), tap to view full photo" : "No face image available")
     }
-
-    private func markerColor(for type: AcneType) -> Color {
-        switch type {
-        case .blackhead:  return .brown
-        case .cyst:       return .red
-        case .nodule:     return .purple
-        case .papule:     return .orange
-        case .pustule:    return .yellow
-        case .whitehead:  return .white
-        case .unknown:    return .gray
-        }
-    }
 }
+
 
 // MARK: - CompareBreakdownRow
 
