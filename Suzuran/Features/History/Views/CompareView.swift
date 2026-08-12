@@ -97,6 +97,7 @@ struct CompareView: View {
             }
             .padding(.vertical, 2)
         }
+        .simultaneousGesture(DragGesture())
     }
 
     // MARK: - Face Images (181 x 213 with margin 8)
@@ -319,29 +320,31 @@ private struct CompareAreaChip: View {
     let action: () -> Void
 
     var body: some View {
-        Button(action: action) {
-            Text(label)
-                .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
-                .foregroundStyle(isSelected ? .white : .primary)
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    Capsule().fill(
-                        isSelected
-                            ? activeColor
-                            : Color(.systemBackground)
+        Text(label)
+            .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
+            .foregroundStyle(isSelected ? .white : .primary)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
+            .background(
+                Capsule().fill(
+                    isSelected
+                        ? activeColor
+                        : Color(.systemBackground)
+                )
+            )
+            .overlay(
+                Capsule()
+                    .stroke(
+                        isSelected ? Color.clear : Color(.systemGray4),
+                        lineWidth: 1
                     )
-                )
-                .overlay(
-                    Capsule()
-                        .stroke(
-                            isSelected ? Color.clear : Color(.systemGray4),
-                            lineWidth: 1
-                        )
-                )
-        }
-        .buttonStyle(.plain)
-        .accessibilityLabel(isSelected ? "\(label), selected" : label)
+            )
+            .contentShape(Capsule())
+            .onTapGesture {
+                action()
+            }
+            .accessibilityLabel(isSelected ? "\(label), selected" : label)
+            .accessibilityAddTraits(.isButton)
     }
 }
 
