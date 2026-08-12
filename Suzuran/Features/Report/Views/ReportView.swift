@@ -64,27 +64,14 @@ struct ReportView: View {
 
                 reportChartSection
 
-                        ReportSummaryCardsView(
-                            selectedMetric: viewModel.selectedMetric,
-                            skinScoreSummary: viewModel.skinScoreSummary,
-                            acneSummary: viewModel.mostDetectedAcneSummary,
-                            insight: viewModel.insightSummary
-                        )
-                    }
-                }
-                .padding(AppSpacing.sm)
+                ReportSummaryCardsView(
+                    selectedMetric: viewModel.selectedMetric,
+                    skinScoreSummary: viewModel.skinScoreSummary,
+                    acneSummary: viewModel.mostDetectedAcneSummary,
+                    insight: viewModel.insightSummary
+                )
             }
-            .navigationTitle(ScreenTitle.report.title)
-            .toolbarTitleDisplayMode(.inlineLarge)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    EmptyView()
-                }
-            }
-        }
-        .appScreenContainer()
-        .task {
-            await viewModel.loadIfNeeded()
+            .padding(AppSpacing.sm)
         }
     }
 
