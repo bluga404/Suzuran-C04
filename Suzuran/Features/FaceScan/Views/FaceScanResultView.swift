@@ -59,11 +59,12 @@ struct FaceScanResultView: View {
                 saveButton
                     .padding(.horizontal, AppSpacing.lg)
             }
-            // Full-screen zone detail
-            .fullScreenCover(item: $selectedSubZone) { subZone in
+            // Sheet zone detail
+            .sheet(item: $selectedSubZone) { subZone in
                 ZoneDetailView(subZone: subZone) {
                     selectedSubZone = nil
                 }
+                .presentationDragIndicator(.visible)
             }
         }
     }
@@ -115,18 +116,29 @@ struct FaceScanResultView: View {
                 if let frontZone = result.zoneSummaries.first(where: { $0.zone == .front }),
                    let imageData = frontZone.imageData,
                    let uiImage = UIImage(data: imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 160, height: 240)
-                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
-                        .overlay(
-                            FaceMaskScanVisualization(markers: frontZone.markers)
+                    Button {
+                        selectedSubZone = SubZoneSummaryModel(
+                            id: frontZone.id,
+                            label: frontZone.zoneName,
+                            imageData: frontZone.imageData,
+                            acneCount: frontZone.acneCount,
+                            markers: frontZone.markers
                         )
-                        .overlay(
-                            RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                                .stroke(Color.primary, lineWidth: 1)
-                        )
+                    } label: {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(width: 160, height: 240)
+                            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
+                            .overlay(
+                                FaceMaskScanVisualization(markers: frontZone.markers)
+                            )
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                                    .stroke(Color.primary, lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
                 } else {
                     RoundedRectangle(cornerRadius: AppCornerRadius.lg)
                         .fill(AppColor.surfacePrimary)

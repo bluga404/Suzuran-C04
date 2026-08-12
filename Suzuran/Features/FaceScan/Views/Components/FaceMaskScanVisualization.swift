@@ -14,44 +14,20 @@ struct FaceMaskScanVisualization: View {
             let height = geometry.size.height
 
             ForEach(markers) { marker in
-                let position = CoordinateNormalizer.displayPosition(
-                    normalizedPoint: marker.normalizedPosition,
+                let rect = CoordinateNormalizer.displayRect(
+                    normalizedRect: marker.normalizedBoundingBox,
                     displayWidth: width,
                     displayHeight: height
                 )
 
-                Circle()
-                    .fill(markerColor(for: marker.acneType))
-                    .frame(width: 10, height: 10)
-                    .overlay(
-                        Circle()
-                            .stroke(Color.white.opacity(0.8), lineWidth: 1)
-                    )
-                    .position(x: position.x, y: position.y)
+                Rectangle()
+                    .stroke(marker.acneType.color, lineWidth: 2)
+                    .background(marker.acneType.color.opacity(0.2))
+                    .frame(width: rect.width, height: rect.height)
+                    // .position takes the center of the view, so we provide the center of the rect
+                    .position(x: rect.midX, y: rect.midY)
                     .accessibilityLabel("\(marker.acneType.displayName), confidence \(Int(marker.confidence * 100))%")
             }
-        }
-    }
-
-    // MARK: - Color Mapping
-
-    /// Maps acne type to a distinct marker color for visual differentiation.
-    private func markerColor(for acneType: AcneType) -> Color {
-        switch acneType {
-        case .blackhead:
-            return .brown
-        case .cyst:
-            return .red
-        case .nodule:
-            return .purple
-        case .papule:
-            return .orange
-        case .pustule:
-            return .yellow
-        case .whitehead:
-            return .white
-        case .unknown:
-            return .gray
         }
     }
 }
