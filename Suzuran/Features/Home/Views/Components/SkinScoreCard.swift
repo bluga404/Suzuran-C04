@@ -14,9 +14,8 @@ struct SkinScoreCard: View {
                 // Score label title
             HStack {
                 Text(state == .improvement || state == .degradation ? "Skin Score" : "Skin Condition")
-                    .font(Font.metadata)
-                    .tracking(1.2)
-                    .foregroundStyle(.secondary)
+                    .font(Font.bodyLarge)
+                    .foregroundStyle(.primary)
                 Spacer()
                 Button(action: onInfoAction) {
                     Image(systemName: "info.circle")
@@ -60,7 +59,7 @@ struct SkinScoreCard: View {
 
             // Contextual message
             Text(messageText)
-                .font(Font.description)
+                .font(Font.metadataLight)
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
                 .padding(.top, AppSpacing.xxs)

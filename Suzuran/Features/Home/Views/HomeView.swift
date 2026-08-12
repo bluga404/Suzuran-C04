@@ -81,7 +81,7 @@ struct HomeView: View {
             VStack(alignment: .leading, spacing: AppSpacing.lg) {
                 // Native title replaces HomeHeader's title, we just show date here
                 Text(formattedDate(for: summary.date))
-                    .font(Font.description)
+                    .font(Font.bodyParagraph)
                     .foregroundStyle(.secondary)
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.top, AppSpacing.xs)

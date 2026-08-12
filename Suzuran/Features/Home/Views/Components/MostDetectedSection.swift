@@ -13,9 +13,8 @@ struct MostDetectedSection: View {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     HStack {
                         Text("Most Detected Acne Type")
-                            .font(Font.metadata)
-                            .tracking(1.2)
-                            .foregroundStyle(.secondary)
+                            .font(Font.bodyLarge)
+                            .foregroundStyle(.primary)
                         Spacer()
                         Button(action: onInfoTap) {
                             Image(systemName: "info.circle")
@@ -26,11 +25,11 @@ struct MostDetectedSection: View {
                     }
 
                     Text(type.displayName)
-                        .font(Font.system(size: 24, weight: .bold))
+                        .font(Font.screenTitle)
                         .foregroundStyle(.primary)
 
                     Text(countText)
-                        .font(Font.description)
+                        .font(Font.metadata)
                         .foregroundStyle(.secondary)
                 }
             }
