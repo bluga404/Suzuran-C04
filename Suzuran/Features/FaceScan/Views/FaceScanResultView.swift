@@ -72,10 +72,10 @@ struct FaceScanResultView: View {
                 FullPhotoDetailView(payload: payload)
             }
             .alert("Back to Scanning Process", isPresented: $isShowingDiscardAlert) {
-                Button("Yes") {
+                Button("No", role: .cancel) { }
+                Button("Yes", role: .destructive) {
                     onRetake()
                 }
-                Button("No", role: .cancel) { }
             } message: {
                 Text("Are you sure to re-do the scanning process? All the photos taken will be deleted")
             }

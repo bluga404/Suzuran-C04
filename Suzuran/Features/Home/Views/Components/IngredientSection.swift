@@ -32,7 +32,7 @@ struct IngredientSection: View {
                             .foregroundStyle(AppColor.textSecondary)
                     }
                 }
-                .padding(.horizontal, AppSpacing.md)
+                .padding(.horizontal, 36)
             } else {
                 // Stack of individual recommendation cards
                 VStack(spacing: AppSpacing.sm) {
