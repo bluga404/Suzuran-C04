@@ -544,7 +544,7 @@ private struct CompareBreakdownRow: View {
     let primaryPurple: Color
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 0) {
             Text(row.label)
                 .font(.system(size: 15, weight: .regular))
                 .foregroundStyle(.primary)
@@ -556,16 +556,19 @@ private struct CompareBreakdownRow: View {
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.primary)
                 .monospacedDigit()
+                .frame(width: 32, alignment: .trailing)
 
             Image(systemName: "arrow.right")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
+                .frame(width: 28)
 
             Text("\(row.valueB)")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.primary)
                 .monospacedDigit()
+                .frame(width: 32, alignment: .trailing)
 
             // Delta Badge
             let diff = row.delta
@@ -577,6 +580,7 @@ private struct CompareBreakdownRow: View {
                 .padding(.vertical, 6)
                 .background(cardFill)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .padding(.leading, 8)
         }
         .padding(.vertical, 2)
         .accessibilityElement(children: .combine)
