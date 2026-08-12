@@ -76,21 +76,11 @@ struct SkincareListView: View {
     }
 
     private func productRow(_ product: SkincareProduct) -> some View {
-        ZStack {
-            SkincareCard(
-                product: product,
-                recommendationsCount: viewModel.matchedIngredients(in: product).count,
-                onEdit: { productToEdit = product }
-            )
-            NavigationLink(destination: SkincareDetailView(
-                skincareViewModel: viewModel,
-                ingredientRepo: ingredientRepo,
-                product: product
-            )) {
-                EmptyView()
-            }
-            .opacity(0)
-        }
+        SkincareCard(
+            product: product,
+            recommendationsCount: viewModel.matchedIngredients(in: product).count,
+            onEdit: { productToEdit = product }
+        )
         .listRowInsets(EdgeInsets(top: AppSpacing.xs, leading: AppSpacing.md, bottom: AppSpacing.xs, trailing: AppSpacing.md))
         .listRowBackground(Color.clear)
         .listRowSeparator(.hidden)
