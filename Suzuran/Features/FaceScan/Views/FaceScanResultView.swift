@@ -263,12 +263,12 @@ struct FaceScanResultView: View {
     private var saveButton: some View {
         Button(action: onDone) {
             Text("Save Scan Result")
-                .font(Font.description)
-                .foregroundStyle(Color(uiColor: .systemBackground))
+                .font(Font.bodyLarge)
+                .foregroundStyle(Color.white)
                 .frame(maxWidth: .infinity, minHeight: 50)
-                .background(Color.primary)
+                .background(AppColor.buttonPrimaryPurple)
                 .clipShape(Capsule())
-                .shadow(color: .black.opacity(0.15), radius: 8, x: 0, y: 4)
+                .shadow(color: AppColor.buttonPrimaryPurple.opacity(0.3), radius: 8, x: 0, y: 4)
         }
     }
 }

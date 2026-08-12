@@ -25,13 +25,11 @@ struct IngredientSection: View {
                     VStack(alignment: .leading, spacing: AppSpacing.md) {
                         if hasTrackedSkincare {
                             Text("Here, you'll find ingredients that may help with your most common acne type.")
-                                .font(Font.description)
-                                .italic()
+                                .font(Font.labelRegularItalic)
                                 .foregroundStyle(AppColor.textSecondary)
                         } else {
                             Text("Here, you'll find ingredients that may help with your most common acne type. Add your skincare routine to see if your products already contain them.")
-                                .font(Font.description)
-                                .italic()
+                                .font(Font.labelRegularItalic)
                                 .foregroundStyle(AppColor.textSecondary)
                         }
                     }

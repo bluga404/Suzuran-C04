@@ -15,6 +15,7 @@ extension Font {
     static let description   = Font.system(.callout).weight(.semibold)     // 16 pt — Body/Medium
     static let label         = Font.system(.subheadline).weight(.semibold) // 15 pt — Label
     static let labelRegular  = Font.system(.subheadline).weight(.regular)  // 15 pt — Label/Regular
+    static let labelRegularItalic = Font.system(.subheadline).weight(.regular).italic() // 15 pt — Label/Regular Italic
     static let metadata      = Font.system(.footnote).weight(.semibold)    // 13 pt — Label/Footnote
     static let metadataRegular = Font.system(.footnote).weight(.regular)   // 13 pt — Metadata/Regular
     static let metadataLight = Font.system(.footnote).weight(.light)       // 13 pt — Label/Footnote Light
