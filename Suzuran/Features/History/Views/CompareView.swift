@@ -8,18 +8,9 @@ import UIKit
 struct CompareView: View {
     @ObservedObject var viewModel: CompareViewModel
 
-    struct PhotoDetailPayload: Identifiable, Hashable {
-        let id = UUID()
-        let imageData: Data?
-        let title: String
-        let dateText: String
-
-        static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
-        func hash(into hasher: inout Hasher) { hasher.combine(id) }
-    }
-
     @State private var activeDetailPayload: PhotoDetailPayload? = nil
     @State private var showAboutSkinScore = false
+    @State private var lastSelectedArea: ScanRecord.FaceArea? = nil
 
     // MARK: - Color & Style Tokens
 
@@ -60,6 +51,11 @@ struct CompareView: View {
                 dateText: payload.dateText
             )
         }
+        .onAppear {
+            if let lastSelectedArea {
+                viewModel.selectedArea = lastSelectedArea
+            }
+        }
         .sheet(isPresented: $showAboutSkinScore) {
             NavigationStack {
                 AboutSkinScoreView()
@@ -79,6 +75,7 @@ struct CompareView: View {
                     activeColor: primaryPurple
                 ) {
                     withAnimation(.easeInOut(duration: 0.18)) {
+                        lastSelectedArea = nil
                         viewModel.selectedArea = nil
                     }
                 }
@@ -90,6 +87,7 @@ struct CompareView: View {
                         activeColor: primaryPurple
                     ) {
                         withAnimation(.easeInOut(duration: 0.18)) {
+                            lastSelectedArea = area
                             viewModel.selectedArea = area
                         }
                     }
@@ -351,7 +349,7 @@ private struct CompareAreaChip: View {
 
 // MARK: - CompareFaceImage
 
-private struct CompareFaceImage: View {
+struct CompareFaceImage: View {
     let record: ScanRecord
     let selectedArea: ScanRecord.FaceArea?
     let borderColor: Color
@@ -588,65 +586,7 @@ private struct CompareBreakdownRow: View {
     }
 }
 
-// MARK: - FullPhotoDetailView
 
-private struct FullPhotoDetailView: View {
-    let imageData: Data?
-    let title: String
-    let dateText: String
-
-    var body: some View {
-        ZStack {
-            Color(.systemBackground)
-                .ignoresSafeArea()
-
-            VStack(spacing: 20) {
-                Spacer()
-
-                if let data = imageData, let uiImage = UIImage(data: data) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
-                        .shadow(color: .black.opacity(0.12), radius: 10, x: 0, y: 4)
-                        .padding(.horizontal, 16)
-                } else {
-                    ContentUnavailableView(
-                        "No Image Available",
-                        systemImage: "person.crop.rectangle",
-                        description: Text("No photo data found for this scan record.")
-                    )
-                }
-
-                Spacer()
-
-                // Date & Area Badge
-                HStack(spacing: 8) {
-                    Text(title)
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(.primary)
-
-                    Text("·")
-                        .foregroundStyle(.secondary)
-
-                    Text(dateText)
-                        .font(.system(size: 14, weight: .regular))
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .background(
-                    Capsule()
-                        .fill(Color(.secondarySystemGroupedBackground))
-                )
-                .padding(.bottom, 24)
-            }
-        }
-        .navigationTitle(title)
-        .navigationBarTitleDisplayMode(.inline)
-        .toolbar(.hidden, for: .tabBar)
-    }
-}
 
 // MARK: - Preview
 

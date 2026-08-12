@@ -6,6 +6,15 @@ struct ScanDetailView: View {
     @ObservedObject private var viewModel: ScanDetailViewModel
     
     @State private var isShowingAboutAcne = false
+    @State private var activeDetailPayload: PhotoDetailPayload? = nil
+    @State private var lastSelectedRegion: FaceRegion? = nil
+
+    private let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d MMMM yyyy"
+        f.locale = Locale(identifier: "en_US")
+        return f
+    }()
 
     init(viewModel: ScanDetailViewModel) {
         self.viewModel = viewModel
@@ -37,9 +46,20 @@ struct ScanDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task(id: ObjectIdentifier(viewModel)) {
             await viewModel.load()
+            if let lastSelectedRegion {
+                viewModel.selectedRegion = lastSelectedRegion
+            }
+        }
+        .onAppear {
+            if let lastSelectedRegion {
+                viewModel.selectedRegion = lastSelectedRegion
+            }
         }
         .sheet(isPresented: $isShowingAboutAcne) {
             AboutAcneTypeView()
+        }
+        .navigationDestination(item: $activeDetailPayload) { payload in
+            FullPhotoDetailView(payload: payload)
         }
     }
 
@@ -81,13 +101,19 @@ struct ScanDetailView: View {
             HStack(spacing: AppSpacing.sm) {
                 // "All" Pill
                 filterPill(title: "All", isSelected: viewModel.selectedRegion == nil) {
-                    withAnimation { viewModel.selectedRegion = nil }
+                    withAnimation {
+                        lastSelectedRegion = nil
+                        viewModel.selectedRegion = nil
+                    }
                 }
                 
                 // Region Pills
                 ForEach(FaceRegion.displayOrder, id: \.self) { region in
                     filterPill(title: region.englishDisplayName, isSelected: viewModel.selectedRegion == region) {
-                        withAnimation { viewModel.selectedRegion = region }
+                        withAnimation {
+                            lastSelectedRegion = region
+                            viewModel.selectedRegion = region
+                        }
                     }
                 }
             }
@@ -152,31 +178,44 @@ struct ScanDetailView: View {
             
             Spacer()
             
-            // Image
-            Group {
-                if let image = viewModel.image {
-                    Image(uiImage: image)
-                        .resizable()
-                        .scaledToFill()
-                        .overlay(
-                            FaceMaskScanVisualization(markers: viewModel.currentMarkers)
-                        )
-                } else {
-                    Rectangle()
-                        .fill(Color(uiColor: .systemGray6))
-                        .overlay(
-                            Image(systemName: "face.dashed")
-                                .font(.largeTitle)
-                                .foregroundStyle(.secondary)
-                        )
+            // Image (tappable to view full photo preview)
+            Button {
+                let displayTitle = viewModel.selectedRegion?.englishDisplayName ?? "Face Capture"
+                let dateStr = dateFormatter.string(from: data.scan.createdAt)
+                activeDetailPayload = PhotoDetailPayload(
+                    imageData: viewModel.renderedImageData,
+                    uiImage: viewModel.image,
+                    title: displayTitle,
+                    dateText: dateStr
+                )
+            } label: {
+                Group {
+                    if let image = viewModel.image {
+                        Image(uiImage: image)
+                            .resizable()
+                            .scaledToFill()
+                            .overlay(
+                                FaceMaskScanVisualization(markers: viewModel.currentMarkers)
+                            )
+                    } else {
+                        Rectangle()
+                            .fill(Color(uiColor: .systemGray6))
+                            .overlay(
+                                Image(systemName: "face.dashed")
+                                    .font(.largeTitle)
+                                    .foregroundStyle(.secondary)
+                            )
+                    }
                 }
+                .frame(width: 140, height: 180)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(AppColor.borderSubtle, lineWidth: 2)
+                )
             }
-            .frame(width: 140, height: 180)
-            .clipShape(RoundedRectangle(cornerRadius: 8))
-            .overlay(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(AppColor.borderSubtle, lineWidth: 2)
-            )
+            .buttonStyle(.plain)
+            .contentShape(RoundedRectangle(cornerRadius: 8))
             .padding(.trailing, AppSpacing.md)
         }
     }
