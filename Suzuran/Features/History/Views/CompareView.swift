@@ -13,9 +13,14 @@ struct CompareView: View {
         let imageData: Data?
         let title: String
         let dateText: String
+
+        static func == (lhs: Self, rhs: Self) -> Bool { lhs.id == rhs.id }
+        func hash(into hasher: inout Hasher) { hasher.combine(id) }
     }
 
+    @State private var selectedArea: ScanRecord.FaceArea? = nil
     @State private var activeDetailPayload: PhotoDetailPayload? = nil
+    @State private var showAboutSkinScore = false
 
     // MARK: - Color & Style Tokens
 
@@ -57,6 +62,14 @@ struct CompareView: View {
                 dateText: payload.dateText
             )
         }
+        .onAppear {
+            viewModel.selectedArea = selectedArea
+        }
+        .sheet(isPresented: $showAboutSkinScore) {
+            NavigationStack {
+                AboutSkinScoreView()
+            }
+        }
     }
 
     // MARK: - Area Filter Chips
@@ -67,11 +80,11 @@ struct CompareView: View {
                 // "All" chip
                 CompareAreaChip(
                     label: "All",
-                    isSelected: viewModel.selectedArea == nil,
-                    imageData: nil,
+                    isSelected: selectedArea == nil,
                     activeColor: primaryPurple
                 ) {
                     withAnimation(.easeInOut(duration: 0.18)) {
+                        selectedArea = nil
                         viewModel.selectedArea = nil
                     }
                 }
@@ -79,11 +92,11 @@ struct CompareView: View {
                 ForEach(ScanRecord.FaceArea.allCases) { area in
                     CompareAreaChip(
                         label: area.rawValue,
-                        isSelected: viewModel.selectedArea == area,
-                        imageData: viewModel.recordB.subZoneThumbnails?[area] ?? viewModel.recordA.subZoneThumbnails?[area] ?? CompareFaceImage.cropImageData(viewModel.recordB.frontImageData ?? viewModel.recordA.frontImageData ?? Data(), area: area),
+                        isSelected: selectedArea == area,
                         activeColor: primaryPurple
                     ) {
                         withAnimation(.easeInOut(duration: 0.18)) {
+                            selectedArea = area
                             viewModel.selectedArea = area
                         }
                     }
@@ -119,7 +132,7 @@ struct CompareView: View {
         HStack(spacing: 8) {
             CompareFaceImage(
                 record: viewModel.recordA,
-                selectedArea: viewModel.selectedArea,
+                selectedArea: selectedArea,
                 borderColor: cardBorder
             ) { imageData, title, dateText in
                 activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
@@ -127,7 +140,7 @@ struct CompareView: View {
 
             CompareFaceImage(
                 record: viewModel.recordB,
-                selectedArea: viewModel.selectedArea,
+                selectedArea: selectedArea,
                 borderColor: cardBorder
             ) { imageData, title, dateText in
                 activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
@@ -147,10 +160,14 @@ struct CompareView: View {
                         Text("Skin Score")
                             .font(.system(size: 22, weight: .bold))
                             .foregroundStyle(.primary)
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.primary)
-                            .accessibilityHidden(true)
+                        Button {
+                            showAboutSkinScore = true
+                        } label: {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 14))
+                                .foregroundStyle(.primary)
+                        }
+                        .accessibilityLabel("About Skin Score")
                     }
 
                     HStack {
@@ -300,10 +317,14 @@ struct CompareView: View {
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(.primary)
 
-                    Image(systemName: "info.circle")
-                        .font(.system(size: 14))
-                        .foregroundStyle(.secondary)
-                        .accessibilityHidden(true)
+                    Button {
+                        showAboutSkinScore = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityLabel("About Acne Type")
                 }
 
                 VStack(spacing: 12) {
@@ -321,41 +342,30 @@ struct CompareView: View {
 private struct CompareAreaChip: View {
     let label: String
     let isSelected: Bool
-    let imageData: Data?
     let activeColor: Color
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            HStack(spacing: 6) {
-                if let data = imageData, let uiImage = UIImage(data: data) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .frame(width: 22, height: 22)
-                        .clipShape(Circle())
-                }
-                
-                Text(label)
-                    .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
-            }
-            .foregroundStyle(isSelected ? .white : .primary)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(
-                Capsule().fill(
-                    isSelected
-                        ? activeColor
-                        : Color(.systemBackground)
-                )
-            )
-            .overlay(
-                Capsule()
-                    .stroke(
-                        isSelected ? Color.clear : Color(.systemGray4),
-                        lineWidth: 1
+            Text(label)
+                .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule().fill(
+                        isSelected
+                            ? activeColor
+                            : Color(.systemBackground)
                     )
-            )
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(
+                            isSelected ? Color.clear : Color(.systemGray4),
+                            lineWidth: 1
+                        )
+                )
         }
         .buttonStyle(.plain)
         .accessibilityLabel(isSelected ? "\(label), selected" : label)
@@ -370,24 +380,16 @@ private struct CompareDateChip: View {
     let borderColor: Color
 
     var body: some View {
-        HStack {
-            Text(formatter.string(from: date))
-                .font(.system(size: 14, weight: .regular))
-                .foregroundStyle(.primary)
-
-            Spacer()
-
-            Image(systemName: "chevron.down")
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(.primary)
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(borderColor, lineWidth: 1)
-        )
+        Text(formatter.string(from: date))
+            .font(.system(size: 14, weight: .regular))
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(borderColor, lineWidth: 1)
+            )
     }
 }
 
@@ -442,16 +444,75 @@ private struct CompareFaceImage: View {
         #endif
     }
 
-    private var currentImageData: Data? {
-        guard let area = selectedArea else { return record.frontImageData }
-        if let thumbnail = record.subZoneThumbnails?[area] {
-            return thumbnail
+    static func drawMarkersOnImage(imageData: Data?, markers: [MarkerModel]) -> Data? {
+        guard let imageData = imageData, !imageData.isEmpty,
+              let uiImage = UIImage(data: imageData) else { return imageData }
+        guard !markers.isEmpty else { return imageData }
+
+        #if canImport(UIKit)
+        let size = uiImage.size
+        guard size.width > 0, size.height > 0 else { return imageData }
+
+        let format = UIGraphicsImageRendererFormat()
+        format.scale = uiImage.scale
+        let renderer = UIGraphicsImageRenderer(size: size, format: format)
+
+        let renderedImage = renderer.image { _ in
+            uiImage.draw(in: CGRect(origin: .zero, size: size))
+
+            let strokeWidth = max(3.0, size.width / 200.0)
+
+            for marker in markers {
+                let box = marker.normalizedBoundingBox
+                let rect = CGRect(
+                    x: box.minX * size.width,
+                    y: box.minY * size.height,
+                    width: box.width * size.width,
+                    height: box.height * size.height
+                )
+
+                let color = uiMarkerColor(for: marker.acneType)
+                color.setStroke()
+
+                let path = UIBezierPath(roundedRect: rect, cornerRadius: max(3.0, strokeWidth / 2))
+                path.lineWidth = strokeWidth
+                path.stroke()
+            }
         }
-        if let front = record.frontImageData,
-           let cropped = Self.cropImageData(front, area: area) {
-            return cropped
+
+        return renderedImage.jpegData(compressionQuality: 0.85) ?? imageData
+        #else
+        return imageData
+        #endif
+    }
+
+    private static func uiMarkerColor(for type: AcneType) -> UIColor {
+        switch type {
+        case .blackhead:  return .brown
+        case .cyst:       return .red
+        case .nodule:     return .purple
+        case .papule:     return .orange
+        case .pustule:    return .yellow
+        case .whitehead:  return .white
+        case .unknown:    return .gray
         }
-        return record.frontImageData
+    }
+
+    private var renderedImageData: Data? {
+        let rawData: Data?
+        let activeMarkers: [MarkerModel]
+
+        if let area = selectedArea {
+            rawData = record.subZoneThumbnails?[area]
+                ?? Self.cropImageData(record.frontImageData, area: area)
+                ?? record.frontImageData
+            activeMarkers = record.areaMarkers?[area] ?? []
+        } else {
+            rawData = record.frontImageData
+            activeMarkers = record.frontMarkers ?? []
+        }
+
+        return Self.drawMarkersOnImage(imageData: rawData, markers: activeMarkers)
     }
 
     private var photoTitle: String {
@@ -459,7 +520,7 @@ private struct CompareFaceImage: View {
     }
 
     var body: some View {
-        let displayImageData = currentImageData
+        let displayImageData = renderedImageData
         let displayTitle = photoTitle
         let dateStr = CompareViewModel.displayDateFormatter.string(from: record.date)
 
@@ -501,6 +562,7 @@ private struct CompareFaceImage: View {
         .accessibilityLabel(record.frontImageData != nil ? "\(displayTitle), tap to view full photo" : "No face image available")
     }
 }
+
 
 // MARK: - CompareBreakdownRow
 
