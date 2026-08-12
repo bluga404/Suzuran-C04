@@ -43,8 +43,7 @@ enum AcneType: String, CaseIterable, Identifiable, Equatable, Codable {
         case .blackhead, .whitehead: return 0.5
         case .papule: return 1.0
         case .pustule: return 2.0
-        case .nodule: return 3.0
-        case .cyst: return 4.0
+        case .nodule, .cyst: return 3.0
         case .unknown: return 1.0
         }
     }

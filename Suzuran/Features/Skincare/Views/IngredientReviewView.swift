@@ -34,7 +34,7 @@ struct IngredientReviewView: View {
                         .font(.system(size: 16, weight: .bold))
                         .padding(AppSpacing.sm)
                         .background(AppColor.accentPrimary)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(AppColor.textOnAccent)
                         .cornerRadius(AppCornerRadius.sm)
                 }
             }
@@ -86,7 +86,7 @@ struct IngredientReviewView: View {
                         .frame(maxWidth: .infinity)
                         .padding(.vertical, AppSpacing.md)
                         .background(AppColor.accentPrimary)
-                        .foregroundStyle(.white)
+                        .foregroundStyle(AppColor.textOnAccent)
                         .cornerRadius(AppCornerRadius.md)
                 }
                 .padding(AppSpacing.md)

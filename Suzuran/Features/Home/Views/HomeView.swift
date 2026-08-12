@@ -47,6 +47,7 @@ struct HomeView: View {
                 }
             }
             .navigationTitle("Summary")
+            .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     if let summary = loadedSummary, summary.scanAvailability.hasFaceScan {
@@ -128,8 +129,14 @@ struct HomeView: View {
                 }
             )
         }
-        .sheet(item: $detailScanID) { scanID in
-            HomeFactory.makeDetailView(scanID: scanID)
+        .navigationDestination(item: $detailScanID) { scanID in
+            HomeFactory.makeDetailView(scanID: scanID, historyStore: historyStore)
+        }
+        .sheet(isPresented: $isShowingAboutAcne) {
+            AboutAcneTypeView()
+        }
+        .sheet(isPresented: $isShowingAboutSkinScore) {
+            AboutSkinScoreView()
         }
         .sheet(isPresented: $isShowingAboutAcne) {
             AboutAcneTypeView()

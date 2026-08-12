@@ -23,11 +23,6 @@ final class CompareViewModel: ObservableObject {
     /// Toggle between acne-by-area and acne-by-type breakdown table.
     @Published var acneMode: AcneBreakdownMode = .byType
 
-    /// Controls the date-picker confirmation dialog for the "before" slot.
-    @Published var showDatePickerA = false
-    /// Controls the date-picker confirmation dialog for the "after" slot.
-    @Published var showDatePickerB = false
-
     // MARK: - Read-only Data
 
     /// Full sorted history (oldest → newest). Used to populate date pickers.
@@ -90,16 +85,21 @@ final class CompareViewModel: ObservableObject {
     // MARK: - Computed: Acne Breakdown Rows
 
     /// Per-type comparison rows for the "Acne by Type" table.
-    var acneTypeRows: [AcneComparisonRow] {
+    /// If an area is provided, returns per-type counts within that specific area.
+    func acneTypeRows(for area: ScanRecord.FaceArea? = nil) -> [AcneComparisonRow] {
         AcneType.allCases
             .filter { $0 != .unknown }
             .map { type in
                 AcneComparisonRow(
                     label: type.displayName,
-                    valueA: recordA.acneCount(for: type),
-                    valueB: recordB.acneCount(for: type)
+                    valueA: area == nil ? recordA.acneCount(for: type) : recordA.acneCount(for: type, in: area!),
+                    valueB: area == nil ? recordB.acneCount(for: type) : recordB.acneCount(for: type, in: area!)
                 )
             }
+    }
+
+    var acneTypeRows: [AcneComparisonRow] {
+        acneTypeRows(for: selectedArea)
     }
 
     /// Per-area comparison rows for the "Acne by Area" table.
@@ -115,35 +115,7 @@ final class CompareViewModel: ObservableObject {
 
     // MARK: - Actions
 
-    /// Records available for the "A" slot — excludes whatever is already in B.
-    var candidatesForA: [ScanRecord] {
-        allRecords.filter { $0.id != recordB.id }
-    }
-
-    /// Records available for the "B" slot — excludes whatever is already in A.
-    var candidatesForB: [ScanRecord] {
-        allRecords.filter { $0.id != recordA.id }
-    }
-
-    func selectRecordA(_ record: ScanRecord) {
-        // Ensure A is always the older record; swap if needed.
-        if record.date <= recordB.date {
-            recordA = record
-        } else {
-            recordA = recordB
-            recordB = record
-        }
-    }
-
-    func selectRecordB(_ record: ScanRecord) {
-        // Ensure B is always the newer record; swap if needed.
-        if record.date >= recordA.date {
-            recordB = record
-        } else {
-            recordB = recordA
-            recordA = record
-        }
-    }
+    // Date selection interaction was removed, so candidates/select methods are no longer needed.
 
     // MARK: - Static Formatters
 

@@ -32,9 +32,31 @@ final class ScanHistoryStore: ObservableObject {
 
         let frontImageData = result.zoneSummaries
             .first(where: { $0.zone == .front })?.imageData
+            
+        var thumbnails: [ScanRecord.FaceArea: Data] = [:]
+        var areaCounts: [ScanRecord.AcneAreaCount] = []
+        var areaTypeCountsMap: [ScanRecord.FaceArea: [ScanRecord.AcneTypeCount]] = [:]
+
+        for subZone in result.subZoneSummaries {
+            if let area = ScanRecord.FaceArea(rawValue: subZone.label) {
+                if let data = subZone.imageData {
+                    thumbnails[area] = data
+                }
+                areaCounts.append(ScanRecord.AcneAreaCount(area: area, count: subZone.acneCount))
+
+                var typeMap: [AcneType: Int] = [:]
+                for marker in subZone.markers {
+                    typeMap[marker.acneType, default: 0] += 1
+                }
+                let typeCounts = AcneType.allCases.filter { $0 != .unknown }.map { type in
+                    ScanRecord.AcneTypeCount(acneType: type, count: typeMap[type] ?? 0)
+                }
+                areaTypeCountsMap[area] = typeCounts
+            }
+        }
 
         let record = ScanRecord(
-            id: UUID(),
+            id: result.id,
             date: today,
             frontImageData: frontImageData,
             skinScore: result.skinScore,
@@ -42,7 +64,10 @@ final class ScanHistoryStore: ObservableObject {
             severity: result.overallSeverity,
             acneTypeCounts: result.acneTypeSummaries.map {
                 ScanRecord.AcneTypeCount(acneType: $0.acneType, count: $0.count)
-            }
+            },
+            acneAreaCounts: areaCounts,
+            subZoneThumbnails: thumbnails.isEmpty ? nil : thumbnails,
+            areaTypeCounts: areaTypeCountsMap.isEmpty ? nil : areaTypeCountsMap
         )
 
         // Remove any existing record for the same calendar day
