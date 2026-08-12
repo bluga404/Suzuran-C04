@@ -16,6 +16,9 @@ struct LightingIndicatorView: View {
                 .multilineTextAlignment(.center)
                 .contentTransition(.numericText())
                 .animation(.easeInOut(duration: 0.25), value: readiness)
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.vertical, AppSpacing.sm)
+                .background(.ultraThinMaterial, in: Capsule())
             
             Text("\(completedAngles)/3 \(targetName)")
                 .font(AppTypography.caption)
