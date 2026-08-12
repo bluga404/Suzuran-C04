@@ -43,7 +43,7 @@ struct MainTabView: View {
                 ReportFactory.makeView(historyStore: viewModel.scanHistoryStore)
             }
         }
-        .tint(AppColor.accentPrimary)
+        .tint(AppColor.buttonPrimaryPurple)
     }
 }
 
