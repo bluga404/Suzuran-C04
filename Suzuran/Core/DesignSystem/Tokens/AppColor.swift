@@ -34,6 +34,17 @@ enum AppColor {
     // Custom exact brand colors (Adaptive)
     static let surfacePurple = Color(lightHex: 0xDDD9F8, darkHex: 0x362D5A)
     static let buttonPrimaryPurple = Color(lightHex: 0x5B4EB1, darkHex: 0x7668D6)
+    
+    // Tips insight background token (Adaptive D4D4D4 28% opacity)
+    static let surfaceTipsBackground = Color(UIColor { traitCollection in
+        let isDark = traitCollection.userInterfaceStyle == .dark
+        let hex: UInt32 = isDark ? 0x3A3A3C : 0xD4D4D4
+        let alpha: CGFloat = isDark ? 0.40 : 0.28
+        let r = CGFloat((hex >> 16) & 0xFF) / 255.0
+        let g = CGFloat((hex >> 8) & 0xFF) / 255.0
+        let b = CGFloat(hex & 0xFF) / 255.0
+        return UIColor(red: r, green: g, blue: b, alpha: alpha)
+    })
 }
 
 extension Color {

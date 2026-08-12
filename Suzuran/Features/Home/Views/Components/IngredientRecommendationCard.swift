@@ -9,7 +9,7 @@ struct IngredientRecommendationCard: View {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 HStack(alignment: .center) {
                     Text(recommendation.ingredient.displayName)
-                        .font(Font.screenTitle)
+                        .font(Font.sectionTitle)
                         .foregroundStyle(AppColor.textPrimary)
                     Spacer()
                     Image(systemName: "chevron.right")
@@ -18,7 +18,7 @@ struct IngredientRecommendationCard: View {
                 }
 
                 Text(recommendation.detail.description)
-                    .font(Font.description)
+                    .font(Font.label)
                     .foregroundStyle(AppColor.textSecondary)
                     .lineLimit(2)
                     .lineSpacing(2)

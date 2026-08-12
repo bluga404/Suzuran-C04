@@ -88,7 +88,7 @@ struct IngredientSection: View {
         }
         .padding(AppSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(AppColor.surfacePurple.opacity(0.08))
+        .background(AppColor.surfaceTipsBackground)
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
     }
 
