@@ -16,6 +16,7 @@ struct CompareView: View {
     }
 
     @State private var activeDetailPayload: PhotoDetailPayload? = nil
+    @State private var showAboutSkinScore = false
 
     // MARK: - Color & Style Tokens
 
@@ -56,6 +57,11 @@ struct CompareView: View {
                 title: payload.title,
                 dateText: payload.dateText
             )
+        }
+        .sheet(isPresented: $showAboutSkinScore) {
+            NavigationStack {
+                AboutSkinScoreView()
+            }
         }
     }
 
@@ -145,10 +151,14 @@ struct CompareView: View {
                         Text("Skin Score")
                             .font(.system(size: 22, weight: .bold))
                             .foregroundStyle(.primary)
-                        Image(systemName: "info.circle")
-                            .font(.system(size: 14))
-                            .foregroundStyle(.primary)
-                            .accessibilityHidden(true)
+                        Button {
+                            showAboutSkinScore = true
+                        } label: {
+                            Image(systemName: "info.circle")
+                                .font(.system(size: 14))
+                                .foregroundStyle(.primary)
+                        }
+                        .accessibilityLabel("About Skin Score")
                     }
 
                     HStack {
@@ -298,10 +308,14 @@ struct CompareView: View {
                         .font(.system(size: 20, weight: .bold))
                         .foregroundStyle(.primary)
 
-                    Image(systemName: "info.circle")
-                        .font(.system(size: 14))
-                        .foregroundStyle(.secondary)
-                        .accessibilityHidden(true)
+                    Button {
+                        showAboutSkinScore = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 14))
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityLabel("About Acne Type")
                 }
 
                 VStack(spacing: 12) {
