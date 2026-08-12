@@ -20,7 +20,6 @@ struct IngredientScanView: View {
             ZStack {
                 // Camera Preview
                 CameraPreview(session: cameraManager.session)
-                    .ignoresSafeArea()
 
                 // Dark overlay with cutout box
                 Color.black.opacity(0.5)
@@ -28,7 +27,6 @@ struct IngredientScanView: View {
                         RoundedRectangle(cornerRadius: AppCornerRadius.md)
                             .frame(width: 350, height: 450)
                     }
-                    .ignoresSafeArea()
 
                 // Viewfinder border
                 RoundedRectangle(cornerRadius: AppCornerRadius.md)
@@ -153,6 +151,7 @@ struct IngredientScanView: View {
             .onDisappear {
                 cameraManager.stopSession()
             }
+            .ignoresSafeArea()
         }
     }
 

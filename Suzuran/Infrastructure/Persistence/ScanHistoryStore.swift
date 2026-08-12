@@ -14,12 +14,8 @@ final class ScanHistoryStore: ObservableObject {
         self.fileURL = docs.appendingPathComponent("scan_history.json")
         var loaded = Self.load(from: fileURL)
 
-        // Inject 9 August 2026 test dummy data if not present (allows testing Compare feature immediately)
-        let aug9Dummy = DummyScanData.createAugust9Record()
-        if !loaded.contains(where: { Calendar.current.isDate($0.date, inSameDayAs: aug9Dummy.date) }) {
-            loaded.append(aug9Dummy)
-            loaded.sort { $0.date > $1.date }
-        }
+        // Filter out dummy data that might have been saved in previous runs
+        loaded.removeAll { $0.id.uuidString == "99999999-9999-9999-9999-999999999999" }
 
         self.records = loaded
     }

@@ -36,11 +36,13 @@ struct SkincareDetailView: View {
         }
         .sheet(isPresented: $isShowingEdit) {
             if let latest = skincareViewModel.products.first(where: { $0.id == product.id }) {
-                AddSkincareView(
-                    skincareViewModel: skincareViewModel,
-                    ingredientRepo: ingredientRepo,
-                    makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: latest) }
-                )
+                NavigationStack {
+                    AddSkincareView(
+                        skincareViewModel: skincareViewModel,
+                        ingredientRepo: ingredientRepo,
+                        makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: latest) }
+                    )
+                }
             }
         }
         .sheet(item: $selectedRecommendation) { rec in

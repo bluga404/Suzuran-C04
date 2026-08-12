@@ -10,15 +10,15 @@ struct IngredientChip: View {
         HStack(spacing: AppSpacing.xxs) {
             Text(name)
                 .font(Font.metadata)
-                .fontWeight(isMatched ? .semibold : .regular)
-                .foregroundStyle(isMatched ? AppColor.accentPrimary : AppColor.textPrimary)
+                .fontWeight(.regular)
+                .foregroundStyle(AppColor.textPrimary)
                 .lineLimit(1)
 
             if let onDelete {
                 Button(action: onDelete) {
                     Image(systemName: "xmark")
                         .font(Font.metadata)
-                        .foregroundStyle(isMatched ? AppColor.accentPrimary : AppColor.textSecondary)
+                        .foregroundStyle(AppColor.textSecondary)
                         .frame(width: 44, height: 44)
                         .contentShape(Rectangle())
                 }
@@ -30,10 +30,10 @@ struct IngredientChip: View {
         .padding(.trailing, onDelete == nil ? AppSpacing.sm : AppSpacing.xxs)
         .frame(minHeight: 44)
         .background(
-            Capsule().fill(isMatched ? AppColor.accentPrimary.opacity(0.08) : AppColor.surfacePrimary)
+            Capsule().fill(AppColor.surfacePrimary)
         )
         .overlay(
-            Capsule().stroke(isMatched ? AppColor.accentPrimary : AppColor.borderSubtle, lineWidth: 1)
+            Capsule().stroke(AppColor.borderSubtle, lineWidth: 1)
         )
     }
 }

@@ -76,3 +76,22 @@ struct MatchedIngredientEmptyState: View {
         .accessibilityElement(children: .combine)
     }
 }
+
+struct MatchedIngredientNeedsScanState: View {
+    var body: some View {
+        AppCard {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                Text("Ketahui Kecocokan Skincare")
+                    .font(Font.description)
+                    .foregroundStyle(AppColor.textPrimary)
+
+                Text("Lakukan scan wajah pada menu utama untuk mengetahui apakah skincare yang kamu simpan cocok dengan kondisi acne kamu saat ini.")
+                    .font(Font.metadata)
+                    .foregroundStyle(AppColor.textSecondary)
+                    .multilineTextAlignment(.leading)
+                    .fixedSize(horizontal: false, vertical: true)
+            }
+        }
+        .accessibilityElement(children: .combine)
+    }
+}

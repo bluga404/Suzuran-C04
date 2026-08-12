@@ -22,32 +22,23 @@ struct SkincareView: View {
             }
             .navigationTitle(ScreenTitle.skincare.title)
             .toolbarTitleDisplayMode(.inlineLarge)
-            .toolbar {
-                if !viewModel.products.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: { isShowingAdd = true }) {
-                            Image(systemName: "plus")
-                                .font(Font.description)
-                                .foregroundStyle(AppColor.accentPrimary)
-                                .frame(minWidth: 44, minHeight: 44)
-                        }
-                        .accessibilityLabel(Text(SkincareStrings.addSkincare))
-                    }
-                }
-            }
-            .sheet(isPresented: $isShowingAdd) {
+
+            .navigationDestination(isPresented: $isShowingAdd) {
                 AddSkincareView(
                     skincareViewModel: viewModel,
                     ingredientRepo: ingredientRepo,
-                    makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: nil) }
+                    makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: nil) },
+                    showsCancelButton: false
                 )
             }
             .sheet(item: $productToEdit) { product in
-                AddSkincareView(
-                    skincareViewModel: viewModel,
-                    ingredientRepo: ingredientRepo,
-                    makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: product) }
-                )
+                NavigationStack {
+                    AddSkincareView(
+                        skincareViewModel: viewModel,
+                        ingredientRepo: ingredientRepo,
+                        makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: product) }
+                    )
+                }
             }
             .navigationDestination(isPresented: $isShowingMatchedList) {
                 MatchedIngredientListView(matched: viewModel.matchedIngredients)
@@ -126,21 +117,28 @@ struct SkincareView: View {
 
     @ViewBuilder
     private var matchPreview: some View {
-        if !viewModel.activeAcneTypes.isEmpty {
-            if viewModel.matchedIngredients.isEmpty {
-                VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                    Text("Ingredient yang Cocok")
-                        .font(Font.description)
-                        .foregroundStyle(AppColor.textPrimary)
-                    MatchedIngredientEmptyState()
-                }
-            } else {
-                MatchedIngredientSection(
-                    matched: viewModel.matchedIngredients,
-                    onSelect: { selectedMatched = $0 },
-                    onShowAll: { isShowingMatchedList = true }
-                )
+        if viewModel.activeAcneTypes.isEmpty {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                Text("Ingredient yang Cocok")
+                    .font(Font.description)
+                    .foregroundStyle(AppColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
+                MatchedIngredientNeedsScanState()
             }
+        } else if viewModel.matchedIngredients.isEmpty {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                Text("Ingredient yang Cocok")
+                    .font(Font.description)
+                    .foregroundStyle(AppColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
+                MatchedIngredientEmptyState()
+            }
+        } else {
+            MatchedIngredientSection(
+                matched: viewModel.matchedIngredients,
+                onSelect: { selectedMatched = $0 },
+                onShowAll: { isShowingMatchedList = true }
+            )
         }
     }
 

@@ -40,9 +40,9 @@ struct IngredientSearchView: View {
                 .padding(AppSpacing.md)
                 
                 // Search Results
-                List {
-                    if !query.isEmpty && !results.contains(where: { $0.caseInsensitiveCompare(query) == .orderedSame }) {
-                        Section("Kandungan Baru") {
+                if !query.isEmpty {
+                    List {
+                        if !results.contains(where: { $0.caseInsensitiveCompare(query) == .orderedSame }) {
                             Button(action: {
                                 onSelect(query)
                                 dismiss()
@@ -56,19 +56,11 @@ struct IngredientSearchView: View {
                                 }
                             }
                         }
-                    }
-                    
-                    Section("Hasil Pencarian") {
+                        
                         if results.isEmpty {
-                            if query.isEmpty {
-                                Text("Ketik untuk mencari kandungan skincare...")
-                                    .font(Font.metadata)
-                                    .foregroundStyle(AppColor.textSecondary)
-                            } else {
-                                Text("Tidak ada hasil ditemukan")
-                                    .font(Font.metadata)
-                                    .foregroundStyle(AppColor.textSecondary)
-                            }
+                            Text("Tidak ada hasil ditemukan")
+                                .font(Font.metadata)
+                                .foregroundStyle(AppColor.textSecondary)
                         } else {
                             ForEach(results, id: \.self) { ingredient in
                                 Button(action: {
@@ -88,8 +80,10 @@ struct IngredientSearchView: View {
                             }
                         }
                     }
+                    .listStyle(.insetGrouped)
+                } else {
+                    Spacer()
                 }
-                .listStyle(.insetGrouped)
             }
             .background(AppColor.backgroundPrimary)
             .navigationTitle("Cari Kandungan")
