@@ -647,3 +647,39 @@ private struct FullPhotoDetailView: View {
         .toolbar(.hidden, for: .tabBar)
     }
 }
+
+// MARK: - Preview
+
+#Preview {
+    let recA = DummyScanData.createAugust9Record()
+    let recB = ScanRecord(
+        id: UUID(),
+        date: Date(),
+        frontImageData: nil,
+        skinScore: 78,
+        totalAcneCount: 8,
+        severity: .mild,
+        acneTypeCounts: [
+            ScanRecord.AcneTypeCount(acneType: .papule, count: 3),
+            ScanRecord.AcneTypeCount(acneType: .pustule, count: 2),
+            ScanRecord.AcneTypeCount(acneType: .blackhead, count: 2),
+            ScanRecord.AcneTypeCount(acneType: .whitehead, count: 1)
+        ],
+        acneAreaCounts: [
+            ScanRecord.AcneAreaCount(area: .forehead, count: 3),
+            ScanRecord.AcneAreaCount(area: .rightCheek, count: 2),
+            ScanRecord.AcneAreaCount(area: .leftCheek, count: 1),
+            ScanRecord.AcneAreaCount(area: .nose, count: 1),
+            ScanRecord.AcneAreaCount(area: .chin, count: 1)
+        ],
+        subZoneThumbnails: nil,
+        areaTypeCounts: nil,
+        frontMarkers: nil,
+        areaMarkers: nil
+    )
+    let vm = CompareViewModel(recordA: recA, recordB: recB, allRecords: [recA, recB])
+
+    return NavigationStack {
+        CompareView(viewModel: vm)
+    }
+}
