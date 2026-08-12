@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// History tab — displays all past scans in a 3-column grid grouped by month.
-/// Uses native iOS Large Title navigation and toolbar items for Compare actions.
+/// Native iOS NavigationStack with large title and toolbar compare buttons.
 struct HistoryView: View {
     @ObservedObject private var viewModel: HistoryViewModel
 
@@ -64,48 +64,43 @@ struct HistoryView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    GlassEffectContainer {
-                        HStack(spacing: 8) {
+                    HStack(spacing: 8) {
+                        Button {
+                            if viewModel.isCompareMode {
+                                if let (first, second) = viewModel.selectedPair {
+                                    activePayload = ComparePayload(recordA: first, recordB: second)
+                                }
+                            } else {
+                                withAnimation(.snappy(duration: 0.35)) {
+                                    viewModel.toggleCompareMode()
+                                }
+                            }
+                        } label: {
+                            Text(viewModel.isCompareMode
+                                 ? "Compare (\(viewModel.selectedCount)/2)"
+                                 : "Compare")
+                        }
+                        .buttonStyle(.plain)
+                        .disabled(viewModel.isCompareMode && !viewModel.canCompare)
+                        .glassEffect(.regular.interactive(), in: .capsule)
+
+                        if viewModel.isCompareMode {
                             Button {
-                                if viewModel.isCompareMode {
-                                    if let (first, second) = viewModel.selectedPair {
-                                        activePayload = ComparePayload(recordA: first, recordB: second)
-                                    }
-                                } else {
-                                    withAnimation(.snappy(duration: 0.35)) {
-                                        viewModel.toggleCompareMode()
-                                    }
+                                withAnimation(.snappy(duration: 0.35)) {
+                                    viewModel.toggleCompareMode()
                                 }
                             } label: {
-                                Text(viewModel.isCompareMode
-                                     ? "Compare (\(viewModel.selectedCount)/2)"
-                                     : "Compare")
-                                    .font(.subheadline.weight(.semibold))
-                                    .padding(.horizontal, 14)
-                                    .padding(.vertical, 8)
+                                Image(systemName: "xmark")
+                                    .font(.system(size: 14, weight: .bold))
+                                    .frame(width: 34, height: 34)
                             }
                             .buttonStyle(.plain)
-                            .disabled(viewModel.isCompareMode && !viewModel.canCompare)
-                            .glassEffect(.regular.interactive(), in: .capsule)
-
-                            if viewModel.isCompareMode {
-                                Button {
-                                    withAnimation(.snappy(duration: 0.35)) {
-                                        viewModel.toggleCompareMode()
-                                    }
-                                } label: {
-                                    Image(systemName: "xmark")
-                                        .font(.system(size: 14, weight: .bold))
-                                        .frame(width: 34, height: 34)
-                                }
-                                .buttonStyle(.plain)
-                                .glassEffect(.regular.interactive(), in: .circle)
-                                .transition(.scale.combined(with: .opacity))
-                                .accessibilityLabel("Cancel compare")
-                            }
+                            .glassEffect(.regular.interactive(), in: .circle)
+                            .transition(.scale.combined(with: .opacity))
+                            .accessibilityLabel("Cancel compare")
                         }
-                        .animation(.snappy(duration: 0.35), value: viewModel.isCompareMode)
                     }
+                    .animation(.snappy(duration: 0.35), value: viewModel.isCompareMode)
                 }
             }
             .toolbar(.visible, for: .tabBar)
@@ -144,7 +139,7 @@ struct HistoryView: View {
             }
             .padding(.horizontal, 16)
             .padding(.top, 8)
-            .padding(.bottom, 90) // Clear floating tab bar space
+            .padding(.bottom, 90)
         }
         .scrollEdgeEffectStyle(.soft, for: .top)
     }

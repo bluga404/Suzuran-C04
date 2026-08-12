@@ -59,7 +59,7 @@ struct CompareView: View {
         }
     }
 
-    // MARK: - Area Filter Chips (Text-only chips per design specification)
+    // MARK: - Area Filter Chips
 
     private var areaFilterChips: some View {
         ScrollView(.horizontal, showsIndicators: false) {
@@ -91,7 +91,7 @@ struct CompareView: View {
         }
     }
 
-    // MARK: - Date Selectors (Rounded 8, 16pt margin to photos, text-only without chevron)
+    // MARK: - Date Selectors (Rounded 8, 16pt margin to photos)
 
     private var dateSelectors: some View {
         HStack(spacing: 8) {
@@ -314,7 +314,7 @@ struct CompareView: View {
     }
 }
 
-// MARK: - CompareAreaChip (Text-only pill chip)
+// MARK: - CompareAreaChip
 
 private struct CompareAreaChip: View {
     let label: String
@@ -349,7 +349,7 @@ private struct CompareAreaChip: View {
     }
 }
 
-// MARK: - CompareDateChip (Clean date chip without chevron icon)
+// MARK: - CompareDateChip
 
 private struct CompareDateChip: View {
     let date: Date
@@ -357,20 +357,16 @@ private struct CompareDateChip: View {
     let borderColor: Color
 
     var body: some View {
-        HStack {
-            Spacer()
-            Text(formatter.string(from: date))
-                .font(.system(size: 14, weight: .regular))
-                .foregroundStyle(.primary)
-            Spacer()
-        }
-        .padding(.horizontal, 12)
-        .padding(.vertical, 10)
-        .frame(maxWidth: .infinity)
-        .background(
-            RoundedRectangle(cornerRadius: 8)
-                .stroke(borderColor, lineWidth: 1)
-        )
+        Text(formatter.string(from: date))
+            .font(.system(size: 14, weight: .regular))
+            .foregroundStyle(.primary)
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity)
+            .background(
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(borderColor, lineWidth: 1)
+            )
     }
 }
 
@@ -445,33 +441,59 @@ private struct CompareFaceImage: View {
         let displayImageData = currentImageData
         let displayTitle = photoTitle
         let dateStr = CompareViewModel.displayDateFormatter.string(from: record.date)
+        let activeMarkers: [MarkerModel] = {
+            if let area = selectedArea {
+                return record.areaMarkers?[area] ?? []
+            } else {
+                return record.frontMarkers ?? []
+            }
+        }()
 
         Button {
             onTap(displayImageData, displayTitle, dateStr)
         } label: {
-            Group {
-                if let data = displayImageData, let uiImage = UIImage(data: data) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .id(selectedArea?.rawValue ?? "All")
-                        .transition(.opacity)
-                } else {
-                    Rectangle()
-                        .fill(Color(.systemBackground))
-                        .overlay(
-                            VStack(spacing: 8) {
-                                Image(systemName: "person.crop.rectangle")
-                                    .font(.system(size: 36))
-                                    .foregroundStyle(.secondary)
-                                Text("No Image")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(.secondary)
-                            }
-                        )
+            ZStack {
+                Group {
+                    if let data = displayImageData, let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .id(selectedArea?.rawValue ?? "All")
+                            .transition(.opacity)
+                    } else {
+                        Rectangle()
+                            .fill(Color(.systemBackground))
+                            .overlay(
+                                VStack(spacing: 8) {
+                                    Image(systemName: "person.crop.rectangle")
+                                        .font(.system(size: 36))
+                                        .foregroundStyle(.secondary)
+                                    Text("No Image")
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(.secondary)
+                                }
+                            )
+                    }
+                }
+                .animation(.easeInOut(duration: 0.25), value: selectedArea)
+
+                // Bounding box overlay
+                if !activeMarkers.isEmpty {
+                    GeometryReader { geo in
+                        ForEach(activeMarkers) { marker in
+                            let box = marker.normalizedBoundingBox
+                            let x = box.minX * geo.size.width
+                            let y = box.minY * geo.size.height
+                            let w = box.width * geo.size.width
+                            let h = box.height * geo.size.height
+                            RoundedRectangle(cornerRadius: 3)
+                                .stroke(markerColor(for: marker.acneType), lineWidth: 1.5)
+                                .frame(width: w, height: h)
+                                .position(x: x + w / 2, y: y + h / 2)
+                        }
+                    }
                 }
             }
-            .animation(.easeInOut(duration: 0.25), value: selectedArea)
             .frame(width: 181, height: 213)
             .clipped()
             .clipShape(RoundedRectangle(cornerRadius: 12))
@@ -482,6 +504,18 @@ private struct CompareFaceImage: View {
         }
         .buttonStyle(.plain)
         .accessibilityLabel(record.frontImageData != nil ? "\(displayTitle), tap to view full photo" : "No face image available")
+    }
+
+    private func markerColor(for type: AcneType) -> Color {
+        switch type {
+        case .blackhead:  return .brown
+        case .cyst:       return .red
+        case .nodule:     return .purple
+        case .papule:     return .orange
+        case .pustule:    return .yellow
+        case .whitehead:  return .white
+        case .unknown:    return .gray
+        }
     }
 }
 
