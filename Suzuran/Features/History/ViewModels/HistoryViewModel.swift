@@ -54,7 +54,17 @@ final class HistoryViewModel: ObservableObject {
         self.records = historyStore.records
         cancellable = historyStore.$records
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] in self?.records = $0 }
+            .sink { [weak self] newRecords in
+                guard let self = self else { return }
+                self.records = newRecords
+                
+                // Remove any selected IDs that no longer exist in the updated records
+                let validIDs = Set(newRecords.map { $0.id })
+                self.selectedRecordIDs.formIntersection(validIDs)
+                
+                // If compare mode is active but we lost our selections, we might want to keep compare mode active
+                // but the user will just see fewer selected checkmarks, which is correct.
+            }
     }
 
     // MARK: - Actions

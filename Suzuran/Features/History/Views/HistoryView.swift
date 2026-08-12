@@ -108,6 +108,16 @@ struct HistoryView: View {
             }
         }
         .appScreenContainer()
+        .onChange(of: viewModel.records) { newRecords in
+            // If the user takes a new scan (which replaces today's old scan) while CompareView is active,
+            // or if a record is deleted, dismiss CompareView to prevent showing stale data.
+            if let payload = activePayload {
+                let validIDs = Set(newRecords.map { $0.id })
+                if !validIDs.contains(payload.recordA.id) || !validIDs.contains(payload.recordB.id) {
+                    activePayload = nil
+                }
+            }
+        }
     }
 
     // MARK: - Scrollable Grid Content
