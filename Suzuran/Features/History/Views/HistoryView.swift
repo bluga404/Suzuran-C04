@@ -13,7 +13,6 @@ struct HistoryView: View {
 
     @State private var activePayload: ComparePayload? = nil
     @State private var detailScanID: UUID?
-    @State private var isShowingScanSheet = false
 
     init(viewModel: HistoryViewModel) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
@@ -80,15 +79,6 @@ struct HistoryView: View {
                         }
                     }
                 }
-
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: { isShowingScanSheet = true }) {
-                        Image(systemName: "camera")
-                            .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(AppColor.accentPrimary)
-                    }
-                    .accessibilityLabel("Start face scan")
-                }
             }
             .toolbar(.visible, for: .tabBar)
             .navigationDestination(item: $activePayload) { payload in
@@ -100,19 +90,6 @@ struct HistoryView: View {
             }
             .navigationDestination(item: $detailScanID) { scanID in
                 HomeFactory.makeDetailView(scanID: scanID, historyStore: viewModel.historyStore)
-            }
-            .fullScreenCover(isPresented: $isShowingScanSheet) {
-                FaceScanFactory.makeView(
-                    onScanSaved: { session, result in
-                        let mapper = FaceScanToSkinScanMapper()
-                        let skinScan = mapper.map(session: session)
-                        HomeFactory.sharedScanRepository.save(skinScan)
-                        viewModel.historyStore.save(result)
-                    },
-                    onDismiss: {
-                        isShowingScanSheet = false
-                    }
-                )
             }
         }
         .appScreenContainer()
