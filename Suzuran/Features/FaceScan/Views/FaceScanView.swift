@@ -193,17 +193,17 @@ struct FaceScanView: View {
 
             // Layer 4: Top & Bottom UI Controls Overlay (ON TOP of dark mask)
             VStack {
-                // Top Bar with Native Apple Close Button
+                // Top Bar with Native iOS 26 Glass Close Button
                 HStack(alignment: .center) {
                     Button {
                         onDismiss()
                     } label: {
-                        Image(systemName: "xmark.circle.fill")
-                            .font(.system(size: 32))
-                            .symbolRenderingMode(.palette)
-                            .foregroundStyle(Color.white, Color.white.opacity(0.3))
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(10)
+                            .glassEffect(.regular.interactive(), in: Circle())
                     }
-                    .buttonStyle(.plain)
 
                     Spacer()
                 }
