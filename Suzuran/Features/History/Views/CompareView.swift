@@ -441,15 +441,7 @@ struct CompareFaceImage: View {
     }
 
     private static func uiMarkerColor(for type: AcneType) -> UIColor {
-        switch type {
-        case .blackhead:  return .brown
-        case .cyst:       return .red
-        case .nodule:     return .purple
-        case .papule:     return .orange
-        case .pustule:    return .yellow
-        case .whitehead:  return .white
-        case .unknown:    return .gray
-        }
+        type.uiColor
     }
 
     private var renderedImageData: Data? {
