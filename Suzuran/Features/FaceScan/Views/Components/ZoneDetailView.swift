@@ -17,22 +17,23 @@ struct ZoneDetailView: View {
             ZStack {
                 Color(.systemBackground).ignoresSafeArea()
 
-            if let imageData = subZone.imageData,
-               let uiImage = UIImage(data: imageData) {
-                imageContentView(uiImage)
-            } else {
-                VStack(spacing: AppSpacing.sm) {
-                    Image(systemName: "photo")
-                        .font(Font.system(size: 56, weight: .regular))
-                        .foregroundStyle(.secondary)
-                    Text("Foto belum tersedia")
-                        .font(Font.description)
-                        .foregroundStyle(.secondary)
+                if let imageData = subZone.imageData,
+                   let uiImage = UIImage(data: imageData) {
+                    imageContentView(uiImage)
+                } else {
+                    VStack(spacing: AppSpacing.sm) {
+                        Image(systemName: "photo")
+                            .font(Font.system(size: 56, weight: .regular))
+                            .foregroundStyle(.secondary)
+                        Text("Foto belum tersedia")
+                            .font(Font.description)
+                            .foregroundStyle(.secondary)
+                    }
                 }
-            }
 
-            // Header overlay: back button + label + count badge
-            headerOverlay
+                // Header overlay: back button + label + count badge
+                headerOverlay
+            }
         }
         .preferredColorScheme(.dark)
     }

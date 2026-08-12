@@ -12,9 +12,9 @@ struct IngredientSection: View {
         Array(recommendations.prefix(5))
     }
     var body: some View {
-        if visibleRecommendations.isEmpty && showEmptyState {
-            AppCard(padding: AppSpacing.lg, backgroundColor: AppColor.surfacePurple, borderColor: .clear) {
-                VStack(alignment: .leading, spacing: AppSpacing.sm) {
+        AppCard(padding: AppSpacing.lg) {
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                HStack {
                     Text("Ingredients")
                         .font(Font.metadata)
                         .tracking(1.2)

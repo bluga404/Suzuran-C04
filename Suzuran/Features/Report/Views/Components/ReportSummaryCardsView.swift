@@ -43,7 +43,7 @@ struct ReportSummaryCardsView: View {
 
                     if let ts = insight.timestamp, insight.source == .cached {
                         Text("Last updated: \(DateFormatters.fullDateEN.string(from: ts))")
-                            .font(AppTypography.caption)
+                                .font(Font.graphLabel)
                             .foregroundStyle(AppColor.textSecondary)
                     }
 
@@ -57,7 +57,7 @@ struct ReportSummaryCardsView: View {
                             }
 
                             Text("There was an error generating the summary. Please check your connection or API configuration.")
-                                .font(AppTypography.caption)
+                            .font(Font.graphLabel)
                                 .foregroundStyle(AppColor.textSecondary)
                         }
                     }
