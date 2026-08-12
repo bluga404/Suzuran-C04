@@ -1,5 +1,29 @@
 import Foundation
 
+struct RisksAndSafety: Codable, Hashable {
+    let common: String?
+    let serious: String?
+    let rare: String?
+    
+    enum CodingKeys: String, CodingKey {
+        case common = "Common"
+        case serious = "Serious"
+        case rare = "Rare"
+    }
+}
+
+struct IngredientInteraction: Codable, Hashable {
+    let ingredient: String
+    let effect: String
+    let description: String
+    
+    enum CodingKeys: String, CodingKey {
+        case ingredient = "Ingredient"
+        case effect = "Effect"
+        case description = "Description"
+    }
+}
+
 struct SkincareIngredientRecommendation: Identifiable, Codable, Hashable {
     var id: String { ingredientName }
 
@@ -9,8 +33,8 @@ struct SkincareIngredientRecommendation: Identifiable, Codable, Hashable {
     let description: String
     let concentrationAndUsage: String
     let application: String
-    let ingredientInteractions: String?
-    let risksAndSafety: String
+    let ingredientInteractions: [IngredientInteraction]?
+    let risksAndSafety: RisksAndSafety
     let researchPapers: String?
 
     enum CodingKeys: String, CodingKey {

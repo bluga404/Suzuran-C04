@@ -111,9 +111,25 @@ struct IngredientDetailView: View {
                 .buttonStyle(.plain)
 
                 if isInteractionExpanded {
-                    Text(interactions)
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColor.textSecondary)
+                    VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                        ForEach(interactions, id: \.self) { interaction in
+                            VStack(alignment: .leading, spacing: 4) {
+                                HStack(alignment: .top) {
+                                    Text(interaction.ingredient)
+                                        .font(AppTypography.bodyBold)
+                                        .foregroundStyle(AppColor.textPrimary)
+                                    Text("(\(interaction.effect))")
+                                        .font(AppTypography.caption)
+                                        .fontWeight(.semibold)
+                                        .foregroundStyle(AppColor.accentPrimary)
+                                }
+                                Text(interaction.description)
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColor.textSecondary)
+                            }
+                            .padding(.bottom, AppSpacing.xs)
+                        }
+                    }
                 }
             }
         }
@@ -137,7 +153,27 @@ struct IngredientDetailView: View {
 
     private var safetySection: some View {
         detailCard(title: "Risiko & Keamanan", symbol: "exclamationmark.triangle", tint: AppColor.accentDanger) {
-            Text(recommendation.risksAndSafety)
+            VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                if let common = recommendation.risksAndSafety.common {
+                    safetyItem(level: "Common", description: common, color: .orange)
+                }
+                if let serious = recommendation.risksAndSafety.serious {
+                    safetyItem(level: "Serious", description: serious, color: .red)
+                }
+                if let rare = recommendation.risksAndSafety.rare {
+                    safetyItem(level: "Rare", description: rare, color: .yellow)
+                }
+            }
+        }
+    }
+
+    private func safetyItem(level: String, description: String, color: Color) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(level.uppercased())
+                .font(AppTypography.caption)
+                .fontWeight(.bold)
+                .foregroundStyle(color)
+            Text(description)
                 .font(AppTypography.body)
                 .foregroundStyle(AppColor.textSecondary)
         }
