@@ -16,75 +16,60 @@ final class LocalSummaryService: SummaryServiceProtocol {
     }
 
     private func buildSummary(from records: [ScanRecord]) -> String {
-        let sortedRecords = records.sorted { $0.date < $1.date }
+        let sorted = records.sorted { $0.date < $1.date }
 
-        if sortedRecords.count == 1 {
-            return buildSingleRecordSummary(sortedRecords[0])
+        if sorted.count == 1 {
+            return buildSingleRecordSummary(sorted[0])
         }
 
-        return buildTrendSummary(first: sortedRecords.first!, latest: sortedRecords.last!, records: sortedRecords)
+        return buildTrendSummary(first: sorted.first!, latest: sorted.last!, records: sorted)
     }
 
     private func buildSingleRecordSummary(_ record: ScanRecord) -> String {
         let dominantType = record.acneTypeCounts
-            .max(by: { lhs, rhs in lhs.count < rhs.count })?
-            .acneType.displayName
-            .lowercased() ?? "acne"
+            .max(by: { $0.count < $1.count })?.acneType.displayName ?? "Acne"
 
-        let acneDescription = record.totalAcneCount == 0
-            ? "kulit kamu terlihat sangat bersih dengan tidak ada jerawat yang terdeteksi"
-            : "terdapat \(record.totalAcneCount) jerawat dengan tipe yang paling umum adalah \(dominantType)"
+        let paragraph1 = "Your latest scan shows a skin score of \(record.skinScore) and a total acne count of \(record.totalAcneCount)."
 
-        return "Scan terbaru menunjukkan bahwa \(acneDescription). Skor kulit kamu saat ini adalah \(record.skinScore), yang menggambarkan kondisi kulit saat ini.".trimmingCharacters(in: .whitespacesAndNewlines)
+        let paragraph2: String
+        if record.totalAcneCount == 0 {
+            paragraph2 = "No acne was detected in the most recent scan — skin appears clear in the captured image."
+        } else {
+            paragraph2 = "The most common lesion type detected was \(dominantType.lowercased()), which accounted for the largest share of occurrences in this scan."
+        }
+
+        return [paragraph1, paragraph2].joined(separator: "\n\n").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 
     private func buildTrendSummary(first: ScanRecord, latest: ScanRecord, records: [ScanRecord]) -> String {
         let acneDelta = latest.totalAcneCount - first.totalAcneCount
         let scoreDelta = latest.skinScore - first.skinScore
 
-        let acneTrend: String
-        switch acneDelta {
-        case ..<0:
-            acneTrend = "menurun"
-        case 1...:
-            acneTrend = "meningkat"
-        default:
-            acneTrend = "stabil"
-        }
-
-        let scoreTrend: String
-        switch scoreDelta {
-        case let value where value > 0:
-            scoreTrend = "membaik"
-        case let value where value < 0:
-            scoreTrend = "turun"
-        default:
-            scoreTrend = "tetap stabil"
+        let headline: String
+        if scoreDelta > 5 {
+            headline = "Skin score has improved over the recorded period by approximately \(scoreDelta) points."
+        } else if scoreDelta < -5 {
+            headline = "Skin score has declined over the recorded period by approximately \(abs(scoreDelta)) points."
+        } else {
+            headline = "Skin score has remained relatively stable over the recorded period."
         }
 
         let dominantType = latest.acneTypeCounts
-            .max(by: { lhs, rhs in lhs.count < rhs.count })?
-            .acneType.displayName
-            .lowercased() ?? "acne"
+            .max(by: { $0.count < $1.count })?.acneType.displayName ?? "Acne"
 
-        let firstDate = DateFormatters.fullDateID.string(from: first.date)
-        let latestDate = DateFormatters.fullDateID.string(from: latest.date)
+        let trendDetail = "Across the range of saved scans, the average skin score is \(Int(records.map { $0.skinScore }.reduce(0, +)) / max(1, records.count)). The latest scan shows \(latest.totalAcneCount) acne occurrences, with \(dominantType.lowercased()) as the most frequently detected type."
 
-        let deltaDescription: String
-        switch acneDelta {
-        case ..<0:
-            deltaDescription = "lebih sedikit" 
-        case 1...:
-            deltaDescription = "lebih banyak"
-        default:
-            deltaDescription = "jumlah yang sama"
+        let interpretation: String
+        if acneDelta < 0 {
+            interpretation = "Overall acne counts have decreased compared with the earliest saved scan, suggesting an improving trend in lesion frequency."
+        } else if acneDelta > 0 {
+            interpretation = "Overall acne counts have increased compared with the earliest saved scan, indicating a rise in lesion frequency that may need attention."
+        } else {
+            interpretation = "Overall acne counts show little net change across the period; consider monitoring for short-term spikes."
         }
 
-        let comparisonSentence = "Dari scan pertama pada \(firstDate) hingga scan terakhir pada \(latestDate), jumlah jerawat \(acneTrend) menjadi \(deltaDescription) dan skor kulit \(scoreTrend)."
-        let dominantSentence = "Tipe jerawat yang paling umum sekarang adalah \(dominantType)."
+        let closing = "Continue regular scans to track whether recent trends persist; this summary reflects detected counts and averaged scores across saved scans."
 
-        return [comparisonSentence, dominantSentence]
-            .joined(separator: " ")
-            .trimmingCharacters(in: .whitespacesAndNewlines)
+        return [headline, trendDetail, interpretation, closing].joined(separator: "\n\n").trimmingCharacters(in: .whitespacesAndNewlines)
     }
 }

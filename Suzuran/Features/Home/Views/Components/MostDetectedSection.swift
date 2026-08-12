@@ -34,7 +34,6 @@ struct MostDetectedSection: View {
                 }
             }
         }
-        .padding(.horizontal, AppSpacing.md)
     }
 
     private var countText: String {

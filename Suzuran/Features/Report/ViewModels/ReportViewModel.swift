@@ -42,7 +42,21 @@ final class ReportViewModel: ObservableObject {
             )
         } else {
             selectedAcnePointDay = acneDayLabels(for: loadedSnapshot).last
-            state = .loaded(loadedSnapshot)
+
+            // Compute adaptive insight based on current selection
+            let activeTypes = Set(loadedSnapshot.acneTypeSeriesByRange[selectedRange, default: []].map(\.acneType))
+            let visibleTypes = activeTypes.filter { !hiddenAcneTypeIDs.contains($0.id) }
+            let insight = await dataService.buildAdaptiveInsight(from: loadedSnapshot.records, metric: selectedMetric, range: selectedRange, visibleAcneTypes: Array(visibleTypes), selectedDay: selectedAcnePointDay)
+
+            let snapshotWithInsight = ReportDataSnapshot(
+                records: loadedSnapshot.records,
+                skinScoreSeriesByRange: loadedSnapshot.skinScoreSeriesByRange,
+                acneTypeSeriesByRange: loadedSnapshot.acneTypeSeriesByRange,
+                insightSummary: insight
+            )
+
+            snapshot = snapshotWithInsight
+            state = .loaded(snapshotWithInsight)
             logger.info("Report snapshot loaded; records=\(loadedSnapshot.records.count)", file: #fileID, line: #line)
         }
 
@@ -57,6 +71,7 @@ final class ReportViewModel: ObservableObject {
 
     func setMetric(_ metric: ReportMetric) {
         selectedMetric = metric
+        Task { await recomputeInsight() }
     }
 
     func setRange(_ range: ReportRange) {
@@ -67,11 +82,13 @@ final class ReportViewModel: ObservableObject {
             let activeIDs = Set(snapshot.acneTypeSeriesByRange[range, default: []].map(\.id))
             hiddenAcneTypeIDs = hiddenAcneTypeIDs.intersection(activeIDs)
         }
+        Task { await recomputeInsight() }
     }
 
     func selectAcnePointDay(_ day: String) {
         guard acneDayLabels.contains(day) else { return }
         selectedAcnePointDay = day
+        Task { await recomputeInsight() }
     }
 
     func toggleAcneTypeVisibility(_ acneTypeID: String) {
@@ -80,6 +97,26 @@ final class ReportViewModel: ObservableObject {
         } else {
             hiddenAcneTypeIDs.insert(acneTypeID)
         }
+        Task { await recomputeInsight() }
+    }
+
+    private func recomputeInsight() async {
+        guard let current = snapshot else { return }
+
+        let activeTypes = current.acneTypeSeriesByRange[selectedRange, default: []].map(\.acneType)
+        let visibleTypes = activeTypes.filter { !hiddenAcneTypeIDs.contains($0.id) }
+
+        let insight = await dataService.buildAdaptiveInsight(from: current.records, metric: selectedMetric, range: selectedRange, visibleAcneTypes: visibleTypes, selectedDay: selectedAcnePointDay)
+
+        let updated = ReportDataSnapshot(
+            records: current.records,
+            skinScoreSeriesByRange: current.skinScoreSeriesByRange,
+            acneTypeSeriesByRange: current.acneTypeSeriesByRange,
+            insightSummary: insight
+        )
+
+        snapshot = updated
+        state = .loaded(updated)
     }
 
     func isAcneTypeActive(_ acneTypeID: String) -> Bool {

@@ -89,7 +89,7 @@ struct ReportView: View {
                     .frame(maxWidth: .infinity)
                 } else {
                     ReportAcneTypeChartView(
-                        points: viewModel.visibleAcneChartPoints,
+                        series: viewModel.acneTypeSeriesData.filter { viewModel.isAcneTypeActive($0.id) },
                         dayLabels: viewModel.acneDayLabels,
                         selectedDay: viewModel.selectedAcnePointDay,
                         onSelectDay: viewModel.selectAcnePointDay
