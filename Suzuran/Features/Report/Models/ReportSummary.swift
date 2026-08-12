@@ -8,6 +8,15 @@ struct ReportComparisonSummary: Equatable {
 }
 
 struct ReportInsightSummary: Equatable {
+    enum Source: String, Codable, Equatable {
+        case generated
+        case cached
+        case error
+        case empty
+    }
+
     let title: String
     let body: String
+    let source: Source
+    let timestamp: Date?
 }

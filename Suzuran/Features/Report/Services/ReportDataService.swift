@@ -1,6 +1,6 @@
 import Foundation
 
-struct ReportDataSnapshot {
+struct ReportDataSnapshot: Equatable {
     let records: [ScanRecord]
     let skinScoreSeriesByRange: [ReportRange: [ReportPoint]]
     let acneTypeSeriesByRange: [ReportRange: [AcneTypeSeries]]
@@ -9,14 +9,25 @@ struct ReportDataSnapshot {
 
 final class ReportDataService {
     private let historyStore: ScanHistoryStore?
-    private let summaryService: GeminiSummaryService
+    private let summaryService: SummaryServiceProtocol
+    private let keyValueStore: KeyValueStore
+
+    private enum CacheKeys {
+        static let summary = "suzuran.report.summary.v1"
+    }
+
+    private let logger: AppLogging
 
     init(
         historyStore: ScanHistoryStore? = nil,
-        summaryService: GeminiSummaryService = GeminiSummaryService()
+        summaryService: SummaryServiceProtocol = GeminiSummaryService(),
+        keyValueStore: KeyValueStore = UserDefaultsKeyValueStore(userDefaults: .standard),
+        logger: AppLogging = AppLogger()
     ) {
         self.historyStore = historyStore
         self.summaryService = summaryService
+        self.keyValueStore = keyValueStore
+        self.logger = logger
     }
 
     func loadSnapshot() async -> ReportDataSnapshot {
@@ -83,22 +94,53 @@ final class ReportDataService {
 
     private func buildInsightSummary(from records: [ScanRecord]) async -> ReportInsightSummary {
         guard !records.isEmpty else {
-            return .init(
-                title: "Ringkasan",
-                body: "Simpan scan wajah pertama untuk melihat tren perkembangan kulitmu di sini."
-            )
+            logger.info("No records available for summary; returning empty insight", file: #fileID, line: #line)
+            return .init(title: "Summary Insight", body: "Complete your first skin scan to see your progress here.", source: .empty, timestamp: nil)
         }
 
         do {
+            logger.info("Requesting generated summary for \(records.count) records", file: #fileID, line: #line)
             let generated = try await summaryService.generateSummary(for: records)
             if !generated.isEmpty {
-                return .init(title: "Ringkasan", body: generated)
+                saveCachedSummary(body: generated)
+                logger.info("Generated summary cached (\(generated.count) chars)", file: #fileID, line: #line)
+                return .init(title: "Summary Insight", body: generated, source: .generated, timestamp: Date())
             }
         } catch {
-            // Fall back to a static summary if Gemini is unavailable, misconfigured, or returns invalid content.
+            logger.error("Summary generation failed: \(error.localizedDescription)", file: #fileID, line: #line)
+            if let cached = loadCachedSummary() {
+                logger.info("Using cached summary last updated \(formattedDate(cached.timestamp))", file: #fileID, line: #line)
+                let bodyWithNote = "(Cached: last updated on \(formattedDate(cached.timestamp)))\n\n\(cached.body)"
+                return .init(title: "Summary Insight", body: bodyWithNote, source: .cached, timestamp: cached.timestamp)
+            }
+
+            logger.error("No cached summary available; returning error summary", file: #fileID, line: #line)
+            return .init(title: "Summary Insight", body: "We could not generate a summary right now. Please check your connection or API configuration.", source: .error, timestamp: nil)
         }
 
-        return buildStaticInsightSummary(from: records)
+        let staticSummary = buildStaticInsightSummary(from: records)
+        saveCachedSummary(body: staticSummary.body)
+        logger.info("Using static analysis summary and cached it", file: #fileID, line: #line)
+        return .init(title: staticSummary.title, body: staticSummary.body, source: .generated, timestamp: Date())
+    }
+
+    // MARK: - Caching
+
+    private struct CachedSummary: Codable {
+        let body: String
+        let timestamp: Date
+    }
+
+    private func saveCachedSummary(body: String) {
+        let cached = CachedSummary(body: body, timestamp: Date())
+        if let data = try? JSONEncoder().encode(cached) {
+            keyValueStore.set(data, forKey: CacheKeys.summary)
+        }
+    }
+
+    private func loadCachedSummary() -> CachedSummary? {
+        guard let data = keyValueStore.data(forKey: CacheKeys.summary) else { return nil }
+        return try? JSONDecoder().decode(CachedSummary.self, from: data)
     }
 
     private func buildStaticInsightSummary(from records: [ScanRecord]) -> ReportInsightSummary {
@@ -110,8 +152,10 @@ final class ReportDataService {
             let dominant = latest.acneTypeCounts.max { $0.count < $1.count }
             let dominantText = dominant?.acneType.displayName ?? "Acne"
             return .init(
-                title: "Ringkasan",
-                body: "Jenis jerawat yang paling sering muncul saat ini adalah \(dominantText.lowercased()). Total jerawat yang terdeteksi pada scan terakhir adalah \(latest.totalAcneCount)."
+                title: "Summary Insight",
+                body: "The most common acne type right now is \(dominantText.lowercased()). The latest scan detected \(latest.totalAcneCount) acne occurrences.",
+                source: .generated,
+                timestamp: Date()
             )
         }
 
@@ -120,8 +164,10 @@ final class ReportDataService {
         let direction = totalDelta <= 0 ? "fewer" : "more"
 
         return .init(
-            title: "Ringkasan",
-            body: "Dibandingkan scan awal, jumlah jerawat yang terdeteksi saat ini \(direction == "fewer" ? "lebih sedikit" : "lebih banyak") dari sebelumnya. Jenis jerawat yang paling sering muncul adalah \(dominantText.lowercased())."
+            title: "Summary Insight",
+            body: "Compared with the first scan, the current acne count is \(direction == "fewer" ? "lower" : "higher") than before. The most common acne type is \(dominantText.lowercased()).",
+            source: .generated,
+            timestamp: Date()
         )
     }
 
@@ -143,27 +189,15 @@ final class ReportDataService {
     private func shortLabel(for date: Date, in range: ReportRange, index: Int) -> String {
         switch range {
         case .oneWeek:
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "en_US")
-            formatter.dateFormat = "EEE"
-            return formatter.string(from: date)
+            return DateFormatters.dayShort.string(from: date)
         case .oneMonth:
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "en_US")
-            formatter.dateFormat = "d MMM"
-            return formatter.string(from: date)
+            return DateFormatters.dayAndMonth.string(from: date)
         case .oneYear:
-            let formatter = DateFormatter()
-            formatter.locale = Locale(identifier: "en_US")
-            formatter.dateFormat = "MMM"
-            return formatter.string(from: date)
+            return DateFormatters.monthShort.string(from: date)
         }
     }
 
     private func formattedDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "en_US")
-        formatter.dateFormat = "d MMM yyyy"
-        return formatter.string(from: date)
+        return DateFormatters.fullDateEN.string(from: date)
     }
 }

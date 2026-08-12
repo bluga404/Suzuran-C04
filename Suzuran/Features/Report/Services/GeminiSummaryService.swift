@@ -1,29 +1,35 @@
 import Foundation
 
-final class GeminiSummaryService {
-    private let apiKey: String?
+final class GeminiSummaryService: SummaryServiceProtocol {
+    private let apiKeyProvider: APIKeyProvider
     private let modelName: String
     private let baseURL = URL(string: "https://generativelanguage.googleapis.com/v1beta")!
+    private let session: URLSession
+    private let logger: AppLogging
 
     init(
-        apiKey: String? = Bundle.main.object(forInfoDictionaryKey: AppConstants.geminiApiKeyInfoPlistKey) as? String,
-        modelName: String = "gemini-3.6-flash"
+        apiKeyProvider: APIKeyProvider = KeychainAPIKeyProvider(),
+        modelName: String = "gemini-3.6-flash",
+        session: URLSession = .shared,
+        logger: AppLogging = AppLogger()
     ) {
-        self.apiKey = apiKey
+        self.apiKeyProvider = apiKeyProvider
         self.modelName = modelName
+        self.session = session
+        self.logger = logger
     }
 
     func generateSummary(for records: [ScanRecord]) async throws -> String {
-        guard !records.isEmpty else {
-            return ""
+        guard !records.isEmpty else { return "" }
+        guard let apiKey = apiKeyProvider.getAPIKey(), !apiKey.isEmpty else {
+            logger.error("Gemini API key missing in Keychain; aborting summary generation", file: #fileID, line: #line)
+            throw AppError.validation(message: "Missing Gemini API key. Provide a key via Keychain or App configuration.")
         }
 
-        guard let apiKey else {
-            throw AppError.validation(message: "Missing Gemini API key. Set the GeminiAPIKey value in Info.plist.")
-        }
+        logger.info("Preparing Gemini summary request (model=\(modelName), records=\(records.count))", file: #fileID, line: #line)
 
         let request = try createRequest(for: records, apiKey: apiKey)
-        let (data, response) = try await URLSession.shared.data(for: request)
+        let (data, response) = try await session.data(for: request)
 
         guard let httpResponse = response as? HTTPURLResponse else {
             throw AppError.unknown(message: "Invalid response from Gemini API.")
@@ -31,41 +37,71 @@ final class GeminiSummaryService {
 
         switch httpResponse.statusCode {
         case 200..<300:
-            break
+            logger.info("Gemini request succeeded (\(httpResponse.statusCode))", file: #fileID, line: #line)
         case 401:
+            logger.error("Gemini unauthorized (401)", file: #fileID, line: #line)
             throw AppError.unauthorized
         case 403:
+            logger.error("Gemini forbidden (403)", file: #fileID, line: #line)
             throw AppError.forbidden
         case 404:
+            logger.error("Gemini not found (404)", file: #fileID, line: #line)
             throw AppError.notFound
         default:
             let body = String(data: data, encoding: .utf8) ?? HTTPURLResponse.localizedString(forStatusCode: httpResponse.statusCode)
-            throw AppError.server(message: "Gemini request failed (\(httpResponse.statusCode)): \(body)")
+            logger.error("Gemini request failed (\(httpResponse.statusCode)): \(LoggingHelpers.redactSensitive(body))", file: #fileID, line: #line)
+            throw AppError.server(message: "Gemini request failed. Please try again later.")
         }
 
-        let decoded = try JSONDecoder().decode(GeminiResponse.self, from: data)
-        guard let text = decoded.candidates?.first?.content?.text?.trimmingCharacters(in: .whitespacesAndNewlines), !text.isEmpty else {
-            throw AppError.decoding
-        }
+        do {
+            let decoded = try JSONDecoder().decode(GeminiResponse.self, from: data)
+            let candidateText = decoded.candidates?
+                .compactMap { candidate in
+                    candidate.content?.parts?
+                        .compactMap(\.text)
+                        .joined(separator: " ")
+                        .trimmingCharacters(in: .whitespacesAndNewlines)
+                }
+                .filter { !$0.isEmpty }
+                .joined(separator: " ")
 
-        return sanitizeResponse(text)
+            guard let text = candidateText, !text.isEmpty else {
+                logger.error("Gemini response decoded but contained no text", file: #fileID, line: #line)
+                throw AppError.decoding
+            }
+
+            let sanitized = sanitizeResponse(text)
+            logger.info("Gemini produced summary (\(sanitized.count) chars)", file: #fileID, line: #line)
+            return sanitized
+        } catch {
+            logger.error("Failed decoding Gemini response: \(error.localizedDescription)", file: #fileID, line: #line)
+            throw error
+        }
     }
 
     private func createRequest(for records: [ScanRecord], apiKey: String) throws -> URLRequest {
-        let url = baseURL.appendingPathComponent("models/")
-            .appendingPathComponent(modelName)
-            .appendingPathComponent(":generateContent")
+        let modelPath = "models/\(modelName):generateContent"
+        let url = baseURL.appendingPathComponent(modelPath)
 
-        var request = URLRequest(url: url)
+        var components = URLComponents(url: url, resolvingAgainstBaseURL: false)
+        components?.queryItems = [URLQueryItem(name: "key", value: apiKey)]
+
+        guard let finalURL = components?.url else {
+            throw AppError.validation(message: "Invalid Gemini API URL")
+        }
+
+        var request = URLRequest(url: finalURL)
         request.httpMethod = "POST"
         request.addValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.addValue("Bearer \(apiKey)", forHTTPHeaderField: "Authorization")
+        request.addValue("application/json", forHTTPHeaderField: "Accept")
 
         let payload = GenerateContentRequest(
             contents: [GenerateContentRequest.Content(parts: [.init(text: buildPrompt(for: records))])],
             systemInstructionText: buildSystemInstruction()
         )
         request.httpBody = try JSONEncoder().encode(payload)
+
+        logger.info("Prepared Gemini request URL=\(LoggingHelpers.redactSensitive(finalURL.absoluteString)) payloadLength=\(String(describing: try? JSONEncoder().encode(payload).count))", file: #fileID, line: #line)
 
         return request
     }
@@ -75,19 +111,15 @@ final class GeminiSummaryService {
         let first = sorted.first!
         let latest = sorted.last!
 
-        let formatter = DateFormatter()
-        formatter.locale = Locale(identifier: "id_ID")
-        formatter.dateFormat = "d MMM yyyy"
+        let firstDate = DateFormatters.fullDateID.string(from: first.date)
+        let latestDate = DateFormatters.fullDateID.string(from: latest.date)
 
-        let firstDate = formatter.string(from: first.date)
-        let latestDate = formatter.string(from: latest.date)
-
-        let firstDominant = first.acneTypeCounts.max(by: { $0.count < $1.count })?.acneType.displayName.lowercased() ?? "jerawat"
-        let latestDominant = latest.acneTypeCounts.max(by: { $0.count < $1.count })?.acneType.displayName.lowercased() ?? "jerawat"
+        let firstDominant = first.acneTypeCounts.max(by: { $0.count < $1.count })?.acneType.displayName.lowercased() ?? "acne"
+        let latestDominant = latest.acneTypeCounts.max(by: { $0.count < $1.count })?.acneType.displayName.lowercased() ?? "acne"
         let acneDelta = latest.totalAcneCount - first.totalAcneCount
-        let acneDirection = acneDelta < 0 ? "berkurang" : acneDelta > 0 ? "bertambah" : "tetap"
+        let acneDirection = acneDelta < 0 ? "decreased" : acneDelta > 0 ? "increased" : "stayed stable"
         let scoreDelta = latest.skinScore - first.skinScore
-        let scoreTrend = scoreDelta < 0 ? "menurun" : scoreDelta > 0 ? "meningkat" : "stabil"
+        let scoreTrend = scoreDelta < 0 ? "declined" : scoreDelta > 0 ? "improved" : "remained stable"
 
         let latestTypeBreakdown = latest.acneTypeCounts
             .filter { $0.count > 0 }
@@ -95,16 +127,16 @@ final class GeminiSummaryService {
             .joined(separator: "\n")
 
         let prompt = """
-        Berdasarkan data riwayat scan wajah berikut, tulis satu paragraf singkat dalam bahasa Indonesia yang mudah dipahami.
-        Fokus pada tren utama: apakah kondisi kulitmu membaik, memburuk, atau tetap stabil. Sebutkan jenis jerawat yang paling sering muncul saat ini dengan bahasa sederhana.
-        Jangan memakai istilah teknis yang rumit. Jangan memberi diagnosis medis. Jangan membuat klaim yang terlalu kuat. Jika datanya terbatas, sebutkan bahwa data masih terbatas.
-        Hasilnya harus berupa satu paragraf pendek, 2-4 kalimat, tanpa bullet, tanpa markdown, dan tanpa menambahkan bagian lain.
+        Based on the face-scan history below, write one short paragraph in clear English.
+        Focus on the main trend: whether the skin is improving, worsening, or staying stable. Mention the acne type that is most common right now in simple language.
+        Do not use technical jargon. Do not provide medical diagnosis. Do not make overstated claims. If the data is limited, say the data is still limited.
+        Output must be a short paragraph of 2-4 sentences, with no bullet points, no markdown, and no extra sections.
 
-        Data scan:
-        - Scan pertama (\(firstDate)): skor kulit \(first.skinScore), total jerawat \(first.totalAcneCount), jenis jerawat dominan \(firstDominant).
-        - Scan terakhir (\(latestDate)): skor kulit \(latest.skinScore), total jerawat \(latest.totalAcneCount), jenis jerawat dominan \(latestDominant).
-        - Perbandingan: jumlah jerawat \(acneDirection) \(abs(acneDelta)) dan skor kulit \(scoreTrend).
-        - Rincian jenis jerawat terbaru:
+        Scan data:
+        - First scan (\(firstDate)): skin score \(first.skinScore), total acne \(first.totalAcneCount), dominant acne type \(firstDominant).
+        - Latest scan (\(latestDate)): skin score \(latest.skinScore), total acne \(latest.totalAcneCount), dominant acne type \(latestDominant).
+        - Comparison: acne count \(acneDirection) by \(abs(acneDelta)) and skin score \(scoreTrend).
+        - Latest acne breakdown:
         \(latestTypeBreakdown)
         """
 
@@ -113,11 +145,11 @@ final class GeminiSummaryService {
 
     private func buildSystemInstruction() -> String {
         """
-        Kamu adalah asisten yang membantu pengguna memahami hasil scan wajah mereka.
-        Tulis jawaban dalam bahasa Indonesia yang sederhana, jelas, dan ramah.
-        Fokus pada tren utama yang benar-benar terlihat dari data.
-        Hindari istilah medis yang rumit dan jangan memberi saran medis.
-        Balas hanya dengan satu paragraf pendek yang mudah dipahami oleh pengguna umum.
+        You help users understand their facial scan results.
+        Write in simple, friendly English.
+        Focus on the main trend that is clearly supported by the data.
+        Avoid technical medical terms and do not provide medical advice.
+        Return only one short paragraph suitable for a general user.
         """
     }
 
@@ -177,7 +209,11 @@ private struct GeminiResponse: Decodable {
         let content: CandidateContent?
 
         struct CandidateContent: Decodable {
-            let text: String?
+            let parts: [Part]?
+
+            struct Part: Decodable {
+                let text: String?
+            }
         }
     }
 }

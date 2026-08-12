@@ -17,6 +17,7 @@ xcov/
 *.xccrashpoint
 *.xcworkspace/xcuserdata/
 *.xcworkspace/xcshareddata/
+**/xcshareddata/
 
 # macOS
 .DS_Store
@@ -32,6 +33,12 @@ Pods/
 
 # Local config
 *.pbxproj
+.env
+.env.*
+!.env.example
+*.xcconfig
+Secrets/
+**/Secrets/
 
 # MISC
 .kiro

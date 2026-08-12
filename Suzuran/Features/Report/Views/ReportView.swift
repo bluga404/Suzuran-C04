@@ -2,56 +2,79 @@ import SwiftUI
 
 struct ReportView: View {
     @ObservedObject private var viewModel: ReportViewModel
-    let onDismiss: () -> Void
 
-    init(viewModel: ReportViewModel, onDismiss: @escaping () -> Void = {}) {
+    init(viewModel: ReportViewModel) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
-        self.onDismiss = onDismiss
     }
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: AppSpacing.lg) {
-                    ReportFilterHeaderView(
-                        selectedMetric: viewModel.selectedMetric,
-                        selectedRange: viewModel.selectedRange,
-                        onMetricChanged: viewModel.setMetric,
-                        onRangeChanged: viewModel.setRange
+            Group {
+                switch viewModel.state {
+                case .idle, .loading:
+                    LoadingStateView(
+                        title: "Loading report",
+                        subtitle: "Preparing your skin insights..."
                     )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-                    if !viewModel.hasAnyData {
-                        EmptyStateView(
-                            title: "Belum ada riwayat scan",
-                            message: "Lakukan scan wajah pertama untuk melihat perkembangan kulitmu di sini.",
-                            actionTitle: nil,
-                            onAction: nil
-                        )
-                        .frame(maxWidth: .infinity)
-                    } else {
-                        reportChartSection
+                case .failed(let error):
+                    ErrorStateView(
+                        title: "Unable to load report",
+                        message: error.userMessage,
+                        primaryActionTitle: "Retry",
+                        onPrimaryAction: {
+                            Task { await viewModel.refreshSummary() }
+                        }
+                    )
+                    .frame(maxWidth: .infinity)
 
-                        ReportSummaryCardsView(
-                            selectedMetric: viewModel.selectedMetric,
-                            skinScoreSummary: viewModel.skinScoreSummary,
-                            acneSummary: viewModel.mostDetectedAcneSummary,
-                            insight: viewModel.insightSummary
-                        )
-                    }
+                case .empty(let title, let message):
+                    EmptyStateView(
+                        title: title,
+                        message: message,
+                        actionTitle: nil,
+                        onAction: nil
+                    )
+                    .frame(maxWidth: .infinity)
+
+                case .loaded:
+                    loadedContent
                 }
-                .padding(AppSpacing.sm)
             }
-            .navigationTitle("Report")
+            .navigationTitle("Summary")
             .toolbarTitleDisplayMode(.inlineLarge)
-            .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    EmptyView()
-                }
-            }
         }
         .appScreenContainer()
         .task {
             await viewModel.loadIfNeeded()
+        }
+    }
+
+    @ViewBuilder
+    private var loadedContent: some View {
+        ScrollView {
+            VStack(spacing: AppSpacing.lg) {
+                ReportFilterHeaderView(
+                    selectedMetric: viewModel.selectedMetric,
+                    selectedRange: viewModel.selectedRange,
+                    onMetricChanged: viewModel.setMetric,
+                    onRangeChanged: viewModel.setRange
+                )
+
+                reportChartSection
+
+                ReportSummaryCardsView(
+                    selectedMetric: viewModel.selectedMetric,
+                    skinScoreSummary: viewModel.skinScoreSummary,
+                    acneSummary: viewModel.mostDetectedAcneSummary,
+                    insight: viewModel.insightSummary,
+                    onRetry: {
+                        Task { await viewModel.refreshSummary() }
+                    }
+                )
+            }
+            .padding(AppSpacing.sm)
         }
     }
 
@@ -61,8 +84,8 @@ struct ReportView: View {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 if viewModel.acneTypeSeriesData.isEmpty {
                     EmptyStateView(
-                        title: "Belum ada data jerawat",
-                        message: "Riwayat scan yang tersimpan belum mencatat tipe jerawat untuk rentang ini.",
+                        title: "No acne data",
+                        message: "No acne breakdown is available for this time range yet.",
                         actionTitle: nil,
                         onAction: nil
                     )
@@ -86,8 +109,8 @@ struct ReportView: View {
         } else {
             if viewModel.skinScoreData.isEmpty {
                 EmptyStateView(
-                    title: "Belum ada data score",
-                    message: "Grafik score akan muncul setelah ada scan yang tersimpan.",
+                    title: "No score data",
+                    message: "Your skin score chart will appear once a scan is saved.",
                     actionTitle: nil,
                     onAction: nil
                 )
