@@ -24,7 +24,7 @@ struct IngredientSection: View {
                 }
 
                 if visibleRecommendations.isEmpty && showEmptyState {
-                    Text("Scan your skincare products to get ingredient recommendations")
+                    Text("Scan your skincare products to see which ones may suit your skin condition.")
                         .font(AppTypography.body)
                         .foregroundStyle(.secondary)
                 } else {
