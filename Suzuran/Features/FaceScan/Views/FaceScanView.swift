@@ -201,7 +201,7 @@ struct FaceScanView: View {
                         Image(systemName: "xmark")
                             .font(.system(size: 15, weight: .semibold))
                             .foregroundStyle(.white)
-                            .padding(10)
+                            .padding(14)
                             .glassEffect(.regular.interactive(), in: Circle())
                     }
 
