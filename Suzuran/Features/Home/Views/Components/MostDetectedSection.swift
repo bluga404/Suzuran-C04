@@ -12,7 +12,7 @@ struct MostDetectedSection: View {
             AppCard(backgroundColor: AppColor.surfacePurple, borderColor: .clear) {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     HStack {
-                        Text("Most Detected")
+                        Text("Most Detected Acne Type")
                             .font(Font.metadata)
                             .tracking(1.2)
                             .foregroundStyle(.secondary)

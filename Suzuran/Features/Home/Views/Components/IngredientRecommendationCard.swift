@@ -5,16 +5,16 @@ struct IngredientRecommendationCard: View {
     let hasTrackedSkincare: Bool
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
+        AppCard(backgroundColor: AppColor.surfacePrimary, borderColor: AppColor.borderSubtle) {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                HStack {
+                HStack(alignment: .center) {
                     Text(recommendation.ingredient.displayName)
                         .font(Font.screenTitle)
                         .foregroundStyle(AppColor.textPrimary)
                     Spacer()
                     Image(systemName: "chevron.right")
-                        .font(Font.metadata)
-                        .foregroundStyle(AppColor.textSecondary)
+                        .font(Font.bodyLarge)
+                        .foregroundStyle(AppColor.textPrimary)
                 }
 
                 Text(recommendation.detail.description)
@@ -22,22 +22,16 @@ struct IngredientRecommendationCard: View {
                     .foregroundStyle(AppColor.textSecondary)
                     .lineLimit(2)
                     .lineSpacing(2)
-            }
 
-            if hasTrackedSkincare {
-                Divider()
-                    .padding(.vertical, AppSpacing.xs)
-                statusSection
+                if hasTrackedSkincare {
+                    Divider()
+                        .padding(.vertical, AppSpacing.xs)
+                    statusSection
+                }
             }
+            .frame(maxWidth: .infinity, minHeight: 90, alignment: .topLeading)
         }
-        .padding(AppSpacing.md)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(AppColor.surfacePrimary)
-        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
-        .overlay(
-            RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                .stroke(AppColor.surfacePurple, lineWidth: 2)
-        )
+        .frame(minHeight: 122)
     }
 
     @ViewBuilder
