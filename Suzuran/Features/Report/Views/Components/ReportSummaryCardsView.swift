@@ -5,6 +5,7 @@ struct ReportSummaryCardsView: View {
     let skinScoreSummary: ReportComparisonSummary
     let acneSummary: ReportComparisonSummary
     let insight: ReportInsightSummary
+    var onRetry: (() -> Void)?
 
     var body: some View {
         VStack(spacing: AppSpacing.md) {
@@ -17,9 +18,18 @@ struct ReportSummaryCardsView: View {
             AppCard(padding: AppSpacing.sm) {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     HStack(alignment: .center, spacing: AppSpacing.xs) {
-                        Image(systemName: "sparkles")
+                        let (iconName, iconColor): (String, Color) = {
+                            switch insight.source {
+                            case .generated: return ("sparkles", AppColor.accentPrimary)
+                            case .cached: return ("clock", AppColor.textSecondary)
+                            case .error: return ("exclamationmark.triangle.fill", .red)
+                            case .empty: return ("info.circle", AppColor.textSecondary)
+                            }
+                        }()
+
+                        Image(systemName: iconName)
                             .font(.system(size: 16, weight: .semibold))
-                            .foregroundStyle(AppColor.accentPrimary)
+                            .foregroundStyle(iconColor)
 
                         Text(insight.title)
                             .font(AppTypography.subtitle)
@@ -28,8 +38,29 @@ struct ReportSummaryCardsView: View {
 
                     Text(insight.body)
                         .font(AppTypography.body)
-                        .foregroundStyle(AppColor.textSecondary)
+                        .foregroundStyle(insight.source == .error ? Color.red : AppColor.textSecondary)
                         .fixedSize(horizontal: false, vertical: true)
+
+                    if let ts = insight.timestamp, insight.source == .cached {
+                        Text("Last updated: \(DateFormatters.fullDateEN.string(from: ts))")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColor.textSecondary)
+                    }
+
+                    if insight.source == .error {
+                        HStack(spacing: AppSpacing.sm) {
+                            if let onRetry {
+                                Button(action: onRetry) {
+                                    Text("Try again")
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+
+                            Text("There was an error generating the summary. Please check your connection or API configuration.")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColor.textSecondary)
+                        }
+                    }
                 }
             }
         }

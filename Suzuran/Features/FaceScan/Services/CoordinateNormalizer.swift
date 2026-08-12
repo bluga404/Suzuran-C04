@@ -59,4 +59,26 @@ struct CoordinateNormalizer {
         let y = clamp(normalizedPoint.y) * displayHeight
         return CGPoint(x: x, y: y)
     }
+
+    /// Scales a normalized rect to actual display pixel dimensions, clamping
+    /// inputs to [0, 1] before scaling.
+    ///
+    /// - Parameters:
+    ///   - normalizedRect: A rect with coordinates in normalized space (0–1).
+    ///   - displayWidth: The width of the display area in points/pixels.
+    ///   - displayHeight: The height of the display area in points/pixels.
+    /// - Returns: A `CGRect` in display coordinates.
+    static func displayRect(
+        normalizedRect: CGRect,
+        displayWidth: CGFloat,
+        displayHeight: CGFloat
+    ) -> CGRect {
+        let x = clamp(normalizedRect.minX) * displayWidth
+        let y = clamp(normalizedRect.minY) * displayHeight
+        // Note: Width and height shouldn't strictly be clamped to 1 if they originate from valid x1,y1,x2,y2, 
+        // but for safety we can just scale them directly.
+        let w = min(normalizedRect.width, 1.0 - clamp(normalizedRect.minX)) * displayWidth
+        let h = min(normalizedRect.height, 1.0 - clamp(normalizedRect.minY)) * displayHeight
+        return CGRect(x: x, y: y, width: w, height: h)
+    }
 }
