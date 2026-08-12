@@ -1,32 +1,35 @@
 import SwiftUI
 
 struct AppCard<Content: View>: View {
-    var padding: CGFloat
     var backgroundColor: Color
     var borderColor: Color
+    var borderWidth: CGFloat
+    var cornerRadius: CGFloat
     private let content: Content
 
     init(
-        padding: CGFloat = AppSpacing.md,
         backgroundColor: Color = AppColor.surfacePrimary,
         borderColor: Color = AppColor.borderSubtle,
+        borderWidth: CGFloat = 1,
+        cornerRadius: CGFloat = AppCornerRadius.lg,
         @ViewBuilder content: () -> Content
     ) {
-        self.padding = padding
         self.backgroundColor = backgroundColor
         self.borderColor = borderColor
+        self.borderWidth = borderWidth
+        self.cornerRadius = cornerRadius
         self.content = content()
     }
 
     var body: some View {
         content
-            .padding(padding)
+            .padding(AppSpacing.md)
             .frame(maxWidth: .infinity, alignment: .leading)
             .background(backgroundColor)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius))
             .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.lg)
-                    .stroke(borderColor, lineWidth: 1)
+                RoundedRectangle(cornerRadius: cornerRadius)
+                    .stroke(borderColor, lineWidth: borderWidth)
             )
     }
 }

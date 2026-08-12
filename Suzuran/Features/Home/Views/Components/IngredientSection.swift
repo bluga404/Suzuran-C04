@@ -12,7 +12,7 @@ struct IngredientSection: View {
         Array(recommendations.prefix(5))
     }
     var body: some View {
-        AppCard(padding: AppSpacing.lg) {
+        AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 HStack {
                     Text("Ingredients")

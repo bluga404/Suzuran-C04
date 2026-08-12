@@ -21,7 +21,7 @@ struct ErrorStateView: View {
                 .foregroundStyle(AppColor.textSecondary)
                 .multilineTextAlignment(.center)
 
-            PrimaryButton(title: primaryActionTitle, action: onPrimaryAction)
+            AppButton(title: primaryActionTitle, action: onPrimaryAction)
                 .padding(.top, AppSpacing.xs)
         }
         .padding(AppSpacing.lg)

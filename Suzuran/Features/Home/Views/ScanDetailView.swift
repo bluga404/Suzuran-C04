@@ -183,7 +183,7 @@ struct ScanDetailView: View {
     
     @ViewBuilder
     private func totalAcneCard() -> some View {
-        AppCard(padding: AppSpacing.md) {
+        AppCard {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 // Header
                 HStack {

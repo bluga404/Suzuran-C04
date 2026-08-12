@@ -47,7 +47,7 @@ struct AddSkincareView: View {
                 }
             }
             .safeAreaInset(edge: .bottom) {
-                PrimaryButton(
+                AppButton(
                     title: viewModel.isEditing ? "Simpan Perubahan" : "Simpan Skincare",
                     isLoading: viewModel.isSaving
                 ) {
@@ -227,7 +227,7 @@ struct AddSkincareView: View {
                 candidateChips
                 manualCandidateField
 
-                PrimaryButton(title: "Gunakan Ingredient Ini") {
+                AppButton(title: "Gunakan Ingredient Ini") {
                     viewModel.commitReview()
                 }
             }

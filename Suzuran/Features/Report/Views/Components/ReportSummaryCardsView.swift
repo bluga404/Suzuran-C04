@@ -15,7 +15,7 @@ struct ReportSummaryCardsView: View {
                 summaryCard(summary: acneSummary)
             }
 
-            AppCard(padding: AppSpacing.sm) {
+            AppCard {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
                     HStack(alignment: .center, spacing: AppSpacing.xs) {
                         let (iconName, iconColor): (String, Color) = {
@@ -67,7 +67,7 @@ struct ReportSummaryCardsView: View {
     }
 
     private func summaryCard(summary: ReportComparisonSummary) -> some View {
-        AppCard(padding: AppSpacing.lg) {
+        AppCard {
             HStack(alignment: .top, spacing: AppSpacing.lg) {
                 VStack(alignment: .leading, spacing: AppSpacing.xs) {
                     Text(summary.baselineLabel)
