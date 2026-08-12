@@ -63,15 +63,26 @@ struct HistoryView: View {
             .navigationTitle(ScreenTitle.history.title)
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    if viewModel.isCompareMode {
+                if viewModel.isCompareMode {
+                    ToolbarItemGroup(placement: .topBarTrailing) {
                         Button("Compare (\(viewModel.selectedCount)/2)") {
                             if let (first, second) = viewModel.selectedPair {
                                 activePayload = ComparePayload(recordA: first, recordB: second)
                             }
                         }
                         .disabled(!viewModel.canCompare)
-                    } else {
+
+                        Button {
+                            withAnimation(.snappy(duration: 0.25)) {
+                                viewModel.toggleCompareMode()
+                            }
+                        } label: {
+                            Image(systemName: "xmark.circle.fill")
+                        }
+                        .accessibilityLabel("Cancel compare")
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button("Compare") {
                             withAnimation(.snappy(duration: 0.25)) {
                                 viewModel.toggleCompareMode()
