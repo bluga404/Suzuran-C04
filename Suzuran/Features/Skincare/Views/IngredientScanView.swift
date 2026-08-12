@@ -4,48 +4,47 @@ import PhotosUI
 struct IngredientScanView: View {
     @ObservedObject var viewModel: AddSkincareViewModel
     @Environment(\.dismiss) private var dismiss
-    
+
     @State private var selectedItem: PhotosPickerItem?
     @State private var isShowingCamera = false
-    @State private var isShowingReview = false
+    @State private var isShowingInstruction = false
     @State private var selectedImage: UIImage?
+
+    /// First-time auto-present flag store (Req 11.5).
+    private let kvStore: KeyValueStore = UserDefaultsKeyValueStore(userDefaults: .standard)
+    private let hasSeenInstructionKey = "suzuran.skincare.hasSeenScanInstructionModal"
 
     var body: some View {
         NavigationStack {
             VStack(spacing: AppSpacing.lg) {
                 Spacer()
-                
-                // Explanatory Illustration/Icon
+
                 VStack(spacing: AppSpacing.md) {
                     ZStack {
                         Circle()
                             .fill(AppColor.accentPrimary.opacity(0.08))
                             .frame(width: 140, height: 140)
-                        
+
                         Image(systemName: "doc.text.viewfinder")
                             .font(.system(size: 64))
                             .foregroundStyle(AppColor.accentPrimary)
                     }
-                    
+
                     Text("Pindai Label Komposisi")
                         .font(AppTypography.title)
                         .foregroundStyle(AppColor.textPrimary)
-                    
+
                     Text("Posisikan kamera tepat pada tulisan 'Ingredients' atau 'Komposisi' di botol/kemasan skincare Anda.")
                         .font(AppTypography.body)
                         .foregroundStyle(AppColor.textSecondary)
                         .multilineTextAlignment(.center)
                         .padding(.horizontal, AppSpacing.lg)
                 }
-                
+
                 Spacer()
-                
-                // Actions
+
                 VStack(spacing: AppSpacing.md) {
-                    // Take Photo Button
-                    Button(action: {
-                        isShowingCamera = true
-                    }) {
+                    Button(action: { isShowingCamera = true }) {
                         HStack {
                             Image(systemName: "camera.fill")
                             Text("Ambil Foto Label")
@@ -57,8 +56,7 @@ struct IngredientScanView: View {
                         .foregroundStyle(AppColor.textOnAccent)
                         .cornerRadius(AppCornerRadius.md)
                     }
-                    
-                    // Choose from Library
+
                     PhotosPicker(selection: $selectedItem, matching: .images) {
                         HStack {
                             Image(systemName: "photo.on.rectangle.angled")
@@ -84,18 +82,25 @@ struct IngredientScanView: View {
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button("Batal") {
-                        dismiss()
+                    Button("Batal") { dismiss() }
+                        .font(AppTypography.body)
+                        .foregroundStyle(AppColor.accentPrimary)
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { isShowingInstruction = true }) {
+                        Image(systemName: "info.circle")
+                            .foregroundStyle(AppColor.accentPrimary)
                     }
-                    .font(AppTypography.body)
-                    .foregroundStyle(AppColor.accentPrimary)
+                    .accessibilityLabel(Text("Cara scan ingredient"))
                 }
             }
-            // Camera Sheet
             .sheet(isPresented: $isShowingCamera) {
                 CameraPicker(selectedImage: $selectedImage)
             }
-            // Listen for image selection (either Camera or Library)
+            .fullScreenCover(isPresented: $isShowingInstruction) {
+                ScanInstructionModalView(onDismiss: { isShowingInstruction = false })
+            }
             .onChange(of: selectedImage) { _, image in
                 if let image = image {
                     triggerOCR(image: image)
@@ -105,37 +110,45 @@ struct IngredientScanView: View {
                 Task {
                     if let data = try? await newItem?.loadTransferable(type: Data.self),
                        let image = UIImage(data: data) {
-                        await MainActor.run {
-                            selectedImage = image
-                        }
+                        await MainActor.run { selectedImage = image }
                     }
                 }
             }
-            // Loading and Navigation Overlay
             .overlay {
-                if viewModel.isProcessingOCR {
+                if viewModel.isScanning {
                     ZStack {
-                        Color.black.opacity(0.4)
+                        AppColor.backgroundPrimary.opacity(0.8)
                             .ignoresSafeArea()
-                        
+
                         VStack(spacing: AppSpacing.sm) {
                             ProgressView()
-                                .tint(.white)
+                                .tint(AppColor.accentPrimary)
                             Text("Membaca teks komposisi...")
                                 .font(AppTypography.bodyBold)
-                                .foregroundStyle(.white)
+                                .foregroundStyle(AppColor.textPrimary)
                         }
                         .padding(AppSpacing.lg)
-                        .background(Color.black.opacity(0.7))
-                        .cornerRadius(AppCornerRadius.md)
+                        .background(.regularMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
                     }
                 }
             }
-            // Navigate to Review View when scanned ingredients are ready
-            .navigationDestination(isPresented: $isShowingReview) {
-                IngredientReviewView(viewModel: viewModel) {
-                    // On Save Action: dismiss scanner back to AddSkincareView
-                    dismiss()
+            .alert(
+                "Gagal Memindai",
+                isPresented: Binding(
+                    get: { viewModel.errorMessage != nil },
+                    set: { if !$0 { viewModel.errorMessage = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) { viewModel.errorMessage = nil }
+            } message: {
+                Text(viewModel.errorMessage ?? "")
+            }
+            .onAppear {
+                // Auto-present the instruction modal on first launch of the scanner (Req 11.5).
+                if !kvStore.bool(forKey: hasSeenInstructionKey) {
+                    isShowingInstruction = true
+                    kvStore.set(true, forKey: hasSeenInstructionKey)
                 }
             }
         }
@@ -143,8 +156,12 @@ struct IngredientScanView: View {
 
     private func triggerOCR(image: UIImage) {
         Task {
-            await viewModel.processImageForOCR(image)
-            isShowingReview = true
+            await viewModel.processImage(image)
+            // Return to the Add form so OCR candidates can be reviewed beside the
+            // product fields, matching the mockup's continuous add flow.
+            if viewModel.errorMessage == nil {
+                dismiss()
+            }
         }
     }
 }

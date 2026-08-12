@@ -1,5 +1,6 @@
 import Foundation
 
+/// Contract for persisting user-owned ``SkincareProduct`` values.
 protocol SkincareProductRepositoryProtocol {
     func fetchProducts() -> [SkincareProduct]
     func saveProducts(_ products: [SkincareProduct])
@@ -8,22 +9,26 @@ protocol SkincareProductRepositoryProtocol {
     func deleteProduct(id: UUID)
 }
 
+/// UserDefaults-backed repository for ``SkincareProduct``.
 final class SkincareProductRepository: SkincareProductRepositoryProtocol {
     private let userDefaultsKey = "suzuran.skincare.products"
     private let userDefaults: UserDefaults
+    private let logger: AppLogging
 
-    init(userDefaults: UserDefaults = .standard) {
+    init(userDefaults: UserDefaults = .standard, logger: AppLogging = AppLogger()) {
         self.userDefaults = userDefaults
+        self.logger = logger
     }
 
     func fetchProducts() -> [SkincareProduct] {
         guard let data = userDefaults.data(forKey: userDefaultsKey) else {
             return []
         }
+        
         do {
             return try JSONDecoder().decode([SkincareProduct].self, from: data)
         } catch {
-            print("[SkincareProductRepository] Failed to decode products: \(error)")
+            logger.error("SkincareProductRepository.fetchProducts: decode failed: \(error)")
             return []
         }
     }
@@ -33,7 +38,7 @@ final class SkincareProductRepository: SkincareProductRepositoryProtocol {
             let data = try JSONEncoder().encode(products)
             userDefaults.set(data, forKey: userDefaultsKey)
         } catch {
-            print("[SkincareProductRepository] Failed to encode products: \(error)")
+            logger.error("SkincareProductRepository.saveProducts: encode failed: \(error)")
         }
     }
 

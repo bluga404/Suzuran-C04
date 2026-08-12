@@ -159,6 +159,9 @@ struct ScanDetailView: View {
                     Image(uiImage: image)
                         .resizable()
                         .scaledToFill()
+                        .overlay(
+                            FaceMaskScanVisualization(markers: viewModel.currentMarkers)
+                        )
                 } else {
                     Rectangle()
                         .fill(Color(uiColor: .systemGray6))

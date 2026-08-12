@@ -73,12 +73,11 @@ struct SummaryCalculator {
             message: message
         )
 
-        // Build recommendations only when ingredient scan exists
+        // Build recommendations based on dominant acne
         let recommendations: [IngredientRecommendation]
-        if let ingredientData = ingredientScan, let dominant = dominantAcne {
+        if let dominant = dominantAcne {
             recommendations = buildRecommendations(
                 dominantAcne: dominant,
-                ingredientScan: ingredientData,
                 products: products
             )
         } else {
@@ -105,10 +104,8 @@ struct SummaryCalculator {
 
     // MARK: - Ingredient Recommendations
 
-    /// Builds ingredient recommendations based on dominant acne type and user's products.
     private func buildRecommendations(
         dominantAcne: AcneType,
-        ingredientScan: IngredientScanData,
         products: [SkincareProduct]
     ) -> [IngredientRecommendation] {
         let ingredients = recommendedIngredients(for: dominantAcne)
@@ -153,7 +150,12 @@ struct SummaryCalculator {
     /// Checks whether a recommended ingredient is found in the user's tracked products.
     private func ingredientStatus(for ingredient: Ingredient, in products: [SkincareProduct]) -> IngredientStatus {
         for product in products {
-            if product.ingredients.contains(where: { $0.lowercased() == ingredient.name.lowercased() }) {
+            // Phase 1 adapter (Task 11.1 in skincare-tabview-redesign spec):
+            // `SkincareProduct.ingredients` is now `[IngredientReference]`. Compare
+            // against the reference's display `.name` to preserve the existing
+            // case-insensitive substring semantics. This one-line touch is the
+            // only cross-feature caller broken by the Phase 1 model change.
+            if product.ingredients.contains(where: { $0.name.lowercased() == ingredient.name.lowercased() }) {
                 return .found(productName: product.name)
             }
         }

@@ -2,7 +2,7 @@ import SwiftUI
 
 struct IngredientSearchView: View {
     @Environment(\.dismiss) private var dismiss
-    let repository: SkincareIngredientRepository
+    let repository: IngredientRepositoryProtocol
     let onSelect: (String) -> Void
     
     @State private var query = ""
@@ -107,6 +107,6 @@ struct IngredientSearchView: View {
     }
 
     private func performSearch(query: String) {
-        results = repository.searchIngredients(query: query)
+        results = repository.search(query: query).map { $0.name }
     }
 }
