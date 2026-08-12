@@ -63,37 +63,48 @@ struct HistoryView: View {
             .navigationTitle("History")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                if viewModel.isCompareMode {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            if let (first, second) = viewModel.selectedPair {
-                                activePayload = ComparePayload(recordA: first, recordB: second)
+                ToolbarItem(placement: .topBarTrailing) {
+                    GlassEffectContainer {
+                        HStack(spacing: 8) {
+                            Button {
+                                if viewModel.isCompareMode {
+                                    if let (first, second) = viewModel.selectedPair {
+                                        activePayload = ComparePayload(recordA: first, recordB: second)
+                                    }
+                                } else {
+                                    withAnimation(.snappy(duration: 0.35)) {
+                                        viewModel.toggleCompareMode()
+                                    }
+                                }
+                            } label: {
+                                Text(viewModel.isCompareMode
+                                     ? "Compare (\(viewModel.selectedCount)/2)"
+                                     : "Compare")
+                                    .font(.subheadline.weight(.semibold))
+                                    .padding(.horizontal, 14)
+                                    .padding(.vertical, 8)
                             }
-                        } label: {
-                            Text("Compare (\(viewModel.selectedCount)/2)")
-                        }
-                        .disabled(!viewModel.canCompare)
-                    }
+                            .buttonStyle(.plain)
+                            .disabled(viewModel.isCompareMode && !viewModel.canCompare)
+                            .glassEffect(.regular.interactive(), in: .capsule)
 
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            withAnimation(.snappy(duration: 0.35)) {
-                                viewModel.toggleCompareMode()
+                            if viewModel.isCompareMode {
+                                Button {
+                                    withAnimation(.snappy(duration: 0.35)) {
+                                        viewModel.toggleCompareMode()
+                                    }
+                                } label: {
+                                    Image(systemName: "xmark")
+                                        .font(.system(size: 14, weight: .bold))
+                                        .frame(width: 34, height: 34)
+                                }
+                                .buttonStyle(.plain)
+                                .glassEffect(.regular.interactive(), in: .circle)
+                                .transition(.scale.combined(with: .opacity))
+                                .accessibilityLabel("Cancel compare")
                             }
-                        } label: {
-                            Image(systemName: "xmark")
                         }
-                        .accessibilityLabel("Cancel compare")
-                    }
-                } else {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            withAnimation(.snappy(duration: 0.35)) {
-                                viewModel.toggleCompareMode()
-                            }
-                        } label: {
-                            Text("Compare")
-                        }
+                        .animation(.snappy(duration: 0.35), value: viewModel.isCompareMode)
                     }
                 }
             }
