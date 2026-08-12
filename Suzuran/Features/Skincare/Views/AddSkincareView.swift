@@ -64,7 +64,7 @@ struct AddSkincareView: View {
                     viewModel.addIngredient(name)
                 }
             }
-            .sheet(isPresented: $isShowingScanner) {
+            .fullScreenCover(isPresented: $isShowingScanner) {
                 IngredientScanView(viewModel: viewModel)
             }
             .confirmationDialog(
