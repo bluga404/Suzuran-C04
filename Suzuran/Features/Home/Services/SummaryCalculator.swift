@@ -26,15 +26,17 @@ struct SummaryCalculator {
         ingredientScan: IngredientScanData?,
         products: [SkincareProduct]
     ) -> HomeSummary {
+        let validLatestScan = latestScan.flatMap { Calendar.current.isDateInToday($0.createdAt) ? $0 : nil }
+        
         let hasIngredientScan = ingredientScan != nil
         let state = scoreCalculator.determineHomeState(
-            latestScan: latestScan,
+            latestScan: validLatestScan,
             previousScan: previousScan,
             hasIngredientScan: hasIngredientScan
         )
 
         // If empty, return minimal summary
-        guard let scan = latestScan else {
+        guard let scan = validLatestScan else {
             return HomeSummary(
                 state: .empty,
                 date: Date(),
@@ -43,15 +45,11 @@ struct SummaryCalculator {
                 skinScore: nil,
                 dominantAcne: nil,
                 recommendations: [],
-                scanAvailability: ScanAvailability(
-                    hasFaceScan: false,
-                    hasIngredientScan: false,
-                    hasPreviousFaceScan: false
-                )
+                hasTrackedSkincare: !products.isEmpty
             )
         }
 
-        let trend = scoreCalculator.calculateTrend(latest: latestScan, previous: previousScan)
+        let trend = scoreCalculator.calculateTrend(latest: validLatestScan, previous: previousScan)
         let label = scoreCalculator.scoreLabel(for: scan.overallScore)
         let dominantAcne = scoreCalculator.dominantAcneType(from: scan.acneCounts)
 
@@ -90,21 +88,15 @@ struct SummaryCalculator {
             recommendations = []
         }
 
-        let scanAvailability = ScanAvailability(
-            hasFaceScan: true,
-            hasIngredientScan: hasIngredientScan,
-            hasPreviousFaceScan: previousScan != nil
-        )
-
         return HomeSummary(
             state: state,
             date: Date(),
-            latestScan: latestScan,
+            latestScan: validLatestScan,
             previousScan: previousScan,
             skinScore: skinScore,
             dominantAcne: dominantAcne,
             recommendations: recommendations,
-            scanAvailability: scanAvailability
+            hasTrackedSkincare: !products.isEmpty
         )
     }
 
@@ -122,7 +114,7 @@ struct SummaryCalculator {
             return IngredientRecommendation(
                 id: UUID(),
                 ingredient: ingredient,
-                explanation: explanation(for: ingredient, dominantAcne: dominantAcne),
+                detail: rec,
                 status: status
             )
         }
@@ -130,6 +122,7 @@ struct SummaryCalculator {
 
     /// Checks whether a recommended ingredient is found in the user's tracked products.
     private func ingredientStatus(for ingredient: Ingredient, in products: [SkincareProduct]) -> IngredientStatus {
+        var matchedProducts: [SkincareProduct] = []
         for product in products {
             // Phase 1 adapter (Task 11.1 in skincare-tabview-redesign spec):
             // `SkincareProduct.ingredients` is now `[IngredientReference]`. Compare
@@ -137,31 +130,9 @@ struct SummaryCalculator {
             // case-insensitive substring semantics. This one-line touch is the
             // only cross-feature caller broken by the Phase 1 model change.
             if product.ingredients.contains(where: { $0.name.lowercased() == ingredient.name.lowercased() }) {
-                return .found(productName: product.name)
+                matchedProducts.append(product)
             }
         }
-        return .notFound
-    }
-
-    /// Returns a short explanation for why an ingredient is recommended.
-    private func explanation(for ingredient: Ingredient, dominantAcne: AcneType) -> String {
-        switch ingredient.name {
-        case "niacinamide":
-            return "Helps control sebum production and reduces inflammation"
-        case "salicylic acid":
-            return "Clears clogged pores and removes dead skin cells"
-        case "benzoyl peroxide":
-            return "Kills acne-causing bacteria and reduces inflammation"
-        case "retinol":
-            return "Accelerates skin cell turnover and prevents clogged pores"
-        case "tea tree oil":
-            return "Natural antibacterial that helps reduce acne inflammation"
-        case "adapalene":
-            return "A retinoid that helps prevent and treat severe acne"
-        case "azelaic acid":
-            return "Reduces inflammation and helps kill acne bacteria"
-        default:
-            return "Recommended ingredient for your acne type"
-        }
+        return matchedProducts.isEmpty ? .notFound : .found(products: matchedProducts)
     }
 }

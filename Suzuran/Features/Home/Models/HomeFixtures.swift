@@ -12,23 +12,43 @@ enum HomeFixtures {
     // MARK: - Shared Recommendations
 
     private static let niacinamideRecommendation = IngredientRecommendation(
-        id: UUID(uuidString: "00000000-0000-0000-0000-000000000010")!,
+        id: UUID(),
         ingredient: Ingredient(name: "niacinamide", displayName: "Niacinamide"),
-        explanation: "Helps reduce sebum production and minimizes pore appearance, effective for blackhead-prone skin.",
+        detail: SkincareIngredientRecommendation(
+            ingredientName: "Niacinamide",
+            alternativesName: nil,
+            acneTypes: "Papule, Pustule",
+            description: "Helps reduce sebum production and minimizes pore appearance, effective for blackhead-prone skin.",
+            concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+        ),
         status: .notFound
     )
 
     private static let salicylicAcidRecommendation = IngredientRecommendation(
-        id: UUID(uuidString: "00000000-0000-0000-0000-000000000011")!,
+        id: UUID(),
         ingredient: Ingredient(name: "salicylic acid", displayName: "Salicylic Acid"),
-        explanation: "A BHA that penetrates pores to dissolve debris and reduce blackhead formation.",
-        status: .found(productName: "Facewash")
+        detail: SkincareIngredientRecommendation(
+            ingredientName: "Salicylic Acid",
+            alternativesName: nil,
+            acneTypes: "Blackhead, Whitehead",
+            description: "A BHA that penetrates pores to dissolve debris and reduce blackhead formation.",
+            concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+        ),
+        status: .found(products: [
+            SkincareProduct(name: "Facewash", brand: "Unknown", category: .cleanser)
+        ])
     )
 
     private static let benzoylPeroxideRecommendation = IngredientRecommendation(
-        id: UUID(uuidString: "00000000-0000-0000-0000-000000000012")!,
+        id: UUID(),
         ingredient: Ingredient(name: "benzoyl peroxide", displayName: "Benzoyl Peroxide"),
-        explanation: "Kills acne-causing bacteria and helps clear pustules by reducing inflammation.",
+        detail: SkincareIngredientRecommendation(
+            ingredientName: "Benzoyl Peroxide",
+            alternativesName: nil,
+            acneTypes: "Pustule",
+            description: "Kills acne-causing bacteria and helps clear pustules by reducing inflammation.",
+            concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+        ),
         status: .notFound
     )
 
@@ -126,11 +146,8 @@ enum HomeFixtures {
         skinScore: nil,
         dominantAcne: nil,
         recommendations: [],
-        scanAvailability: ScanAvailability(
-            hasFaceScan: false,
-            hasIngredientScan: false,
-            hasPreviousFaceScan: false
-        )
+
+        hasTrackedSkincare: false
     )
 
     /// Face-only state: score 60, Blackhead dominant, no ingredient scan.
@@ -147,11 +164,8 @@ enum HomeFixtures {
         ),
         dominantAcne: .blackhead,
         recommendations: [],
-        scanAvailability: ScanAvailability(
-            hasFaceScan: true,
-            hasIngredientScan: false,
-            hasPreviousFaceScan: false
-        )
+
+        hasTrackedSkincare: true
     )
 
     /// Complete state: score 60, Blackhead dominant, with ingredient recommendations.
@@ -168,11 +182,8 @@ enum HomeFixtures {
         ),
         dominantAcne: .blackhead,
         recommendations: [niacinamideRecommendation, salicylicAcidRecommendation],
-        scanAvailability: ScanAvailability(
-            hasFaceScan: true,
-            hasIngredientScan: true,
-            hasPreviousFaceScan: false
-        )
+
+        hasTrackedSkincare: true
     )
 
     /// Improvement state: previous 60 → latest 83, Blackhead dominant.
@@ -189,11 +200,8 @@ enum HomeFixtures {
         ),
         dominantAcne: .blackhead,
         recommendations: [niacinamideRecommendation, salicylicAcidRecommendation],
-        scanAvailability: ScanAvailability(
-            hasFaceScan: true,
-            hasIngredientScan: true,
-            hasPreviousFaceScan: true
-        )
+
+        hasTrackedSkincare: true
     )
 
     /// Degradation state: previous 60 → latest 40, Pustule dominant.
@@ -209,12 +217,9 @@ enum HomeFixtures {
             message: "Skormu lebih rendah dari kemarin, jangan khawatir, ini bagian dari proses!"
         ),
         dominantAcne: .pustule,
-        recommendations: [benzoylPeroxideRecommendation],
-        scanAvailability: ScanAvailability(
-            hasFaceScan: true,
-            hasIngredientScan: true,
-            hasPreviousFaceScan: true
-        )
+        recommendations: [niacinamideRecommendation],
+
+        hasTrackedSkincare: true
     )
 
     /// Unchanged state: previous 60 → latest 60, Blackhead dominant.
@@ -231,11 +236,8 @@ enum HomeFixtures {
         ),
         dominantAcne: .blackhead,
         recommendations: [niacinamideRecommendation, salicylicAcidRecommendation],
-        scanAvailability: ScanAvailability(
-            hasFaceScan: true,
-            hasIngredientScan: true,
-            hasPreviousFaceScan: true
-        )
+
+        hasTrackedSkincare: true
     )
 
     // MARK: - Detail Fixture
