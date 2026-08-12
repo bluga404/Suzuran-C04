@@ -73,6 +73,9 @@ struct HistoryView: View {
                         .disabled(!viewModel.canCompare)
                     }
 
+                    // This is what keeps them as two separate glass pills
+                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
                     ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             withAnimation(.snappy(duration: 0.25)) {
@@ -81,7 +84,6 @@ struct HistoryView: View {
                         } label: {
                             Image(systemName: "xmark")
                         }
-                        .accessibilityLabel("Cancel compare")
                     }
                 } else {
                     ToolbarItem(placement: .topBarTrailing) {
