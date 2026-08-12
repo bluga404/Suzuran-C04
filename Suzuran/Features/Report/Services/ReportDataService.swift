@@ -20,7 +20,7 @@ final class ReportDataService {
 
     init(
         historyStore: ScanHistoryStore? = nil,
-        summaryService: SummaryServiceProtocol = GeminiSummaryService(),
+        summaryService: SummaryServiceProtocol = LocalSummaryService(),
         keyValueStore: KeyValueStore = UserDefaultsKeyValueStore(userDefaults: .standard),
         logger: AppLogging = AppLogger()
     ) {
