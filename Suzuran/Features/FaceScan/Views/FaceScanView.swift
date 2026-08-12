@@ -198,22 +198,24 @@ struct FaceScanView: View {
                 Spacer()
             }
 
-            // Fullscreen blur with a cut-out hole for the face
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .opacity(0.5)
-                .ignoresSafeArea()
-                .mask {
-                    Rectangle()
-                        .fill(Color.black)
-                        .overlay(
-                            Ellipse()
-                                .frame(width: 320, height: 440)
-                                .blendMode(.destinationOut)
-                        )
-                }
-                .compositingGroup()
-                .allowsHitTesting(false)
+            // Fullscreen dark & blurred overlay with a cut-out hole for the face oval guide
+            ZStack {
+                Rectangle()
+                    .fill(.regularMaterial)
+                Color.black.opacity(0.60)
+            }
+            .ignoresSafeArea()
+            .mask {
+                Rectangle()
+                    .fill(Color.black)
+                    .overlay(
+                        Ellipse()
+                            .frame(width: 320, height: 440)
+                            .blendMode(.destinationOut)
+                    )
+            }
+            .compositingGroup()
+            .allowsHitTesting(false)
 
             // Face guide overlay (centered oval) and progress ring combined
             FaceGuideOverlayView(
