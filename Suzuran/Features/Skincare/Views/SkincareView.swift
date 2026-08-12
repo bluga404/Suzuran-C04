@@ -2,185 +2,197 @@ import SwiftUI
 
 struct SkincareView: View {
     @ObservedObject var viewModel: SkincareViewModel
-    let ingredientRepository: SkincareIngredientRepository
+    let ingredientRepo: IngredientRepositoryProtocol
+    /// Retained for `SkincareFactory.makeView(onDismiss:)` source compatibility.
     let onDismiss: () -> Void
 
     @State private var isShowingAdd = false
+    @State private var productToEdit: SkincareProduct?
+    @State private var isShowingMatchedList = false
+    @State private var selectedMatched: MatchedIngredient?
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(alignment: .leading, spacing: AppSpacing.md) {
-                    
-                    // User Active Acne Profile Information
-                    AppCard {
-                        VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                            HStack {
-                                Image(systemName: "face.dashed")
-                                    .foregroundStyle(AppColor.accentPrimary)
-                                Text("Tipe Jerawat Aktif Anda")
-                                    .font(AppTypography.bodyBold)
-                                    .foregroundStyle(AppColor.textPrimary)
-                            }
-                            
-                            if viewModel.activeAcneTypes.isEmpty {
-                                Text("Tidak ada jerawat aktif terdeteksi.")
-                                    .font(AppTypography.caption)
-                                    .foregroundStyle(AppColor.textSecondary)
-                            } else {
-                                HStack(spacing: AppSpacing.xs) {
-                                    ForEach(viewModel.activeAcneTypes) { type in
-                                        Text(type.displayName)
-                                            .font(.system(size: 11, weight: .bold))
-                                            .padding(.horizontal, AppSpacing.sm)
-                                            .padding(.vertical, 4)
-                                            .background(AppColor.accentPrimary.opacity(0.08))
-                                            .foregroundStyle(AppColor.accentPrimary)
-                                            .clipShape(Capsule())
-                                    }
-                                }
-                                .padding(.top, 4)
-                            }
-                            
-                            Text("Berdasarkan hasil pemindaian wajah terakhir. Kandungan skincare Anda akan disesuaikan dengan tipe jerawat di atas.")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColor.textSecondary)
-                                .padding(.top, 4)
-                        }
-                    }
-                    
-                    // Skincare List Section
-                    if viewModel.products.isEmpty {
-                        VStack(spacing: AppSpacing.md) {
-                            Spacer(minLength: 40)
-                            
-                            ZStack {
-                                Circle()
-                                    .fill(AppColor.accentPrimary.opacity(0.05))
-                                    .frame(width: 100, height: 100)
-                                
-                                Image(systemName: "bubbles.and.sparkles")
-                                    .font(.system(size: 40))
-                                    .foregroundStyle(AppColor.accentPrimary)
-                            }
-                            
-                            Text("Belum Ada Catatan Skincare")
-                                .font(AppTypography.subtitle)
-                                .foregroundStyle(AppColor.textPrimary)
-                            
-                            Text("Catat produk skincare yang Anda gunakan saat ini untuk menganalisis kesesuaian bahan aktifnya dengan kondisi jerawat Anda.")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColor.textSecondary)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal, AppSpacing.lg)
-                            
-                            Button(action: {
-                                isShowingAdd = true
-                            }) {
-                                Text("Catat Skincare Pertama")
-                                    .font(AppTypography.bodyBold)
-                                    .padding(.horizontal, AppSpacing.lg)
-                                    .padding(.vertical, AppSpacing.sm)
-                                    .background(AppColor.accentPrimary)
-                                    .foregroundStyle(AppColor.textOnAccent)
-                                    .cornerRadius(AppCornerRadius.md)
-                            }
-                            .padding(.top, AppSpacing.sm)
-                            
-                            Spacer(minLength: 40)
-                        }
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, AppSpacing.xl)
-                    } else {
-                        let activeProducts = viewModel.products.filter { $0.isUsedCurrently }
-                        let inactiveProducts = viewModel.products.filter { !$0.isUsedCurrently }
-                        
-                        if !activeProducts.isEmpty {
-                            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                                Text("Sedang Digunakan (\(activeProducts.count))")
-                                    .font(AppTypography.bodyBold)
-                                    .foregroundStyle(AppColor.textPrimary)
-                                
-                                ForEach(activeProducts) { product in
-                                    NavigationLink(
-                                        destination: SkincareDetailView(
-                                            skincareViewModel: viewModel,
-                                            ingredientRepository: ingredientRepository,
-                                            product: product
-                                        )
-                                    ) {
-                                        SkincareCard(
-                                            product: product,
-                                            recommendationsCount: viewModel.getRecommendations(for: product).count,
-                                            onTap: {}
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                        
-                        if !inactiveProducts.isEmpty {
-                            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                                Text("Riwayat Produk Lain (\(inactiveProducts.count))")
-                                    .font(AppTypography.bodyBold)
-                                    .foregroundStyle(AppColor.textSecondary)
-                                
-                                ForEach(inactiveProducts) { product in
-                                    NavigationLink(
-                                        destination: SkincareDetailView(
-                                            skincareViewModel: viewModel,
-                                            ingredientRepository: ingredientRepository,
-                                            product: product
-                                        )
-                                    ) {
-                                        SkincareCard(
-                                            product: product,
-                                            recommendationsCount: viewModel.getRecommendations(for: product).count,
-                                            onTap: {}
-                                        )
-                                    }
-                                }
-                            }
-                            .padding(.top, AppSpacing.sm)
-                        }
-                    }
+            Group {
+                if viewModel.products.isEmpty {
+                    EmptySkincareView(onAdd: { isShowingAdd = true })
+                } else {
+                    productContent
                 }
-                .padding(AppSpacing.md)
             }
             .background(AppColor.backgroundPrimary)
-            .navigationTitle("Catatan Skincare")
+            .navigationTitle("Skincare")
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button(action: onDismiss) {
-                        HStack(spacing: 4) {
-                            Image(systemName: "chevron.left")
-                            Text("Kembali")
+                if !viewModel.products.isEmpty {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button(action: { isShowingAdd = true }) {
+                            Image(systemName: "plus")
+                                .font(AppTypography.bodyBold)
+                                .foregroundStyle(AppColor.accentPrimary)
+                                .frame(minWidth: 44, minHeight: 44)
                         }
-                        .font(AppTypography.bodyBold)
-                        .foregroundStyle(AppColor.accentPrimary)
-                    }
-                }
-                
-                ToolbarItem(placement: .topBarTrailing) {
-                    Button(action: {
-                        isShowingAdd = true
-                    }) {
-                        Image(systemName: "plus")
-                            .font(.system(size: 18, weight: .bold))
-                            .foregroundStyle(AppColor.accentPrimary)
+                        .accessibilityLabel(Text("Tambah Skincare"))
                     }
                 }
             }
             .sheet(isPresented: $isShowingAdd) {
                 AddSkincareView(
                     skincareViewModel: viewModel,
-                    ingredientRepository: ingredientRepository
+                    ingredientRepo: ingredientRepo,
+                    makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: nil) }
                 )
             }
-            .onAppear {
-                viewModel.loadData()
+            .sheet(item: $productToEdit) { product in
+                AddSkincareView(
+                    skincareViewModel: viewModel,
+                    ingredientRepo: ingredientRepo,
+                    makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: product) }
+                )
             }
+            .navigationDestination(isPresented: $isShowingMatchedList) {
+                MatchedIngredientListView(matched: viewModel.matchedIngredients)
+            }
+            .sheet(item: $selectedMatched) { matched in
+                IngredientDetailView(recommendation: matched.recommendation)
+            }
+            .alert(item: $viewModel.alert, content: makeAlert)
+            .alert(
+                "Terjadi Kesalahan",
+                isPresented: Binding(
+                    get: { viewModel.errorMessage != nil },
+                    set: { if !$0 { viewModel.errorMessage = nil } }
+                )
+            ) {
+                Button("OK", role: .cancel) { viewModel.errorMessage = nil }
+            } message: {
+                Text(viewModel.errorMessage ?? "")
+            }
+            .onAppear { viewModel.loadData() }
+        }
+    }
+
+    // MARK: - Content
+
+    private var productContent: some View {
+        List {
+            VStack(alignment: .leading, spacing: AppSpacing.lg) {
+                matchPreview
+                
+                Text("Skincare Saat Ini")
+                    .font(AppTypography.bodyBold)
+                    .foregroundStyle(AppColor.textPrimary)
+                    .accessibilityAddTraits(.isHeader)
+            }
+            .listRowInsets(EdgeInsets(top: AppSpacing.md, leading: AppSpacing.md, bottom: AppSpacing.sm, trailing: AppSpacing.md))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+
+            let activeProducts = viewModel.products.filter(\.isUsedCurrently)
+            ForEach(activeProducts) { product in
+                productRow(product)
+            }
+
+            let inactiveProducts = viewModel.products.filter { !$0.isUsedCurrently }
+            if !inactiveProducts.isEmpty {
+                Text("Produk Tersimpan")
+                    .font(AppTypography.caption)
+                    .foregroundStyle(AppColor.textSecondary)
+                    .padding(.top, AppSpacing.xs)
+                    .listRowInsets(EdgeInsets(top: AppSpacing.md, leading: AppSpacing.md, bottom: AppSpacing.xs, trailing: AppSpacing.md))
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+
+                ForEach(inactiveProducts) { product in
+                    productRow(product)
+                }
+            }
+
+            Button {
+                isShowingAdd = true
+            } label: {
+                Label("Tambah Skincare Baru", systemImage: "plus")
+                    .font(AppTypography.bodyBold)
+                    .frame(maxWidth: .infinity, minHeight: 44)
+            }
+            .buttonStyle(.bordered)
+            .tint(AppColor.accentPrimary)
+            .listRowInsets(EdgeInsets(top: AppSpacing.md, leading: AppSpacing.md, bottom: AppSpacing.xl, trailing: AppSpacing.md))
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+        }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+    }
+
+    @ViewBuilder
+    private var matchPreview: some View {
+        if !viewModel.activeAcneTypes.isEmpty {
+            if viewModel.matchedIngredients.isEmpty {
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                    Text("Ingredient yang Cocok")
+                        .font(AppTypography.bodyBold)
+                        .foregroundStyle(AppColor.textPrimary)
+                    MatchedIngredientEmptyState()
+                }
+            } else {
+                MatchedIngredientSection(
+                    matched: viewModel.matchedIngredients,
+                    onSelect: { selectedMatched = $0 },
+                    onShowAll: { isShowingMatchedList = true }
+                )
+            }
+        }
+    }
+
+    private func productRow(_ product: SkincareProduct) -> some View {
+        ZStack {
+            SkincareCard(
+                product: product,
+                recommendationsCount: viewModel.matchedIngredients(in: product).count,
+                onEdit: { productToEdit = product }
+            )
+            NavigationLink(destination: SkincareDetailView(
+                skincareViewModel: viewModel,
+                ingredientRepo: ingredientRepo,
+                product: product
+            )) {
+                EmptyView()
+            }
+            .opacity(0)
+        }
+        .listRowInsets(EdgeInsets(top: AppSpacing.xs, leading: AppSpacing.md, bottom: AppSpacing.xs, trailing: AppSpacing.md))
+        .listRowBackground(Color.clear)
+        .listRowSeparator(.hidden)
+        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+            Button(role: .destructive) {
+                viewModel.requestDelete(product)
+            } label: {
+                Label("Hapus", systemImage: "trash")
+            }
+        }
+    }
+
+    // MARK: - Delete confirmation
+
+    private func makeAlert(_ alert: SkincareAlert) -> Alert {
+        switch alert {
+        case .deleteProduct(let product):
+            Alert(
+                title: Text("Hapus Produk"),
+                message: Text("Hapus \"\(product.name)\" dari catatan skincare Anda?"),
+                primaryButton: .destructive(Text("Hapus")) { viewModel.confirmDelete(product) },
+                secondaryButton: .cancel(Text("Batal"))
+            )
+        case .deleteLastProduct(let product):
+            Alert(
+                title: Text("Hapus Produk Terakhir"),
+                message: Text("\"\(product.name)\" adalah produk terakhir. Menghapusnya akan mengembalikan halaman ke kondisi kosong."),
+                primaryButton: .destructive(Text("Hapus")) { viewModel.confirmDelete(product) },
+                secondaryButton: .cancel(Text("Batal"))
+            )
+        case .saveEmpty:
+            Alert(title: Text(""))
         }
     }
 }

@@ -94,7 +94,7 @@ struct SubZoneSummaryModel: Identifiable, Equatable {
 
 // MARK: - MarkerModel
 
-struct MarkerModel: Identifiable, Equatable {
+struct MarkerModel: Identifiable, Equatable, Codable {
     let id: UUID
     let acneType: AcneType
     let confidence: Double

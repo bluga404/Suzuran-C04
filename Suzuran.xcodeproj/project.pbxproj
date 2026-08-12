@@ -6,8 +6,19 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		FE00001111111111111111AA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = D5ACC662301C479C002CA818 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = D5ACC669301C479C002CA818;
+			remoteInfo = Suzuran;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
 		D5ACC66A301C479C002CA818 /* Suzuran.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Suzuran.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FE00001111111111111111A2 /* SuzuranTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SuzuranTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -17,6 +28,19 @@
 				Info.plist,
 			);
 			target = D5ACC669301C479C002CA818 /* Suzuran */;
+		};
+		FE00001111111111111111B0 /* Exceptions for "SuzuranTests" folder in "SuzuranTests" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Features/Skincare/Models/.gitkeep,
+				Features/Skincare/Services/.gitkeep,
+				Features/Skincare/ViewModels/.gitkeep,
+				Features/Skincare/Views/.gitkeep,
+				Support/Fixtures/.gitkeep,
+				Support/Generators/.gitkeep,
+				Support/Mocks/.gitkeep,
+			);
+			target = FE00001111111111111111A0 /* SuzuranTests */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
@@ -29,10 +53,25 @@
 			path = Suzuran;
 			sourceTree = "<group>";
 		};
+		FE00001111111111111111A1 /* SuzuranTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				FE00001111111111111111B0 /* Exceptions for "SuzuranTests" folder in "SuzuranTests" target */,
+			);
+			path = SuzuranTests;
+			sourceTree = "<group>";
+		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
 		D5ACC667301C479C002CA818 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FE00001111111111111111A4 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -46,6 +85,7 @@
 			isa = PBXGroup;
 			children = (
 				D5ACC66C301C479C002CA818 /* Suzuran */,
+				FE00001111111111111111A1 /* SuzuranTests */,
 				D5ACC66B301C479C002CA818 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +94,7 @@
 			isa = PBXGroup;
 			children = (
 				D5ACC66A301C479C002CA818 /* Suzuran.app */,
+				FE00001111111111111111A2 /* SuzuranTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -83,6 +124,29 @@
 			productReference = D5ACC66A301C479C002CA818 /* Suzuran.app */;
 			productType = "com.apple.product-type.application";
 		};
+		FE00001111111111111111A0 /* SuzuranTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = FE00001111111111111111A8 /* Build configuration list for PBXNativeTarget "SuzuranTests" */;
+			buildPhases = (
+				FE00001111111111111111A3 /* Sources */,
+				FE00001111111111111111A4 /* Frameworks */,
+				FE00001111111111111111A5 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				FE00001111111111111111A9 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				FE00001111111111111111A1 /* SuzuranTests */,
+			);
+			name = SuzuranTests;
+			packageProductDependencies = (
+			);
+			productName = SuzuranTests;
+			productReference = FE00001111111111111111A2 /* SuzuranTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -95,6 +159,10 @@
 				TargetAttributes = {
 					D5ACC669301C479C002CA818 = {
 						CreatedOnToolsVersion = 26.6;
+					};
+					FE00001111111111111111A0 = {
+						CreatedOnToolsVersion = 26.6;
+						TestTargetID = D5ACC669301C479C002CA818;
 					};
 				};
 			};
@@ -113,12 +181,20 @@
 			projectRoot = "";
 			targets = (
 				D5ACC669301C479C002CA818 /* Suzuran */,
+				FE00001111111111111111A0 /* SuzuranTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
 		D5ACC668301C479C002CA818 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		FE00001111111111111111A5 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -135,7 +211,22 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		FE00001111111111111111A3 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		FE00001111111111111111A9 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = D5ACC669301C479C002CA818 /* Suzuran */;
+			targetProxy = FE00001111111111111111AA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		D5ACC673301C479D002CA818 /* Debug */ = {
@@ -266,10 +357,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9B942TMQ3J;
+				DEVELOPMENT_TEAM = V36823696A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Suzuran/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Rona;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Suzuran membutuhkan akses kamera untuk memindai wajah dan mendeteksi jerawat.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -300,10 +392,11 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = 9B942TMQ3J;
+				DEVELOPMENT_TEAM = V36823696A;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Suzuran/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Rona;
 				INFOPLIST_KEY_NSCameraUsageDescription = "Suzuran membutuhkan akses kamera untuk memindai wajah dan mendeteksi jerawat.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -327,6 +420,68 @@
 			};
 			name = Release;
 		};
+		FE00001111111111111111A6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2R9V3YHPK7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.suzuran.SuzuranTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Suzuran.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Suzuran";
+			};
+			name = Debug;
+		};
+		FE00001111111111111111A7 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CLANG_ENABLE_MODULES = YES;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 2R9V3YHPK7;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.5;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.suzuran.SuzuranTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_APPROACHABLE_CONCURRENCY = YES;
+				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Suzuran.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Suzuran";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -344,6 +499,15 @@
 			buildConfigurations = (
 				D5ACC676301C479D002CA818 /* Debug */,
 				D5ACC677301C479D002CA818 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		FE00001111111111111111A8 /* Build configuration list for PBXNativeTarget "SuzuranTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				FE00001111111111111111A6 /* Debug */,
+				FE00001111111111111111A7 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

@@ -60,7 +60,7 @@ struct IngredientReviewView: View {
                             Spacer()
                             
                             Button(action: {
-                                viewModel.scannedIngredients.removeAll { $0 == ingredient }
+                                viewModel.removeScannedIngredient(ingredient)
                             }) {
                                 Image(systemName: "trash")
                                     .foregroundStyle(AppColor.accentDanger)
@@ -69,7 +69,7 @@ struct IngredientReviewView: View {
                         }
                     }
                     .onDelete { offsets in
-                        viewModel.scannedIngredients.remove(atOffsets: offsets)
+                        viewModel.removeScannedIngredient(at: offsets)
                     }
                 }
             }
@@ -78,7 +78,7 @@ struct IngredientReviewView: View {
             // Save Action
             VStack {
                 Button(action: {
-                    viewModel.commitScannedIngredients()
+                    viewModel.commitReview()
                     onSave()
                 }) {
                     Text("Gunakan Kandungan Ini (\(viewModel.scannedIngredients.count))")
@@ -100,12 +100,7 @@ struct IngredientReviewView: View {
     }
 
     private func addScannedIngredient() {
-        let trimmed = newIngredientName.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        
-        if !viewModel.scannedIngredients.contains(where: { $0.caseInsensitiveCompare(trimmed) == .orderedSame }) {
-            viewModel.scannedIngredients.append(trimmed)
-        }
+        viewModel.addScannedIngredient(newIngredientName)
         newIngredientName = ""
     }
 }

@@ -23,6 +23,10 @@ struct ScanRecord: Identifiable, Codable, Equatable, Hashable {
     let subZoneThumbnails: [FaceArea: Data]?
     /// Per-area, per-type acne counts. Maps facial area to list of type counts in that area.
     let areaTypeCounts: [FaceArea: [AcneTypeCount]]?
+    /// Bounding box markers for the front image.
+    let frontMarkers: [MarkerModel]?
+    /// Bounding box markers for each facial sub-zone.
+    let areaMarkers: [FaceArea: [MarkerModel]]?
 
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
@@ -87,7 +91,9 @@ struct ScanRecord: Identifiable, Codable, Equatable, Hashable {
         acneTypeCounts: [AcneTypeCount],
         acneAreaCounts: [AcneAreaCount] = [],
         subZoneThumbnails: [FaceArea: Data]? = nil,
-        areaTypeCounts: [FaceArea: [AcneTypeCount]]? = nil
+        areaTypeCounts: [FaceArea: [AcneTypeCount]]? = nil,
+        frontMarkers: [MarkerModel]? = nil,
+        areaMarkers: [FaceArea: [MarkerModel]]? = nil
     ) {
         self.id = id
         self.date = date
@@ -99,5 +105,7 @@ struct ScanRecord: Identifiable, Codable, Equatable, Hashable {
         self.acneAreaCounts = acneAreaCounts
         self.subZoneThumbnails = subZoneThumbnails
         self.areaTypeCounts = areaTypeCounts
+        self.frontMarkers = frontMarkers
+        self.areaMarkers = areaMarkers
     }
 }

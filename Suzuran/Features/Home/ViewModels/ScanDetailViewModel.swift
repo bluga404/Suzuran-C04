@@ -14,8 +14,15 @@ struct ScanDetailData: Equatable {
 @MainActor
 final class ScanDetailViewModel: ObservableObject {
     @Published private(set) var state: LoadableState<ScanDetailData> = .idle
-    @Published var selectedRegion: FaceRegion? = nil // nil means "All"
+    @Published var selectedRegion: FaceRegion? = nil {
+        didSet {
+            updateImage()
+        }
+    }
     @Published private(set) var image: UIImage? = nil
+    @Published private(set) var currentMarkers: [MarkerModel] = []
+    
+    private var cachedRecord: ScanRecord? = nil
 
     private let scanID: UUID
     private let skinScanRepository: SkinScanRepository
@@ -32,13 +39,9 @@ final class ScanDetailViewModel: ObservableObject {
     func load() async {
         state = .loading
         
-        // Load image from history store if available
-        if let historyStore = historyStore,
-           let record = historyStore.records.first(where: { $0.id == scanID }),
-           let frontData = record.frontImageData,
-           let uiImage = UIImage(data: frontData) {
-            self.image = uiImage
-        }
+        // Cache the record for image switching
+        self.cachedRecord = historyStore?.records.first(where: { $0.id == scanID })
+        updateImage()
         
         do {
             var finalScan: SkinScan? = try await skinScanRepository.scan(byID: scanID)
@@ -126,6 +129,24 @@ final class ScanDetailViewModel: ObservableObject {
             return dict.map { (type: $0.key, count: $0.value) }
         } else {
             return data.scan.acneCounts.map { (type: $0.key, count: $0.value) }
+        }
+    }
+    
+    private func updateImage() {
+        guard let record = cachedRecord else { return }
+        
+        if let region = selectedRegion,
+           let area = ScanRecord.FaceArea(rawValue: region.englishDisplayName),
+           let subZoneData = record.subZoneThumbnails?[area],
+           let uiImage = UIImage(data: subZoneData) {
+            self.image = uiImage
+            self.currentMarkers = record.areaMarkers?[area] ?? []
+        } else if let frontData = record.frontImageData, let uiImage = UIImage(data: frontData) {
+            self.image = uiImage
+            self.currentMarkers = record.frontMarkers ?? []
+        } else {
+            self.image = nil
+            self.currentMarkers = []
         }
     }
 }

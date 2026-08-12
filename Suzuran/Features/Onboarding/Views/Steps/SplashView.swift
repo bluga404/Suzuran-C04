@@ -16,7 +16,7 @@ struct SplashView: View {
                     .frame(width: 180, height: 180)
 
                 // APP NAME
-                Text("APP NAME")
+                Text("Rona")
                     .font(.largeTitle)
                     .fontWeight(.bold)
                     .foregroundStyle(AppColor.textPrimary)
