@@ -69,12 +69,18 @@ struct FaceScanView: View {
             processingView
 
         case .completed(let result):
-            FaceScanResultView(result: result, onDone: {
-                if let session = viewModel.lastSession {
-                    onScanSaved(session, result)
+            FaceScanResultView(
+                result: result,
+                onDone: {
+                    if let session = viewModel.lastSession {
+                        onScanSaved(session, result)
+                    }
+                    onDismiss()
+                },
+                onRetake: {
+                    viewModel.retry()
                 }
-                onDismiss()
-            })
+            )
 
         case .error(let message):
             errorView(message: message)

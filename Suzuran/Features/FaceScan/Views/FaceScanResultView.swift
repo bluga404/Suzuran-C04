@@ -13,9 +13,11 @@ struct FaceScanResultView: View {
 
     let result: FaceScanResultModel
     let onDone: () -> Void
+    var onRetake: () -> Void = {}
 
     /// Payload for full-screen photo detail view.
     @State private var activeDetailPayload: PhotoDetailPayload? = nil
+    @State private var isShowingDiscardAlert = false
 
     private let dateFormatter: DateFormatter = {
         let f = DateFormatter()
@@ -55,7 +57,7 @@ struct FaceScanResultView: View {
             .navigationBarBackButtonHidden(true)
             .toolbar {
                 ToolbarItem(placement: .topBarLeading) {
-                    Button(action: onDone) {
+                    Button(action: { isShowingDiscardAlert = true }) {
                         Label("Back", systemImage: "chevron.left")
                             .labelStyle(.iconOnly)
                     }
@@ -68,6 +70,14 @@ struct FaceScanResultView: View {
             }
             .navigationDestination(item: $activeDetailPayload) { payload in
                 FullPhotoDetailView(payload: payload)
+            }
+            .alert("Discard Scan Result?", isPresented: $isShowingDiscardAlert) {
+                Button("Discard & Retake", role: .destructive) {
+                    onRetake()
+                }
+                Button("Cancel", role: .cancel) { }
+            } message: {
+                Text("Are you sure you want to go back? Your current scan result will be discarded and won't be saved.")
             }
         }
     }

@@ -54,10 +54,10 @@ struct OnboardingView: View {
                             }
                         )
 
-                        // Get Started Button
+                        // Get Started Button: completes onboarding immediately from any page
                         Button(action: {
                             withAnimation(.easeInOut) {
-                                viewModel.nextStep()
+                                viewModel.completeOnboarding()
                             }
                         }) {
                             Text("Get Started")
