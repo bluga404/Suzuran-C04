@@ -1,32 +1,77 @@
 import SwiftUI
 
+enum SkincareRoute: Hashable {
+    case add
+    case pending
+    case matched
+    case manageActive
+    case edit(SkincareProduct)
+}
+
 struct SkincareView: View {
     @ObservedObject var viewModel: SkincareViewModel
     let ingredientRepository: CosingIngredientRepository
     let acneRepository: AcneIngredientRepository
     let onDismiss: () -> Void
 
-    @State private var isShowingAdd = false
+    @State private var navPath = NavigationPath()
     @State private var selectedRecommendation: SkincareIngredientRecommendation?
 
     var body: some View {
-        NavigationStack {
+        NavigationStack(path: $navPath) {
             Group {
                 if viewModel.products.isEmpty {
                     EmptySkincareView {
-                        isShowingAdd = true
+                        navPath.append(SkincareRoute.add)
                     }
                 } else {
                     contentView
                 }
             }
             .background(AppColor.backgroundPrimary)
-            .navigationDestination(isPresented: $isShowingAdd) {
-                AddSkincareView(
-                    skincareViewModel: viewModel,
-                    ingredientRepository: ingredientRepository,
-                    acneRepository: acneRepository
-                )
+            .navigationDestination(for: SkincareRoute.self) { route in
+                switch route {
+                case .add:
+                    AddSkincareView(
+                        skincareViewModel: viewModel,
+                        ingredientRepository: ingredientRepository,
+                        acneRepository: acneRepository,
+                        onSave: {
+                            navPath.removeLast()
+                            navPath.append(SkincareRoute.pending)
+                        }
+                    )
+                case .pending:
+                    PendingSkincareListView(
+                        viewModel: viewModel,
+                        ingredientRepository: ingredientRepository,
+                        acneRepository: acneRepository,
+                        navPath: $navPath
+                    )
+                case .matched:
+                    MatchedResultView(
+                        viewModel: viewModel,
+                        acneRepository: acneRepository,
+                        navPath: $navPath
+                    )
+                case .manageActive:
+                    ManageSkincareListView(
+                        viewModel: viewModel,
+                        ingredientRepository: ingredientRepository,
+                        acneRepository: acneRepository,
+                        navPath: $navPath
+                    )
+                case .edit(let product):
+                    AddSkincareView(
+                        skincareViewModel: viewModel,
+                        ingredientRepository: ingredientRepository,
+                        acneRepository: acneRepository,
+                        editingProduct: product,
+                        onSave: {
+                            navPath.removeLast()
+                        }
+                    )
+                }
             }
             .sheet(item: $selectedRecommendation) { rec in
                 IngredientDetailView(recommendation: rec)
@@ -54,7 +99,11 @@ struct SkincareView: View {
                                 .foregroundStyle(AppColor.textPrimary)
                         }
                         
-                        if viewModel.activeAcneTypes.isEmpty {
+                        if !viewModel.hasScanned {
+                            Text("Belum ada hasil pemindaian, silakan pindai wajah Anda untuk mengetahui kondisi jerawat yang ada.")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColor.textSecondary)
+                        } else if viewModel.activeAcneTypes.isEmpty {
                             Text("Tidak ada jerawat aktif terdeteksi.")
                                 .font(AppTypography.caption)
                                 .foregroundStyle(AppColor.textSecondary)
@@ -71,12 +120,12 @@ struct SkincareView: View {
                                 }
                             }
                             .padding(.top, 4)
+                            
+                            Text("Berdasarkan hasil pemindaian wajah terakhir. Kandungan skincare Anda akan disesuaikan dengan tipe jerawat di atas.")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColor.textSecondary)
+                                .padding(.top, 4)
                         }
-                        
-                        Text("Berdasarkan hasil pemindaian wajah terakhir. Kandungan skincare Anda akan disesuaikan dengan tipe jerawat di atas.")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(AppColor.textSecondary)
-                            .padding(.top, 4)
                     }
                 }
                 
@@ -86,9 +135,24 @@ struct SkincareView: View {
                 
                 if !activeProducts.isEmpty {
                     VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                        Text("Sedang Digunakan (\(activeProducts.count))")
-                            .font(AppTypography.bodyBold)
-                            .foregroundStyle(AppColor.textPrimary)
+                        HStack {
+                            Text("Sedang Digunakan (\(activeProducts.count))")
+                                .font(AppTypography.bodyBold)
+                                .foregroundStyle(AppColor.textPrimary)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                navPath.append(SkincareRoute.manageActive)
+                            }) {
+                                HStack(spacing: 2) {
+                                    Text("See details")
+                                    Image(systemName: "chevron.right")
+                                }
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColor.accentPrimary)
+                            }
+                        }
                         
                         ForEach(activeProducts) { product in
                             NavigationLink(
@@ -136,8 +200,10 @@ struct SkincareView: View {
                 }
                 
                 // Match Ingredient Section (SVG 08)
-                matchedSection
-                    .padding(.top, AppSpacing.sm)
+                if viewModel.hasScanned {
+                    matchedSection
+                        .padding(.top, AppSpacing.sm)
+                }
             }
             .padding(AppSpacing.md)
         }
@@ -146,7 +212,7 @@ struct SkincareView: View {
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
-                    isShowingAdd = true
+                    navPath.append(SkincareRoute.add)
                 }) {
                     Image(systemName: "plus")
                         .font(.system(size: 18, weight: .bold))

@@ -14,53 +14,38 @@ struct IngredientSection: View {
     }
 
     var body: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                HStack {
-                    Text("INGREDIENTS")
-                        .font(AppTypography.caption)
-                        .tracking(1.2)
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Button(action: onInfoTap) {
-                        Image(systemName: "info.circle")
-                            .font(AppTypography.caption)
-                            .foregroundStyle(.secondary)
-                    }
-                    .accessibilityLabel("Ingredients information")
-                }
+        VStack(alignment: .leading, spacing: AppSpacing.md) {
+            // Section Header
+            Text("Recommended Ingredients")
+                .font(.title3)
+                .fontWeight(.bold)
+                .foregroundStyle(AppColor.textPrimary)
 
-                if visibleRecommendations.isEmpty && showEmptyState {
-                    Text("Scan your skincare products to get ingredient recommendations")
-                        .font(AppTypography.body)
-                        .foregroundStyle(.secondary)
-                } else {
+            if visibleRecommendations.isEmpty && showEmptyState {
+                Text("Scan your skincare products to get ingredient recommendations")
+                    .font(AppTypography.body)
+                    .foregroundStyle(.secondary)
+            } else {
+                VStack(spacing: AppSpacing.sm) {
                     ForEach(Array(visibleRecommendations.enumerated()), id: \.element.id) { index, recommendation in
                         IngredientRecommendationCard(recommendation: recommendation)
-                        if index < visibleRecommendations.count - 1 {
-                            Divider()
-                        }
                     }
                 }
-                
-                Button(action: onTrackTap) {
-                    HStack(spacing: AppSpacing.xs) {
-                        Image(systemName: "plus.circle.fill")
-                        Text("Track Your Skincare")
-                            .font(AppTypography.bodyBold)
-                    }
-                    .foregroundStyle(Color(uiColor: .systemBackground))
-                    .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(Color.primary)
-                    .clipShape(Capsule())
-                }
-                .padding(.top, AppSpacing.xs)
-                .accessibilityLabel("Track skincare products")
             }
-            .padding(AppSpacing.lg)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .background(AppColor.surfacePrimary)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
+            
+            Button(action: onTrackTap) {
+                HStack(spacing: AppSpacing.xs) {
+                    Image(systemName: "plus.circle.fill")
+                    Text("Track Your Skincare")
+                        .font(AppTypography.bodyBold)
+                }
+                .foregroundStyle(Color(uiColor: .systemBackground))
+                .frame(maxWidth: .infinity, minHeight: 44)
+                .background(Color.primary)
+                .clipShape(Capsule())
+            }
+            .padding(.top, AppSpacing.xs)
+            .accessibilityLabel("Track skincare products")
         }
         .padding(.horizontal, AppSpacing.md)
     }

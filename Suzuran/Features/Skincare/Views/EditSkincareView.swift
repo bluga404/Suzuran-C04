@@ -11,7 +11,8 @@ struct EditSkincareView: View {
             skincareViewModel: skincareViewModel,
             ingredientRepository: ingredientRepository,
             acneRepository: acneRepository,
-            editingProduct: product
+            editingProduct: product,
+            isPendingFlow: false
         )
     }
 }

@@ -101,46 +101,57 @@ struct SkincareDetailView: View {
                     }
                 }
                 
-                // Delete Action button at bottom
-                Button(action: deleteProduct) {
-                    HStack {
-                        Image(systemName: "trash")
-                        Text("Hapus Produk Ini")
-                            .font(AppTypography.bodyBold)
+                // Action buttons at bottom
+                VStack(spacing: AppSpacing.sm) {
+                    if let latestProduct = skincareViewModel.products.first(where: { $0.id == product.id }) {
+                        NavigationLink(destination: EditSkincareView(
+                            skincareViewModel: skincareViewModel,
+                            ingredientRepository: ingredientRepository,
+                            acneRepository: acneRepository,
+                            product: latestProduct
+                        )) {
+                            HStack {
+                                Image(systemName: "pencil")
+                                Text("Edit Skincare")
+                                    .font(AppTypography.bodyBold)
+                            }
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, AppSpacing.sm)
+                            .background(AppColor.surfacePrimary)
+                            .foregroundStyle(AppColor.accentPrimary)
+                            .cornerRadius(AppCornerRadius.md)
+                            .overlay(
+                                RoundedRectangle(cornerRadius: AppCornerRadius.md)
+                                    .stroke(AppColor.accentPrimary, lineWidth: 1)
+                            )
+                        }
                     }
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppSpacing.md)
-                    .background(AppColor.accentDanger.opacity(0.08))
-                    .foregroundStyle(AppColor.accentDanger)
-                    .cornerRadius(AppCornerRadius.md)
-                    .overlay(
-                        RoundedRectangle(cornerRadius: AppCornerRadius.md)
-                            .stroke(AppColor.accentDanger.opacity(0.2), lineWidth: 1)
-                    )
+                    
+                    Button(action: deleteProduct) {
+                        HStack {
+                            Image(systemName: "trash")
+                            Text("Hapus Produk Ini")
+                                .font(AppTypography.bodyBold)
+                        }
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AppSpacing.sm)
+                        .background(AppColor.accentDanger.opacity(0.08))
+                        .foregroundStyle(AppColor.accentDanger)
+                        .cornerRadius(AppCornerRadius.md)
+                        .overlay(
+                            RoundedRectangle(cornerRadius: AppCornerRadius.md)
+                                .stroke(AppColor.accentDanger.opacity(0.2), lineWidth: 1)
+                        )
+                    }
                 }
-                .padding(.top, AppSpacing.lg)
+                .padding(.top, AppSpacing.md)
             }
             .padding(AppSpacing.md)
         }
         .background(AppColor.backgroundPrimary)
         .navigationTitle("Detail Skincare")
         .navigationBarTitleDisplayMode(.inline)
-        .toolbar {
-            ToolbarItem(placement: .topBarTrailing) {
-                if let latestProduct = skincareViewModel.products.first(where: { $0.id == product.id }) {
-                    NavigationLink(destination: EditSkincareView(
-                        skincareViewModel: skincareViewModel,
-                        ingredientRepository: ingredientRepository,
-                        acneRepository: acneRepository,
-                        product: latestProduct
-                    )) {
-                        Text("Edit")
-                            .font(AppTypography.bodyBold)
-                            .foregroundStyle(AppColor.accentPrimary)
-                    }
-                }
-            }
-        }
+        // Toolbar Edit button removed in favor of prominent bottom button
         .sheet(item: $selectedRecommendation) { rec in
             IngredientDetailView(recommendation: rec)
         }

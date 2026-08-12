@@ -62,6 +62,32 @@ final class AddSkincareViewModel: ObservableObject {
         }
     }
 
+    func saveToPending(to viewModel: SkincareViewModel) {
+        isSaving = true
+        defer { isSaving = false }
+
+        let trimmedIngredients = ingredients
+        if let editingProduct = editingProduct {
+            var updated = editingProduct
+            updated.name = name
+            updated.brand = brand
+            updated.category = category
+            updated.ingredients = trimmedIngredients
+            updated.isUsedCurrently = isUsedCurrently
+            updated.updatedAt = Date()
+            viewModel.updatePendingProduct(updated)
+        } else {
+            let newProduct = SkincareProduct(
+                name: name,
+                brand: brand,
+                category: category,
+                ingredients: trimmedIngredients,
+                isUsedCurrently: isUsedCurrently
+            )
+            viewModel.addPendingProduct(newProduct)
+        }
+    }
+
     func addIngredient(_ ingredientName: String) {
         let cleanName = ingredientName.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !cleanName.isEmpty else { return }

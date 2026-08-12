@@ -40,4 +40,8 @@ final class AcneIngredientRepository: AcneIngredientRepositoryProtocol {
             .filter { $0.lowercased().contains(cleanQuery) }
             .map { IngredientReference(id: UUID().uuidString, name: $0) }
     }
+    
+    func getAllRecommendations() -> [SkincareIngredientRecommendation] {
+        return recommendations
+    }
 }

@@ -1,6 +1,6 @@
 import Foundation
 
-struct SkincareProduct: Identifiable, Codable, Equatable {
+struct SkincareProduct: Identifiable, Codable, Equatable, Hashable {
     let id: UUID
     var name: String
     var brand: String

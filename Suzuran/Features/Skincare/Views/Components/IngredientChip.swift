@@ -11,6 +11,8 @@ struct IngredientChip: View {
                 .font(AppTypography.caption)
                 .fontWeight(isMatched ? .semibold : .regular)
                 .foregroundStyle(isMatched ? AppColor.accentPrimary : AppColor.textPrimary)
+                .lineLimit(1)
+                .truncationMode(.tail)
 
             if let onDelete = onDelete {
                 Button(action: onDelete) {
@@ -23,6 +25,7 @@ struct IngredientChip: View {
         }
         .padding(.horizontal, AppSpacing.sm)
         .padding(.vertical, AppSpacing.xs)
+        .frame(maxWidth: 160)
         .background(
             Capsule()
                 .fill(isMatched ? AppColor.accentPrimary.opacity(0.08) : AppColor.surfacePrimary)

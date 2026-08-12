@@ -22,6 +22,7 @@ protocol CosingIngredientRepositoryProtocol: ObservableObject {
 protocol AcneIngredientRepositoryProtocol: ObservableObject {
     func getRecommendation(for normalizedName: String) -> SkincareIngredientRecommendation?
     func searchRecommendations(query: String) -> [IngredientReference]
+    func getAllRecommendations() -> [SkincareIngredientRecommendation]
 }
 
 // Matching Service
