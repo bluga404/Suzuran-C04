@@ -3,6 +3,7 @@ import Foundation
 /// Supplies the user's active ``AcneType`` list to the Skincare module.
 protocol AcneProfileProviding {
     func getActiveAcneTypes() -> [AcneType]
+    func hasScanned() -> Bool
 }
 
 /// Real implementation that derives the active acne profile from the latest
@@ -33,5 +34,9 @@ final class AcneProfileProvider: AcneProfileProviding {
             return []
         }
         return latestScan.acneTypeCounts.map { $0.acneType }
+    }
+
+    func hasScanned() -> Bool {
+        return !historyStore.records.isEmpty
     }
 }

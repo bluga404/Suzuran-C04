@@ -13,6 +13,7 @@ struct IngredientChip: View {
                 .fontWeight(isMatched ? .semibold : .regular)
                 .foregroundStyle(isMatched ? AppColor.accentPrimary : AppColor.textPrimary)
                 .lineLimit(1)
+                .truncationMode(.tail)
 
             if let onDelete {
                 Button(action: onDelete) {
@@ -26,9 +27,9 @@ struct IngredientChip: View {
                 .accessibilityLabel("Hapus \(name)")
             }
         }
-        .padding(.leading, AppSpacing.sm)
-        .padding(.trailing, onDelete == nil ? AppSpacing.sm : AppSpacing.xxs)
-        .frame(minHeight: 44)
+        .padding(.horizontal, AppSpacing.sm)
+        .padding(.vertical, AppSpacing.xs)
+        .frame(maxWidth: 160)
         .background(
             Capsule().fill(isMatched ? AppColor.accentPrimary.opacity(0.08) : AppColor.surfacePrimary)
         )

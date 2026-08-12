@@ -23,6 +23,23 @@ import Combine
 ///
 @MainActor
 final class SkincareViewModel: ObservableObject {
+    enum RecommendationStatus: Equatable {
+        case notFound
+        case found(productCategory: String)
+    }
+
+    struct RecommendedIngredientDisplay: Identifiable {
+        let id = UUID()
+        let recommendation: SkincareIngredientRecommendation
+        let status: RecommendationStatus
+    }
+
+    @Published private(set) var products: [SkincareProduct] = []
+    @Published private(set) var activeAcneTypes: [AcneType] = []
+    @Published private(set) var hasScanned: Bool = false
+    @Published private(set) var matchedRecommendations: [UUID: [MatchedRecommendation]] = [:]
+    @Published private(set) var generalRecommendations: [RecommendedIngredientDisplay] = []
+    @Published var pendingProducts: [SkincareProduct] = []
 
     private let skincareRepository: SkincareProductRepositoryProtocol
     private let acneRepository: AcneIngredientRepositoryProtocol
@@ -50,9 +67,11 @@ final class SkincareViewModel: ObservableObject {
     }
 
     func loadData() {
-        products = productRepo.fetchProducts()
-        activeAcneTypes = profile.getActiveAcneTypes()
-        recomputeMatches()
+        self.products = skincareRepository.fetchProducts()
+        self.hasScanned = acneProfileProvider.hasScanned()
+        self.activeAcneTypes = acneProfileProvider.getActiveAcneTypes()
+        calculateAllMatches()
+        calculateGeneralRecommendations()
     }
 
     private func calculateAllMatches() {
@@ -67,7 +86,52 @@ final class SkincareViewModel: ObservableObject {
         self.matchedRecommendations = matches
     }
 
-    // MARK: - Mutations
+    private func calculateGeneralRecommendations() {
+        guard !activeAcneTypes.isEmpty else {
+            self.generalRecommendations = []
+            return
+        }
+
+        let allRecs = acneRepository.getAllRecommendations()
+        var displays: [RecommendedIngredientDisplay] = []
+
+        for rec in allRecs {
+            // Check if recommendation targets any active acne type
+            let recAcneNames = rec.acneTypes.components(separatedBy: ",").map { $0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() }
+            let matchesActive = activeAcneTypes.contains { activeType in
+                recAcneNames.contains(activeType.displayName.lowercased())
+            }
+
+            if matchesActive {
+                // Check if it's found in any of the user's ACTIVE products
+                let activeProducts = products.filter { $0.isUsedCurrently }
+                var foundCategory: String? = nil
+
+                for product in activeProducts {
+                    if product.ingredients.contains(where: { $0.normalizedName == rec.ingredientName.lowercased() || (rec.alternativesName?.lowercased().contains($0.normalizedName) ?? false) }) {
+                        foundCategory = product.category.displayName
+                        break
+                    }
+                }
+
+                let status: RecommendationStatus = foundCategory != nil ? .found(productCategory: foundCategory!) : .notFound
+                displays.append(RecommendedIngredientDisplay(recommendation: rec, status: status))
+            }
+        }
+
+        // Sort: found first, then by name
+        displays.sort { (a, b) -> Bool in
+            if case .found = a.status, case .notFound = b.status { return true }
+            if case .notFound = a.status, case .found = b.status { return false }
+            return a.recommendation.ingredientName < b.recommendation.ingredientName
+        }
+
+        self.generalRecommendations = displays
+    }
+
+    func getRecommendations(for product: SkincareProduct) -> [MatchedRecommendation] {
+        return matchedRecommendations[product.id] ?? []
+    }
 
     /// Persists a new product and reloads state.
     func addProduct(_ product: SkincareProduct) {
@@ -123,5 +187,29 @@ final class SkincareViewModel: ObservableObject {
     /// or `nil` when that ingredient does not match the active acne profile.
     func matched(for reference: IngredientReference) -> MatchedIngredient? {
         matchedIngredients.first { $0.reference.id == reference.id }
+    }
+
+    // MARK: - Pending Products
+
+    func addPendingProduct(_ product: SkincareProduct) {
+        pendingProducts.append(product)
+    }
+
+    func updatePendingProduct(_ product: SkincareProduct) {
+        if let index = pendingProducts.firstIndex(where: { $0.id == product.id }) {
+            pendingProducts[index] = product
+        }
+    }
+
+    func deletePendingProduct(id: UUID) {
+        pendingProducts.removeAll { $0.id == id }
+    }
+
+    func saveAllPending() {
+        for product in pendingProducts {
+            skincareRepository.addProduct(product)
+        }
+        pendingProducts.removeAll()
+        loadData()
     }
 }

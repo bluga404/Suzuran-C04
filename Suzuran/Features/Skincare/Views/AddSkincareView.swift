@@ -17,17 +17,23 @@ struct AddSkincareView: View {
     private let ingredientRepository: CosingIngredientRepository
     private let acneRepository: AcneIngredientRepository
     private let isEditing: Bool
+    private let isPendingFlow: Bool
+    private let onSave: (() -> Void)?
 
     init(
         skincareViewModel: SkincareViewModel,
         ingredientRepository: CosingIngredientRepository,
         acneRepository: AcneIngredientRepository,
-        editingProduct: SkincareProduct? = nil
+        editingProduct: SkincareProduct? = nil,
+        isPendingFlow: Bool = true,
+        onSave: (() -> Void)? = nil
     ) {
         self.skincareViewModel = skincareViewModel
         self.ingredientRepository = ingredientRepository
         self.acneRepository = acneRepository
         self.isEditing = editingProduct != nil
+        self.isPendingFlow = isPendingFlow
+        self.onSave = onSave
         self._viewModel = StateObject(wrappedValue: AddSkincareViewModel(editingProduct: editingProduct))
     }
 
@@ -179,8 +185,13 @@ struct AddSkincareView: View {
             
             Section {
                 Button(action: {
-                    viewModel.saveProduct(to: skincareViewModel)
-                    dismiss()
+                    if isPendingFlow {
+                        viewModel.saveToPending(to: skincareViewModel)
+                        onSave?()
+                    } else {
+                        viewModel.saveProduct(to: skincareViewModel)
+                        dismiss()
+                    }
                 }) {
                     Text("Simpan Skincare")
                         .font(AppTypography.bodyBold)
