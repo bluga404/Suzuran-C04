@@ -5,14 +5,15 @@ struct IngredientRecommendationCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
                 Text(recommendation.ingredient.displayName)
-                    .font(AppTypography.bodyBold)
+                    .font(AppTypography.h3)
                     .foregroundStyle(AppColor.textPrimary)
 
                 Text(recommendation.explanation)
                     .font(AppTypography.body)
                     .foregroundStyle(AppColor.textPrimary)
+                    .lineSpacing(2)
             }
 
             statusPill
@@ -21,7 +22,10 @@ struct IngredientRecommendationCard: View {
         .frame(maxWidth: .infinity, alignment: .leading)
         .background(AppColor.surfacePrimary)
         .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
-        .padding(.horizontal, AppSpacing.md)
+        .overlay(
+            RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                .stroke(AppColor.surfacePurple, lineWidth: 2)
+        )
     }
 
     @ViewBuilder
@@ -36,11 +40,11 @@ struct IngredientRecommendationCard: View {
         }()
 
         Text(text)
-            .font(.custom("AvenirNext-Regular", size: 13, relativeTo: .caption))
-            .foregroundStyle(AppColor.textPrimary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(AppColor.borderSubtle.opacity(0.5))
+            .font(.custom("AvenirNext-DemiBold", size: 13, relativeTo: .caption))
+            .foregroundStyle(AppColor.accentPurple)
+            .padding(.horizontal, AppSpacing.sm)
+            .padding(.vertical, AppSpacing.xs)
+            .background(AppColor.accentPurpleBackground)
             .clipShape(Capsule())
     }
 }

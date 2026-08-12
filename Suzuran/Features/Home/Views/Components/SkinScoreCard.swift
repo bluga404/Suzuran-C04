@@ -9,7 +9,7 @@ struct SkinScoreCard: View {
     var onInfoAction: () -> Void = {}
 
     var body: some View {
-        AppCard(padding: AppSpacing.lg) {
+        AppCard(padding: AppSpacing.lg, backgroundColor: AppColor.surfacePurple, borderColor: .clear) {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 // Score label title
             HStack {
@@ -72,7 +72,7 @@ struct SkinScoreCard: View {
                     .font(AppTypography.bodyBold)
                     .foregroundStyle(Color(uiColor: .systemBackground))
                     .frame(maxWidth: .infinity, minHeight: 44)
-                    .background(Color.primary)
+                    .background(AppColor.buttonPrimaryPurple)
                     .clipShape(Capsule())
             }
             .accessibilityLabel(state == .empty ? "Mulai scan wajah" : "Lihat detail hasil scan")
