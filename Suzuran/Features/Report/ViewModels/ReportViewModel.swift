@@ -7,20 +7,52 @@ final class ReportViewModel: ObservableObject {
     @Published private(set) var selectedRange: ReportRange = .oneWeek
     @Published private(set) var selectedAcnePointDay: String?
     @Published private(set) var hiddenAcneTypeIDs: Set<String> = []
-    @Published private(set) var isLoaded = false
+    @Published private(set) var state: LoadableState<ReportDataSnapshot> = .idle
 
+    private let logger: AppLogging
     private let dataService: ReportDataService
     private var snapshot: ReportDataSnapshot?
+    private var isRefreshingSummary = false
 
-    init(dataService: ReportDataService) {
+    init(dataService: ReportDataService, logger: AppLogging = AppLogger()) {
         self.dataService = dataService
+        self.logger = logger
     }
 
-    func loadIfNeeded() async {
-        guard !isLoaded else { return }
-        snapshot = await dataService.loadSnapshot()
-        selectedAcnePointDay = acneDayLabels.last
-        isLoaded = true
+    func loadIfNeeded(forceRefresh: Bool = false) async {
+        if case .loading = state {
+            return
+        }
+
+        if !forceRefresh, case .loaded = state {
+            return
+        }
+
+        isRefreshingSummary = true
+        state = .loading
+
+        logger.info("Loading report snapshot", file: #fileID, line: #line)
+        let loadedSnapshot = await dataService.loadSnapshot()
+        snapshot = loadedSnapshot
+
+        if loadedSnapshot.records.isEmpty {
+            state = .empty(
+                title: "No scan history yet",
+                message: "Complete your first skin scan to see your progress here."
+            )
+        } else {
+            selectedAcnePointDay = acneDayLabels(for: loadedSnapshot).last
+            state = .loaded(loadedSnapshot)
+            logger.info("Report snapshot loaded; records=\(loadedSnapshot.records.count)", file: #fileID, line: #line)
+        }
+
+        isRefreshingSummary = false
+    }
+
+    func refreshSummary() async {
+        guard !isRefreshingSummary else { return }
+        logger.info("Refreshing report summary", file: #fileID, line: #line)
+        await loadIfNeeded(forceRefresh: true)
     }
 
     func setMetric(_ metric: ReportMetric) {
@@ -30,8 +62,11 @@ final class ReportViewModel: ObservableObject {
     func setRange(_ range: ReportRange) {
         selectedRange = range
         selectedAcnePointDay = acneDayLabels.last
-        let activeIDs = Set(acneTypeSeriesData.map(\ .id))
-        hiddenAcneTypeIDs = hiddenAcneTypeIDs.intersection(activeIDs)
+
+        if let snapshot {
+            let activeIDs = Set(snapshot.acneTypeSeriesByRange[range, default: []].map(\.id))
+            hiddenAcneTypeIDs = hiddenAcneTypeIDs.intersection(activeIDs)
+        }
     }
 
     func selectAcnePointDay(_ day: String) {
@@ -54,7 +89,7 @@ final class ReportViewModel: ObservableObject {
     var hasAnyData: Bool {
         guard let snapshot else { return false }
         return ReportRange.allCases.contains { range in
-            !(snapshot.skinScoreSeriesByRange[range, default: []].isEmpty)
+            !snapshot.skinScoreSeriesByRange[range, default: []].isEmpty
         }
     }
 
@@ -67,8 +102,7 @@ final class ReportViewModel: ObservableObject {
     }
 
     var acneDayLabels: [String] {
-        guard let first = acneTypeSeriesData.first else { return [] }
-        return first.points.map(\ .day)
+        acneDayLabels(for: snapshot)
     }
 
     var visibleAcneChartPoints: [AcneSeriesPoint] {
@@ -103,7 +137,7 @@ final class ReportViewModel: ObservableObject {
         let records = skinScoreData
         if records.isEmpty {
             return .init(
-                baselineLabel: "Your result on the last \(selectedRangeLabel)",
+                baselineLabel: "Your result in the last \(selectedRangeLabel)",
                 headline: "No data yet",
                 scoreLabel: "Total",
                 deltaText: "--"
@@ -125,7 +159,7 @@ final class ReportViewModel: ObservableObject {
         }
 
         return .init(
-            baselineLabel: "Your result on the last \(selectedRangeLabel)",
+            baselineLabel: "Your result in the last \(selectedRangeLabel)",
             headline: headline,
             scoreLabel: "Total",
             deltaText: "\(latestScore)"
@@ -167,9 +201,16 @@ final class ReportViewModel: ObservableObject {
 
     var insightSummary: ReportInsightSummary {
         snapshot?.insightSummary ?? .init(
-            title: "Summary",
-            body: "Save a scan to unlock progress insights."
+            title: "Summary Insight",
+            body: "Complete your first skin scan to see your progress here.",
+            source: .empty,
+            timestamp: nil
         )
+    }
+
+    private func acneDayLabels(for snapshot: ReportDataSnapshot?) -> [String] {
+        guard let series = snapshot?.acneTypeSeriesByRange[selectedRange]?.first else { return [] }
+        return series.points.map(\.day)
     }
 
     private var selectedRangeLabel: String {
