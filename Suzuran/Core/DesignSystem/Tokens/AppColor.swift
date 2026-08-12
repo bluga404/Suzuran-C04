@@ -7,6 +7,7 @@ enum AppColor {
     static let surfacePrimary = Color(.secondarySystemGroupedBackground)
     static let textPrimary = Color(.label)
     static let textSecondary = Color(.secondaryLabel)
+    static let textTertiary = Color(lightHex: 0x727272, darkHex: 0x989899)
     static let textOnAccent = Color(UIColor.systemBackground) // Inverted color for text on accent background
     static let accentPrimary = Color(lightHex: 0x5B4EB1, darkHex: 0x7668D6)
     static let accentDanger = Color(red: 0.74, green: 0.20, blue: 0.20)

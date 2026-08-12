@@ -20,4 +20,5 @@ extension Font {
     static let metadataLight = Font.system(.footnote).weight(.light)       // 13 pt — Label/Footnote Light
     static let graphLabel    = Font.system(.caption).weight(.semibold)     // 12 pt — Caption
     static let helperText    = Font.system(.caption2).weight(.semibold)    // 11 pt — Caption/Small
+    static let helperTextRegular = Font.system(.caption2).weight(.regular)// 11 pt — Caption/Small Regular
 }

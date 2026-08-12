@@ -70,17 +70,17 @@ struct IngredientSection: View {
                         .frame(width: 44, height: 44)
                     Image(systemName: "lightbulb")
                         .font(.system(size: 20, weight: .semibold))
-                        .foregroundStyle(AppColor.surfacePurple)
+                        .foregroundStyle(AppColor.buttonPrimaryPurple)
                 }
 
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Tips for better insight")
                         .font(Font.metadata)
-                        .foregroundStyle(AppColor.textPrimary)
+                        .foregroundStyle(AppColor.buttonPrimaryPurple)
 
                     Text("Add your skincare routine to see if your products already contain them.")
-                        .font(Font.metadata)
-                        .foregroundStyle(AppColor.textSecondary)
+                        .font(Font.helperTextRegular)
+                        .foregroundStyle(AppColor.textTertiary)
                 }
             }
 
@@ -100,12 +100,12 @@ struct IngredientSection: View {
                 Text("Add New Skincare")
                     .font(Font.label)
             }
-            .foregroundStyle(AppColor.surfacePurple)
+            .foregroundStyle(AppColor.buttonPrimaryPurple)
             .frame(maxWidth: .infinity)
             .padding(.vertical, AppSpacing.sm)
             .background(
                 Capsule()
-                    .stroke(AppColor.surfacePurple, lineWidth: 1.5)
+                    .stroke(AppColor.buttonPrimaryPurple, lineWidth: 1.5)
             )
         }
         .buttonStyle(.plain)
