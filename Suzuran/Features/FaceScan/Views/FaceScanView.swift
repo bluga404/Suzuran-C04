@@ -201,7 +201,7 @@ struct FaceScanView: View {
             // Fullscreen dark & blurred overlay with a cut-out hole for the face oval guide
             ZStack {
                 Rectangle()
-                    .fill(.regularMaterial)
+                    .fill(.ultraThinMaterial)
                 Color.black.opacity(0.60)
             }
             .ignoresSafeArea()
