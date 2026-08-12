@@ -9,10 +9,17 @@ struct SplashView: View {
         ZStack {
             Color.white.ignoresSafeArea()
 
-            Image("Splash")
-                .resizable()
-                .scaledToFit()
-                .padding(32)
+            VStack(spacing: AppSpacing.md) {
+                Image("Splash")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 150, height: 150)
+
+                Text("RONA")
+                    .font(Font.system(size: 26, weight: .bold))
+                    .tracking(2.5)
+                    .foregroundStyle(AppColor.textPrimary)
+            }
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {

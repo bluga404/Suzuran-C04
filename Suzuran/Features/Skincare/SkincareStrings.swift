@@ -3,13 +3,13 @@ import Foundation
 /// Single source of truth for Skincare feature copy so views never consume raw strings.
 enum SkincareStrings {
     // Empty state
-    static let emptyTitle = "Belum Ada Catatan Skincare"
-    static let emptyMessage = "Catat produk skincare yang Anda gunakan saat ini untuk menganalisis kesesuaian bahan aktifnya dengan kondisi jerawat Anda."
-    static let addFirstProduct = "Catat Skincare Pertama"
-    static let addSkincare = "Tambah Skincare"
+    static let emptyTitle = "No Skincare Added Yet"
+    static let emptyMessage = "Log your daily skincare routine to analyze which active ingredients match your skin condition."
+    static let addFirstProduct = "Add Skincare"
+    static let addSkincare = "Add Skincare"
 
     // Section headers & actions
-    static let currentSkincare = "Skincare Saat Ini"
-    static let savedProducts = "Produk Tersimpan"
-    static let addNewSkincare = "Tambah Skincare Baru"
+    static let currentSkincare = "Current Skincare"
+    static let savedProducts = "Saved Products"
+    static let addNewSkincare = "Add New Skincare"
 }

@@ -19,12 +19,12 @@ struct EmptySkincareView: View {
 
             ZStack {
                 Circle()
-                    .fill(AppColor.accentPrimary.opacity(0.05))
+                    .fill(AppColor.buttonPrimaryPurple.opacity(0.1))
                     .frame(width: 100, height: 100)
 
                 Image(systemName: "bubbles.and.sparkles")
                     .font(.system(size: 40))
-                    .foregroundStyle(AppColor.accentPrimary)
+                    .foregroundStyle(AppColor.buttonPrimaryPurple)
             }
 
             Text(SkincareStrings.emptyTitle)
@@ -43,8 +43,8 @@ struct EmptySkincareView: View {
                     .font(Font.description)
                     .padding(.horizontal, AppSpacing.lg)
                     .padding(.vertical, AppSpacing.sm)
-                    .background(AppColor.accentPrimary)
-                    .foregroundStyle(AppColor.textOnAccent)
+                    .background(AppColor.buttonPrimaryPurple)
+                    .foregroundStyle(Color.white)
                     .cornerRadius(AppCornerRadius.md)
             }
             .padding(.top, AppSpacing.sm)

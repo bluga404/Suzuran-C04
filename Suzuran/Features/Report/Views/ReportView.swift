@@ -31,6 +31,7 @@ struct ReportView: View {
 
                 case .empty(let title, let message):
                     EmptyStateView(
+                        iconName: "chart.line.uptrend.xyaxis",
                         title: title,
                         message: message,
                         actionTitle: nil,

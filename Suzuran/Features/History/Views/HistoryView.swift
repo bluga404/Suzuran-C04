@@ -51,10 +51,10 @@ struct HistoryView: View {
         NavigationStack {
             Group {
                 if viewModel.records.isEmpty {
-                    ContentUnavailableView(
-                        "Belum Ada Riwayat",
-                        systemImage: "clock.arrow.circlepath",
-                        description: Text("Mulai scan wajah untuk melihat riwayat di sini.")
+                    EmptyStateView(
+                        iconName: "clock.arrow.circlepath",
+                        title: "No Scan History Yet",
+                        message: "Start scanning your face to view your skin scan history and track progress over time."
                     )
                 } else {
                     scrollContent
