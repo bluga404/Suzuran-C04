@@ -14,8 +14,15 @@ struct FaceScanResultView: View {
     let result: FaceScanResultModel
     let onDone: () -> Void
 
-    /// Sub-zone selected for full-screen display (nil = none shown).
-    @State private var selectedSubZone: SubZoneSummaryModel? = nil
+    /// Payload for full-screen photo detail view.
+    @State private var activeDetailPayload: PhotoDetailPayload? = nil
+
+    private let dateFormatter: DateFormatter = {
+        let f = DateFormatter()
+        f.dateFormat = "d MMMM yyyy"
+        f.locale = Locale(identifier: "en_US")
+        return f
+    }()
 
     /// The authoritative skin health score, computed using HomeScoreCalculator (Double precision,
     /// PRD-approved weighted formula). Falls back to skinHealthResult if available.
@@ -59,11 +66,8 @@ struct FaceScanResultView: View {
                 saveButton
                     .padding(.horizontal, AppSpacing.lg)
             }
-            // Sheet zone detail
-            .sheet(item: $selectedSubZone) { subZone in
-                ZoneDetailView(subZone: subZone) {
-                    selectedSubZone = nil
-                }
+            .navigationDestination(item: $activeDetailPayload) { payload in
+                FullPhotoDetailView(payload: payload)
             }
         }
     }
@@ -116,12 +120,13 @@ struct FaceScanResultView: View {
                    let imageData = frontZone.imageData,
                    let uiImage = UIImage(data: imageData) {
                     Button {
-                        selectedSubZone = SubZoneSummaryModel(
-                            id: frontZone.id,
-                            label: frontZone.zoneName,
-                            imageData: frontZone.imageData,
-                            acneCount: frontZone.acneCount,
-                            markers: frontZone.markers
+                        let dateStr = dateFormatter.string(from: Date())
+                        let rendered = CompareFaceImage.drawMarkersOnImage(imageData: frontZone.imageData, markers: frontZone.markers)
+                        activeDetailPayload = PhotoDetailPayload(
+                            imageData: rendered,
+                            uiImage: UIImage(data: frontZone.imageData ?? Data()),
+                            title: "Front Scan",
+                            dateText: dateStr
                         )
                     } label: {
                         Image(uiImage: uiImage)
@@ -200,7 +205,14 @@ struct FaceScanResultView: View {
     /// Tappable zone thumbnail card.
     private func zoneThumbnailCard(_ subZone: SubZoneSummaryModel) -> some View {
         Button {
-            selectedSubZone = subZone
+            let dateStr = dateFormatter.string(from: Date())
+            let rendered = CompareFaceImage.drawMarkersOnImage(imageData: subZone.imageData, markers: subZone.markers)
+            activeDetailPayload = PhotoDetailPayload(
+                imageData: rendered,
+                uiImage: UIImage(data: subZone.imageData ?? Data()),
+                title: subZone.label,
+                dateText: dateStr
+            )
         } label: {
             VStack(spacing: 5) {
                 Text(subZone.label)

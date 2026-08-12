@@ -3,7 +3,7 @@ import Foundation
 /// Represents whether a recommended ingredient is found in the user's scanned products.
 enum IngredientStatus: Equatable {
     case notFound
-    case found(productName: String)
+    case found(products: [SkincareProduct])
 }
 
 /// A skincare ingredient with its normalized and display names.
@@ -14,13 +14,13 @@ struct Ingredient: Equatable {
     let displayName: String
 }
 
-/// A recommended skincare ingredient with explanation and status in the user's routine.
+/// A recommended skincare ingredient with detailed reference and status in the user's routine.
 struct IngredientRecommendation: Identifiable, Equatable {
     let id: UUID
     /// The recommended ingredient
     let ingredient: Ingredient
-    /// Why this ingredient is recommended, maximum 200 characters
-    let explanation: String
+    /// The detailed recommendation from the database, containing the description and reference information
+    let detail: SkincareIngredientRecommendation
     /// Whether the ingredient was found in the user's scanned products
     let status: IngredientStatus
 }

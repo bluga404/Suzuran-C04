@@ -59,4 +59,12 @@ enum AcneType: String, CaseIterable, Identifiable, Equatable, Codable {
         case .unknown: return AppColor.textSecondary
         }
     }
+
+    var uiColor: UIColor {
+        #if canImport(UIKit)
+        return UIColor(self.color)
+        #else
+        return .gray
+        #endif
+    }
 }

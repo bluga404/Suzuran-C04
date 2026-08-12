@@ -132,6 +132,25 @@ final class ScanDetailViewModel: ObservableObject {
         }
     }
     
+    var renderedImageData: Data? {
+        guard let record = cachedRecord else { return nil }
+        let rawData: Data?
+        let activeMarkers: [MarkerModel]
+
+        if let region = selectedRegion,
+           let area = ScanRecord.FaceArea(rawValue: region.englishDisplayName) {
+            rawData = record.subZoneThumbnails?[area]
+                ?? CompareFaceImage.cropImageData(record.frontImageData, area: area)
+                ?? record.frontImageData
+            activeMarkers = record.areaMarkers?[area] ?? []
+        } else {
+            rawData = record.frontImageData
+            activeMarkers = record.frontMarkers ?? []
+        }
+
+        return CompareFaceImage.drawMarkersOnImage(imageData: rawData, markers: activeMarkers)
+    }
+
     private func updateImage() {
         guard let record = cachedRecord else { return }
         

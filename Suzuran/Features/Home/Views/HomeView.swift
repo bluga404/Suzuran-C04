@@ -16,6 +16,7 @@ struct HomeView: View {
     @State private var isShowingScanSheet = false
     @State private var isShowingAboutAcne = false
     @State private var isShowingAboutSkinScore = false
+    @State private var selectedIngredient: IngredientRecommendation?
 
     init(viewModel: HomeSummaryViewModel, historyStore: ScanHistoryStore? = nil) {
         self.viewModel = viewModel
@@ -50,20 +51,20 @@ struct HomeView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    if let summary = loadedSummary, summary.scanAvailability.hasFaceScan {
-                        Button(action: { isShowingScanSheet = true }) {
-                            Image(systemName: "camera")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(AppColor.accentPrimary)
-                        }
-                        .accessibilityLabel("Start face scan")
+                    Button(action: { isShowingScanSheet = true }) {
+                        Image(systemName: "camera")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(AppColor.accentPrimary)
                     }
+                    .accessibilityLabel("Start face scan")
                 }
             }
         }
         .appScreenContainer()
-        .task {
-            await viewModel.load()
+        .onAppear {
+            Task {
+                await viewModel.load()
+            }
         }
     }
 
@@ -99,19 +100,18 @@ struct HomeView: View {
                 )
                 .padding(.horizontal, AppSpacing.md)
 
-                if summary.state != .empty {
-                    MostDetectedSection(
-                        acneType: summary.dominantAcne,
-                        count: dominantCount(in: summary),
-                        onInfoTap: { isShowingAboutAcne = true }
-                    )
+                MostDetectedSection(
+                    acneType: summary.dominantAcne,
+                    count: dominantCount(in: summary),
+                    onInfoTap: { isShowingAboutAcne = true }
+                )
 
-                    IngredientSection(
-                        recommendations: summary.recommendations,
-                        showEmptyState: summary.recommendations.isEmpty,
-                        onTrackTap: { switchToTab(.skincare) }
-                    )
-                }
+                IngredientSection(
+                    recommendations: summary.recommendations,
+                    hasTrackedSkincare: summary.hasTrackedSkincare,
+                    onTrackTap: { switchToTab(.skincare) },
+                    onIngredientTap: { selectedIngredient = $0 }
+                )
             }
             .padding(.vertical, AppSpacing.md)
         }
@@ -138,11 +138,8 @@ struct HomeView: View {
         .sheet(isPresented: $isShowingAboutSkinScore) {
             AboutSkinScoreView()
         }
-        .sheet(isPresented: $isShowingAboutAcne) {
-            AboutAcneTypeView()
-        }
-        .sheet(isPresented: $isShowingAboutSkinScore) {
-            AboutSkinScoreView()
+        .sheet(item: $selectedIngredient) { ingredient in
+            IngredientDetailView(recommendation: ingredient.detail)
         }
     }
 

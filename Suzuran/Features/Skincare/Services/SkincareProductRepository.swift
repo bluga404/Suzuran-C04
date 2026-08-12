@@ -62,3 +62,11 @@ final class SkincareProductRepository: SkincareProductRepositoryProtocol {
         saveProducts(products)
     }
 }
+
+// MARK: - Home Feature Integration
+
+extension SkincareProductRepository: SkincareRepository {
+    func products() async throws -> [SkincareProduct] {
+        return fetchProducts()
+    }
+}

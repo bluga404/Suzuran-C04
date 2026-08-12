@@ -161,69 +161,55 @@ struct FaceScanView: View {
 
     private var scanningView: some View {
         ZStack {
-            // Full-screen camera preview
+            // Layer 1: Full-screen camera preview
             CameraPreviewView(session: viewModel.captureSession)
                 .ignoresSafeArea()
 
-            // Top Overlay Bar
-            VStack {
-                HStack(alignment: .center) {
-                    if #available(iOS 26, *) {
-                        Button {
-                            onDismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.primary)
-                                .padding(12)
-                                .glassEffect(.regular.interactive(), in: Circle())
-                        }
-                    } else {
-                        Button {
-                            onDismiss()
-                        } label: {
-                            Image(systemName: "xmark")
-                                .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.primary)
-                                .padding(12)
-                                .background(.ultraThinMaterial, in: Circle())
-                        }
-                    }
-
-                    Spacer()
-                }
-                .padding(.horizontal, AppSpacing.lg)
-                .padding(.top, 60) // To clear dynamic island in ignoresSafeArea context
-
-                Spacer()
+            // Layer 2: Fullscreen dark & blurred overlay with a cut-out hole for the face oval guide
+            ZStack {
+                Rectangle()
+                    .fill(.ultraThinMaterial)
+                Color.black.opacity(0.60)
             }
+            .ignoresSafeArea()
+            .mask {
+                Rectangle()
+                    .fill(Color.black)
+                    .overlay(
+                        Ellipse()
+                            .frame(width: 320, height: 440)
+                            .blendMode(.destinationOut)
+                    )
+            }
+            .compositingGroup()
+            .allowsHitTesting(false)
 
-            // Fullscreen blur with a cut-out hole for the face
-            Rectangle()
-                .fill(.ultraThinMaterial)
-                .opacity(0.5)
-                .ignoresSafeArea()
-                .mask {
-                    Rectangle()
-                        .fill(Color.black)
-                        .overlay(
-                            Ellipse()
-                                .frame(width: 320, height: 440)
-                                .blendMode(.destinationOut)
-                        )
-                }
-                .compositingGroup()
-                .allowsHitTesting(false)
-
-            // Face guide overlay (centered oval) and progress ring combined
+            // Layer 3: Face guide overlay (centered oval) and progress ring combined
             FaceGuideOverlayView(
                 isReady: viewModel.readiness == .ready,
                 holdProgress: viewModel.holdProgress,
                 completedAngles: viewModel.completedAngles
             )
 
-            // Bottom instruction and controls
+            // Layer 4: Top & Bottom UI Controls Overlay (ON TOP of dark mask)
             VStack {
+                // Top Bar with Native iOS 26 Glass Close Button
+                HStack(alignment: .center) {
+                    Button {
+                        onDismiss()
+                    } label: {
+                        Image(systemName: "xmark")
+                            .font(.system(size: 15, weight: .semibold))
+                            .foregroundStyle(.white)
+                            .padding(14)
+                            .glassEffect(.regular.interactive(), in: Circle())
+                    }
+
+                    Spacer()
+                }
+                .padding(.horizontal, AppSpacing.lg)
+                .padding(.top, 60) // Clear dynamic island
+
                 Spacer()
 
                 // Instruction text
@@ -232,9 +218,10 @@ struct FaceScanView: View {
                     completedAngles: viewModel.completedAngles,
                     targetName: viewModel.currentAngleTarget.displayName
                 )
-                    .padding(.bottom, 80) // adjusted padding to move it up slightly
+                .padding(.bottom, 80)
             }
         }
+        .colorScheme(.dark)
     }
 
     // MARK: - Processing

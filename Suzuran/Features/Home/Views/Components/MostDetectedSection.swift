@@ -14,17 +14,12 @@ struct MostDetectedSection: View {
                     HStack {
                         Text("Most Detected")
                             .font(Font.metadata)
-                            .tracking(1.2)
                             .foregroundStyle(.secondary)
-                        Spacer()
-                        Button(action: onInfoTap) {
-                            Image(systemName: "info.circle")
-                                .font(Font.metadata)
-                                .foregroundStyle(.secondary)
-                        }
-                        .accessibilityLabel("Most detected information")
                     }
+                    .accessibilityLabel("Most detected information")
+                }
 
+                if let type = acneType {
                     Text(type.displayName)
                         .font(Font.pageTitle)
                         .foregroundStyle(.primary)
@@ -32,10 +27,14 @@ struct MostDetectedSection: View {
                     Text(countText)
                         .font(Font.metadata)
                         .foregroundStyle(.secondary)
+                } else {
+                    Text("—")
+                        .font(Font.pageTitle)
+                        .foregroundStyle(.primary)
                 }
             }
-            .padding(.horizontal, AppSpacing.md)
         }
+        .padding(.horizontal, AppSpacing.md)
     }
 
     private var countText: String {
