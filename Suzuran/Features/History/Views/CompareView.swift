@@ -320,31 +320,30 @@ private struct CompareAreaChip: View {
     let action: () -> Void
 
     var body: some View {
-        Text(label)
-            .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
-            .foregroundStyle(isSelected ? .white : .primary)
-            .padding(.horizontal, 16)
-            .padding(.vertical, 8)
-            .background(
-                Capsule().fill(
-                    isSelected
-                        ? activeColor
-                        : Color(.systemBackground)
-                )
-            )
-            .overlay(
-                Capsule()
-                    .stroke(
-                        isSelected ? Color.clear : Color(.systemGray4),
-                        lineWidth: 1
+        Button(action: action) {
+            Text(label)
+                .font(.system(size: 14, weight: isSelected ? .semibold : .regular))
+                .foregroundStyle(isSelected ? .white : .primary)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 8)
+                .background(
+                    Capsule().fill(
+                        isSelected
+                            ? activeColor
+                            : Color(.systemBackground)
                     )
-            )
-            .contentShape(Capsule())
-            .onTapGesture {
-                action()
-            }
-            .accessibilityLabel(isSelected ? "\(label), selected" : label)
-            .accessibilityAddTraits(.isButton)
+                )
+                .overlay(
+                    Capsule()
+                        .stroke(
+                            isSelected ? Color.clear : Color(.systemGray4),
+                            lineWidth: 1
+                        )
+                )
+        }
+        .buttonStyle(.plain)
+        .contentShape(Capsule())
+        .accessibilityLabel(isSelected ? "\(label), selected" : label)
     }
 }
 
@@ -531,6 +530,7 @@ private struct CompareFaceImage: View {
             )
         }
         .buttonStyle(.plain)
+        .contentShape(RoundedRectangle(cornerRadius: 12))
         .accessibilityLabel(record.frontImageData != nil ? "\(displayTitle), tap to view full photo" : "No face image available")
     }
 }
