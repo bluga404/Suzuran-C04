@@ -11,17 +11,17 @@ struct MostDetectedSection: View {
         if let type = acneType {
             AppCard(backgroundColor: AppColor.surfacePurple, borderColor: .clear) {
                 VStack(alignment: .leading, spacing: AppSpacing.sm) {
-                    HStack {
+                    HStack(spacing: AppSpacing.xs) {
                         Text("Most Detected Acne Type")
                             .font(Font.bodyLarge)
                             .foregroundStyle(.primary)
-                        Spacer()
                         Button(action: onInfoTap) {
                             Image(systemName: "info.circle")
                                 .font(Font.metadata)
-                                .foregroundStyle(.secondary)
+                                .foregroundStyle(AppColor.textPrimary)
                         }
                         .accessibilityLabel("Most detected information")
+                        Spacer()
                     }
 
                     Text(type.displayName)
@@ -29,7 +29,7 @@ struct MostDetectedSection: View {
                         .foregroundStyle(.primary)
 
                     Text(countText)
-                        .font(Font.metadata)
+                        .font(Font.metadataRegular)
                         .foregroundStyle(.secondary)
                 }
             }

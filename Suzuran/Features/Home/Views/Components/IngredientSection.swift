@@ -76,7 +76,7 @@ struct IngredientSection: View {
                 VStack(alignment: .leading, spacing: 2) {
                     Text("Tips for better insight")
                         .font(Font.metadata)
-                        .foregroundStyle(AppColor.surfacePurple)
+                        .foregroundStyle(AppColor.textPrimary)
 
                     Text("Add your skincare routine to see if your products already contain them.")
                         .font(Font.metadata)

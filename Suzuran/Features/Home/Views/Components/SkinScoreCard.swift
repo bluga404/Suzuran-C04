@@ -12,17 +12,17 @@ struct SkinScoreCard: View {
         AppCard(backgroundColor: AppColor.surfacePurple, borderColor: .clear) {
             VStack(alignment: .leading, spacing: AppSpacing.sm) {
                 // Score label title
-            HStack {
+            HStack(spacing: AppSpacing.xs) {
                 Text(state == .improvement || state == .degradation ? "Skin Score" : "Skin Condition")
                     .font(Font.bodyLarge)
                     .foregroundStyle(.primary)
-                Spacer()
                 Button(action: onInfoAction) {
                     Image(systemName: "info.circle")
                         .font(Font.metadata)
-                        .foregroundStyle(.secondary)
+                        .foregroundStyle(AppColor.textPrimary)
                 }
                 .accessibilityLabel("Skin condition information")
+                Spacer()
             }
 
             if let score = score {
@@ -59,7 +59,7 @@ struct SkinScoreCard: View {
 
             // Contextual message
             Text(messageText)
-                .font(Font.metadataLight)
+                .font(Font.metadataRegular)
                 .foregroundStyle(.secondary)
                 .lineLimit(3)
                 .padding(.top, AppSpacing.xxs)

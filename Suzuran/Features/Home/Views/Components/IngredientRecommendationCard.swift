@@ -18,7 +18,7 @@ struct IngredientRecommendationCard: View {
                 }
 
                 Text(recommendation.detail.description)
-                    .font(Font.label)
+                    .font(Font.labelRegular)
                     .foregroundStyle(AppColor.textSecondary)
                     .lineLimit(2)
                     .lineSpacing(2)

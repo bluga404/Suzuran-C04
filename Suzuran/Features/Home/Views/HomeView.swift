@@ -82,7 +82,7 @@ struct HomeView: View {
                 // Native title replaces HomeHeader's title, we just show date here
                 Text(formattedDate(for: summary.date))
                     .font(Font.bodyParagraph)
-                    .foregroundStyle(.secondary)
+                    .foregroundStyle(AppColor.textPrimary)
                     .padding(.horizontal, AppSpacing.md)
                     .padding(.top, AppSpacing.xs)
 
