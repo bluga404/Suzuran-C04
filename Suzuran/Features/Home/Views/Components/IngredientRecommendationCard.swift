@@ -2,21 +2,33 @@ import SwiftUI
 
 struct IngredientRecommendationCard: View {
     let recommendation: IngredientRecommendation
+    let hasTrackedSkincare: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                Text(recommendation.ingredient.displayName)
-                    .font(Font.description)
-                    .foregroundStyle(AppColor.textPrimary)
+                HStack {
+                    Text(recommendation.ingredient.displayName)
+                        .font(Font.screenTitle)
+                        .foregroundStyle(AppColor.textPrimary)
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(Font.metadata)
+                        .foregroundStyle(AppColor.textSecondary)
+                }
 
-                Text(recommendation.explanation)
+                Text(recommendation.detail.description)
                     .font(Font.description)
-                    .foregroundStyle(AppColor.textPrimary)
+                    .foregroundStyle(AppColor.textSecondary)
+                    .lineLimit(2)
                     .lineSpacing(2)
             }
 
-            statusPill
+            if hasTrackedSkincare {
+                Divider()
+                    .padding(.vertical, AppSpacing.xs)
+                statusSection
+            }
         }
         .padding(AppSpacing.md)
         .frame(maxWidth: .infinity, alignment: .leading)
@@ -29,44 +41,90 @@ struct IngredientRecommendationCard: View {
     }
 
     @ViewBuilder
-    private var statusPill: some View {
-        let text: String = {
-            switch recommendation.status {
-            case .notFound:
-                return "Not found in your scanned product"
-            case .found(let productName):
-                return "Already in your routine - \(productName)"
+    private var statusSection: some View {
+        switch recommendation.status {
+        case .notFound:
+            Text("None of your skincare contains this ingredients")
+                .font(Font.metadata.italic())
+                .foregroundStyle(AppColor.textSecondary)
+        case .found(let products):
+            VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                Text("Your skincare with this ingredients:")
+                    .font(Font.metadata)
+                    .foregroundStyle(AppColor.textPrimary)
+                
+                ForEach(products, id: \.id) { product in
+                    HStack(spacing: AppSpacing.xs) {
+                        Text(product.name)
+                            .font(Font.metadata)
+                            .foregroundStyle(AppColor.textPrimary)
+                        
+                        Text(product.category.displayName)
+                            .font(.system(size: 10, weight: .semibold))
+                            .foregroundStyle(AppColor.textPrimary)
+                            .padding(.horizontal, 8)
+                            .padding(.vertical, 4)
+                            .background(AppColor.surfacePurple)
+                            .clipShape(Capsule())
+                    }
+                }
             }
-        }()
-
-        Text(text)
-            .font(Font.metadata)
-            .foregroundStyle(AppColor.textPrimary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 6)
-            .background(AppColor.borderSubtle.opacity(0.5))
-            .clipShape(Capsule())
+        }
     }
 }
 
-#Preview("Not Found") {
+#Preview("Not Found with Skincare") {
     IngredientRecommendationCard(
         recommendation: IngredientRecommendation(
             id: UUID(),
             ingredient: Ingredient(name: "niacinamide", displayName: "Niacinamide"),
-            explanation: "Membantu mengontrol produksi sebum dan memperbaiki skin barrier",
+            detail: SkincareIngredientRecommendation(
+                ingredientName: "Niacinamide",
+                alternativesName: nil,
+                acneTypes: "Papule, Pustule",
+                description: "Excellent for penetrating pores to dissolve sebum and dead skin cells, helping to clear breakouts.",
+                concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+            ),
             status: .notFound
-        )
+        ),
+        hasTrackedSkincare: true
     )
 }
 
-#Preview("Found") {
+#Preview("Found with Skincare") {
     IngredientRecommendationCard(
         recommendation: IngredientRecommendation(
             id: UUID(),
             ingredient: Ingredient(name: "salicylic acid", displayName: "Salicylic Acid"),
-            explanation: "Exfoliant yang membantu membersihkan pori-pori tersumbat",
-            status: .found(productName: "Facewash")
-        )
+            detail: SkincareIngredientRecommendation(
+                ingredientName: "Salicylic Acid",
+                alternativesName: nil,
+                acneTypes: "Blackhead, Whitehead",
+                description: "A beta hydroxy acid that exfoliates the skin and keeps pores clear.",
+                concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+            ),
+            status: .found(products: [
+                SkincareProduct(name: "Wardah Lightening Gentle Wash", brand: "Wardah", category: .cleanser)
+            ])
+        ),
+        hasTrackedSkincare: true
+    )
+}
+
+#Preview("No Skincare") {
+    IngredientRecommendationCard(
+        recommendation: IngredientRecommendation(
+            id: UUID(),
+            ingredient: Ingredient(name: "niacinamide", displayName: "Niacinamide"),
+            detail: SkincareIngredientRecommendation(
+                ingredientName: "Niacinamide",
+                alternativesName: nil,
+                acneTypes: "Papule, Pustule",
+                description: "Excellent for penetrating pores to dissolve sebum and dead skin cells, helping to clear breakouts.",
+                concentrationAndUsage: "", application: "", ingredientInteractions: nil, risksAndSafety: "", researchPapers: nil
+            ),
+            status: .notFound
+        ),
+        hasTrackedSkincare: false
     )
 }

@@ -14,7 +14,7 @@ enum HomeFactory {
     static func makeView() -> some View {
         let skinScanRepo: SkinScanRepository = sharedScanRepository
         let ingredientRepo: IngredientRepository = FixtureIngredientRepository()
-        let skincareRepo: SkincareRepository = FixtureSkincareRepository()
+        let skincareRepo: SkincareRepository = SkincareProductRepository()
         let calculator = SummaryCalculator(scoreCalculator: HomeScoreCalculator())
         let viewModel = HomeSummaryViewModel(
             skinScanRepository: skinScanRepo,
@@ -36,7 +36,7 @@ enum HomeFactory {
     static func makeViewModel() -> HomeSummaryViewModel {
         let skinScanRepo: SkinScanRepository = sharedScanRepository
         let ingredientRepo: IngredientRepository = FixtureIngredientRepository()
-        let skincareRepo: SkincareRepository = FixtureSkincareRepository()
+        let skincareRepo: SkincareRepository = SkincareProductRepository()
         let calculator = SummaryCalculator(scoreCalculator: HomeScoreCalculator())
         return HomeSummaryViewModel(
             skinScanRepository: skinScanRepo,

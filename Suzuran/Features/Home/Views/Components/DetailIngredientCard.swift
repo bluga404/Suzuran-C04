@@ -25,7 +25,7 @@ struct DetailIngredientCard: View {
             }
 
             if isExpanded {
-                Text(recommendation.explanation)
+                Text(recommendation.detail.description)
                     .font(Font.description)
                     .foregroundStyle(AppColor.textSecondary)
             }

@@ -18,6 +18,6 @@ struct HomeSummary: Equatable {
     let dominantAcne: AcneType?
     /// Ingredient recommendations based on dominant acne type. Empty when no ingredient scan exists.
     let recommendations: [IngredientRecommendation]
-    /// Availability flags for different scan types.
-    let scanAvailability: ScanAvailability
+    /// Indicates if the user has any skincare products tracked. Used by the UI.
+    let hasTrackedSkincare: Bool
 }
