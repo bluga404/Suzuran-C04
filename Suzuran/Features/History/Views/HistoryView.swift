@@ -64,20 +64,22 @@ struct HistoryView: View {
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
                 if viewModel.isCompareMode {
-                    ToolbarItemGroup(placement: .topBarTrailing) {
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button("Compare (\(viewModel.selectedCount)/2)") {
                             if let (first, second) = viewModel.selectedPair {
                                 activePayload = ComparePayload(recordA: first, recordB: second)
                             }
                         }
                         .disabled(!viewModel.canCompare)
+                    }
 
+                    ToolbarItem(placement: .topBarTrailing) {
                         Button {
                             withAnimation(.snappy(duration: 0.25)) {
                                 viewModel.toggleCompareMode()
                             }
                         } label: {
-                            Image(systemName: "xmark.circle.fill")
+                            Image(systemName: "xmark")
                         }
                         .accessibilityLabel("Cancel compare")
                     }
