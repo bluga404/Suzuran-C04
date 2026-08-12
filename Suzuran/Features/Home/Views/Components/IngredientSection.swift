@@ -68,7 +68,7 @@ struct IngredientSection: View {
                     Circle()
                         .fill(Color.white)
                         .frame(width: 44, height: 44)
-                    Image(systemName: "lightbulb")
+                    Image(systemName: "lightbulb.max")
                         .font(.system(size: 20, weight: .semibold))
                         .foregroundStyle(AppColor.buttonPrimaryPurple)
                 }
