@@ -207,8 +207,8 @@ struct SkincareView: View {
             }
             .padding(AppSpacing.md)
         }
-        .navigationTitle("Catatan Skincare")
-        .navigationBarTitleDisplayMode(.large)
+        .navigationTitle("Skincare")
+        .navigationBarTitleDisplayMode(.inline)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {
@@ -253,4 +253,25 @@ struct SkincareView: View {
             }
         }
     }
+}
+
+#Preview {
+    let historyStore = ScanHistoryStore()
+    let acneProfileProvider = AcneProfileProvider(historyStore: historyStore)
+    let skincareRepository = SkincareProductRepository()
+    let acneRepository = AcneIngredientRepository()
+    let cosingRepository = CosingIngredientRepository()
+    
+    let viewModel = SkincareViewModel(
+        skincareRepository: skincareRepository,
+        acneRepository: acneRepository,
+        acneProfileProvider: acneProfileProvider
+    )
+    
+    return SkincareView(
+        viewModel: viewModel,
+        ingredientRepository: cosingRepository,
+        acneRepository: acneRepository,
+        onDismiss: {}
+    )
 }

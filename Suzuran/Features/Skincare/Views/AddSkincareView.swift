@@ -83,23 +83,25 @@ struct AddSkincareView: View {
                 .listRowInsets(EdgeInsets())
                 .padding(.bottom, AppSpacing.xs)
                 
-                Button(action: {
-                    isShowingSearch = true
-                }) {
-                    HStack {
-                        Image(systemName: "plus.circle.fill")
-                        Text("Tambah Manual")
+                if !viewModel.ingredients.isEmpty {
+                    Button(action: {
+                        isShowingSearch = true
+                    }) {
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                            Text("Tambah Manual")
+                        }
+                        .font(AppTypography.bodyBold)
+                        .frame(maxWidth: .infinity)
+                        .padding(.vertical, AppSpacing.sm)
+                        .background(AppColor.surfacePrimary)
+                        .foregroundStyle(AppColor.accentPrimary)
+                        .cornerRadius(AppCornerRadius.md)
                     }
-                    .font(AppTypography.bodyBold)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, AppSpacing.sm)
-                    .background(AppColor.surfacePrimary)
-                    .foregroundStyle(AppColor.accentPrimary)
-                    .cornerRadius(AppCornerRadius.md)
+                    .listRowBackground(Color.clear)
+                    .listRowInsets(EdgeInsets())
+                    .padding(.bottom, AppSpacing.sm)
                 }
-                .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
-                .padding(.bottom, AppSpacing.sm)
                 
                 if viewModel.ingredients.isEmpty {
                     Text("Belum ada bahan ditambahkan.")

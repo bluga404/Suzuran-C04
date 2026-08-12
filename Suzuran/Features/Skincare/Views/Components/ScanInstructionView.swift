@@ -42,20 +42,6 @@ struct ScanInstructionView: View {
                     
                     Spacer(minLength: 40)
                     
-                    Button(action: {
-                        dismiss()
-                        onStartScan()
-                    }) {
-                        Text("Mulai Scan")
-                            .font(AppTypography.bodyBold)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, AppSpacing.md)
-                            .background(AppColor.accentPrimary)
-                            .foregroundStyle(.white)
-                            .cornerRadius(AppCornerRadius.md)
-                    }
-                    .padding(.horizontal, AppSpacing.lg)
-                    .padding(.bottom, AppSpacing.lg)
                 }
             }
             .background(AppColor.backgroundPrimary)
@@ -63,8 +49,7 @@ struct ScanInstructionView: View {
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle.fill")
-                            .foregroundStyle(AppColor.textSecondary)
+                        Image(systemName: "xmark")
                     }
                 }
             }

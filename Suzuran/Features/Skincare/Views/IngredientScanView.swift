@@ -22,18 +22,20 @@ struct IngredientScanView: View {
                 CameraPreview(session: cameraManager.session)
                     .ignoresSafeArea()
                 
-                // Dark overlay with cutout box
-                Color.black.opacity(0.5)
-                    .reverseMask {
-                        RoundedRectangle(cornerRadius: AppCornerRadius.md)
-                            .frame(width: 350, height: 450)
-                    }
-                    .ignoresSafeArea()
-                
-                // Viewfinder border
-                RoundedRectangle(cornerRadius: AppCornerRadius.md)
-                    .stroke(AppColor.accentPrimary, style: StrokeStyle(lineWidth: 2, dash: [5]))
-                    .frame(width: 350, height: 450)
+                ZStack {
+                    // Dark overlay with cutout box
+                    Color.black.opacity(0.5)
+                        .reverseMask {
+                            RoundedRectangle(cornerRadius: AppCornerRadius.md)
+                                .frame(width: 350, height: 450)
+                        }
+                    
+                    // Viewfinder border
+                    RoundedRectangle(cornerRadius: AppCornerRadius.md)
+                        .stroke(AppColor.accentPrimary, style: StrokeStyle(lineWidth: 2, dash: [5]))
+                        .frame(width: 350, height: 450)
+                }
+                .ignoresSafeArea()
                 
                 VStack {
                     // Top Controls
