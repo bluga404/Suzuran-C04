@@ -174,7 +174,7 @@ struct FaceScanView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(.white)
                                 .padding(12)
                                 .glassEffect(.regular.interactive(), in: Circle())
                         }
@@ -184,7 +184,7 @@ struct FaceScanView: View {
                         } label: {
                             Image(systemName: "xmark")
                                 .font(.system(size: 16, weight: .semibold))
-                                .foregroundStyle(.primary)
+                                .foregroundStyle(.white)
                                 .padding(12)
                                 .background(.ultraThinMaterial, in: Circle())
                         }
@@ -237,6 +237,7 @@ struct FaceScanView: View {
                     .padding(.bottom, 80) // adjusted padding to move it up slightly
             }
         }
+        .colorScheme(.dark)
     }
 
     // MARK: - Processing
