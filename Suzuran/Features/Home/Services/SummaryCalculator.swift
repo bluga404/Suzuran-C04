@@ -143,25 +143,25 @@ struct SummaryCalculator {
         return .notFound
     }
 
-    /// Returns a short explanation (Bahasa Indonesia) for why an ingredient is recommended.
+    /// Returns a short explanation for why an ingredient is recommended.
     private func explanation(for ingredient: Ingredient, dominantAcne: AcneType) -> String {
         switch ingredient.name {
         case "niacinamide":
-            return "Membantu mengontrol produksi sebum dan mengurangi peradangan"
+            return "Helps control sebum production and reduces inflammation"
         case "salicylic acid":
-            return "Membersihkan pori-pori tersumbat dan mengangkat sel kulit mati"
+            return "Clears clogged pores and removes dead skin cells"
         case "benzoyl peroxide":
-            return "Membunuh bakteri penyebab jerawat dan mengurangi peradangan"
+            return "Kills acne-causing bacteria and reduces inflammation"
         case "retinol":
-            return "Mempercepat regenerasi sel kulit dan mencegah pori tersumbat"
+            return "Accelerates skin cell turnover and prevents clogged pores"
         case "tea tree oil":
-            return "Antibakteri alami yang membantu mengurangi peradangan jerawat"
+            return "Natural antibacterial that helps reduce acne inflammation"
         case "adapalene":
-            return "Retinoid yang membantu mencegah dan mengobati jerawat parah"
+            return "A retinoid that helps prevent and treat severe acne"
         case "azelaic acid":
-            return "Mengurangi peradangan dan membantu membunuh bakteri jerawat"
+            return "Reduces inflammation and helps kill acne bacteria"
         default:
-            return "Bahan yang direkomendasikan untuk jenis jerawatmu"
+            return "Recommended ingredient for your acne type"
         }
     }
 }
