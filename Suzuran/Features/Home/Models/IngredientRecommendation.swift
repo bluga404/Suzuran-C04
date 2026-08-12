@@ -15,7 +15,7 @@ struct Ingredient: Equatable {
 }
 
 /// A recommended skincare ingredient with detailed reference and status in the user's routine.
-struct IngredientRecommendation: Identifiable, Equatable {
+struct IngredientRecommendation: Identifiable, Equatable, Hashable {
     let id: UUID
     /// The recommended ingredient
     let ingredient: Ingredient
@@ -23,4 +23,12 @@ struct IngredientRecommendation: Identifiable, Equatable {
     let detail: SkincareIngredientRecommendation
     /// Whether the ingredient was found in the user's scanned products
     let status: IngredientStatus
+
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+
+    static func == (lhs: IngredientRecommendation, rhs: IngredientRecommendation) -> Bool {
+        lhs.id == rhs.id
+    }
 }

@@ -138,8 +138,11 @@ struct HomeView: View {
         .sheet(isPresented: $isShowingAboutSkinScore) {
             AboutSkinScoreView()
         }
-        .sheet(item: $selectedIngredient) { ingredient in
-            IngredientDetailView(recommendation: ingredient.detail)
+        .navigationDestination(item: $selectedIngredient) { ingredient in
+            IngredientDetailView(
+                recommendation: ingredient.detail,
+                showsCloseButton: false
+            )
         }
     }
 
