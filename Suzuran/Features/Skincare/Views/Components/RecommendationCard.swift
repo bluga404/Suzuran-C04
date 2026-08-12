@@ -58,11 +58,27 @@ struct RecommendationCard: View {
                 Divider()
                     .background(AppColor.borderSubtle)
                 
-                Text(match.recommendation.description)
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColor.textSecondary)
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
+//                Text(match.recommendation.description)
+//                    .font(AppTypography.caption)
+//                    .foregroundStyle(AppColor.textSecondary)
+//                    .lineLimit(3)
+//                    .multilineTextAlignment(.leading)
+                
+                if !match.foundInProducts.isEmpty {
+                    VStack(alignment: .leading, spacing: AppSpacing.xxs) {
+                        Text("Found in your product:")
+                            .font(AppTypography.caption)
+                            .foregroundStyle(AppColor.textSecondary)
+                        
+                        ForEach(match.foundInProducts, id: \.self) { productName in
+                            Text("• \(productName)")
+                                .font(AppTypography.caption)
+                                .fontWeight(.semibold)
+                                .foregroundStyle(AppColor.accentPrimary)
+                        }
+                    }
+                    .padding(.top, AppSpacing.xxs)
+                }
             }
         }
     }

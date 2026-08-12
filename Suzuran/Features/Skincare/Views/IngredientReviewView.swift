@@ -2,9 +2,11 @@ import SwiftUI
 
 struct IngredientReviewView: View {
     @ObservedObject var viewModel: AddSkincareViewModel
+    let repository: CosingIngredientRepository
     let onSave: () -> Void
 
-    @State private var newIngredientName = ""
+    @State private var query = ""
+    @State private var searchResults: [IngredientReference] = []
 
     var body: some View {
         VStack(spacing: 0) {
@@ -21,59 +23,114 @@ struct IngredientReviewView: View {
             .padding(AppSpacing.md)
             .background(AppColor.surfacePrimary)
             
-            // Add Missing Ingredient Inline Bar
+            // Search Bar
             HStack(spacing: AppSpacing.sm) {
-                TextField("Tambah kandungan manual...", text: $newIngredientName)
-                    .font(AppTypography.body)
-                    .padding(AppSpacing.sm)
-                    .background(AppColor.backgroundPrimary)
-                    .cornerRadius(AppCornerRadius.sm)
+                Image(systemName: "magnifyingglass")
+                    .foregroundStyle(AppColor.textSecondary)
                 
-                Button(action: addScannedIngredient) {
-                    Image(systemName: "plus")
-                        .font(.system(size: 16, weight: .bold))
-                        .padding(AppSpacing.sm)
-                        .background(AppColor.accentPrimary)
-                        .foregroundStyle(.white)
-                        .cornerRadius(AppCornerRadius.sm)
+                TextField("Cari kandungan (contoh: Niacinamide)", text: $query)
+                    .font(AppTypography.body)
+                    .textFieldStyle(.plain)
+                    .onChange(of: query) { _, newQuery in
+                        performSearch(query: newQuery)
+                    }
+                
+                if !query.isEmpty {
+                    Button(action: { query = "" }) {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundStyle(AppColor.textSecondary)
+                    }
                 }
             }
+            .padding(AppSpacing.sm)
+            .background(AppColor.backgroundPrimary)
+            .cornerRadius(AppCornerRadius.md)
+            .overlay(
+                RoundedRectangle(cornerRadius: AppCornerRadius.md)
+                    .stroke(AppColor.borderSubtle, lineWidth: 1)
+            )
             .padding(AppSpacing.md)
             .background(AppColor.surfacePrimary)
             
             Divider()
 
-            // List of Scanned Ingredients
+            // Main Content List
             List {
-                if viewModel.scannedIngredients.isEmpty {
-                    Text("Belum ada kandungan terdeteksi. Silakan tambah manual di atas.")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColor.textSecondary)
-                        .listRowBackground(Color.clear)
-                } else {
-                    ForEach(viewModel.scannedIngredients, id: \.self) { ingredient in
-                        HStack {
-                            Text(ingredient.rawText)
-                                .font(AppTypography.body)
-                                .foregroundStyle(AppColor.textPrimary)
-                            
-                            Spacer()
-                            
+                if !query.isEmpty {
+                    // Search Mode
+                    if !searchResults.contains(where: { $0.normalizedName == query.lowercased().trimmingCharacters(in: .whitespacesAndNewlines) }) {
+                        Section("Kandungan Baru") {
                             Button(action: {
-                                viewModel.scannedIngredients.removeAll { $0 == ingredient }
+                                addIngredient(query)
                             }) {
-                                Image(systemName: "trash")
-                                    .foregroundStyle(AppColor.accentDanger)
+                                HStack {
+                                    Image(systemName: "plus.circle.fill")
+                                        .foregroundStyle(AppColor.accentPrimary)
+                                    Text("Tambah \"\(query)\"")
+                                        .font(AppTypography.bodyBold)
+                                        .foregroundStyle(AppColor.accentPrimary)
+                                }
                             }
-                            .buttonStyle(.plain)
                         }
                     }
-                    .onDelete { offsets in
-                        viewModel.scannedIngredients.remove(atOffsets: offsets)
+                    
+                    Section("Hasil Pencarian") {
+                        if searchResults.isEmpty {
+                            Text("Tidak ada hasil ditemukan")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColor.textSecondary)
+                        } else {
+                            ForEach(searchResults, id: \.self) { ingredient in
+                                Button(action: {
+                                    addIngredient(ingredient.name)
+                                }) {
+                                    HStack {
+                                        Text(ingredient.name)
+                                            .font(AppTypography.body)
+                                            .foregroundStyle(AppColor.textPrimary)
+                                        Spacer()
+                                        Image(systemName: "plus")
+                                            .font(.system(size: 14, weight: .bold))
+                                            .foregroundStyle(AppColor.accentPrimary)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    // Review Scanned Ingredients Mode
+                    Section("Kandungan Terdeteksi") {
+                        if viewModel.scannedIngredients.isEmpty {
+                            Text("Belum ada kandungan terdeteksi. Silakan tambah manual di atas.")
+                                .font(AppTypography.caption)
+                                .foregroundStyle(AppColor.textSecondary)
+                                .listRowBackground(Color.clear)
+                        } else {
+                            ForEach(viewModel.scannedIngredients, id: \.self) { ingredient in
+                                HStack {
+                                    Text(ingredient.rawText)
+                                        .font(AppTypography.body)
+                                        .foregroundStyle(AppColor.textPrimary)
+                                    
+                                    Spacer()
+                                    
+                                    Button(action: {
+                                        viewModel.scannedIngredients.removeAll { $0 == ingredient }
+                                    }) {
+                                        Image(systemName: "trash")
+                                            .foregroundStyle(AppColor.accentDanger)
+                                    }
+                                    .buttonStyle(.plain)
+                                }
+                            }
+                            .onDelete { offsets in
+                                viewModel.scannedIngredients.remove(atOffsets: offsets)
+                            }
+                        }
                     }
                 }
             }
-            .listStyle(.plain)
+            .applyConditionalListStyle(isPlain: query.isEmpty)
 
             // Save Action
             VStack {
@@ -99,13 +156,28 @@ struct IngredientReviewView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
 
-    private func addScannedIngredient() {
-        let trimmed = newIngredientName.trimmingCharacters(in: .whitespacesAndNewlines)
+    private func addIngredient(_ name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
         guard !trimmed.isEmpty else { return }
         
         if !viewModel.scannedIngredients.contains(where: { $0.rawText.lowercased() == trimmed.lowercased() }) {
             viewModel.scannedIngredients.append(OCRIngredientResult(rawText: trimmed))
         }
-        newIngredientName = ""
+        query = ""
+    }
+    
+    private func performSearch(query: String) {
+        searchResults = repository.searchIngredients(query: query)
+    }
+}
+
+extension View {
+    @ViewBuilder
+    func applyConditionalListStyle(isPlain: Bool) -> some View {
+        if isPlain {
+            self.listStyle(.plain)
+        } else {
+            self.listStyle(.insetGrouped)
+        }
     }
 }

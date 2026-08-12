@@ -5,6 +5,7 @@ import Combine
 
 struct IngredientScanView: View {
     @ObservedObject var viewModel: AddSkincareViewModel
+    let repository: CosingIngredientRepository
     @Environment(\.dismiss) private var dismiss
     
     @State private var isShowingHint = false
@@ -138,7 +139,7 @@ struct IngredientScanView: View {
                 }
             }
             .navigationDestination(isPresented: $isShowingReview) {
-                IngredientReviewView(viewModel: viewModel) {
+                IngredientReviewView(viewModel: viewModel, repository: repository) {
                     dismiss()
                 }
             }

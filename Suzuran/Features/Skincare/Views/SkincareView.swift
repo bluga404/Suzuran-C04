@@ -88,45 +88,10 @@ struct SkincareView: View {
         ScrollView {
             VStack(alignment: .leading, spacing: AppSpacing.md) {
                 
-                // User Active Acne Profile Information
-                AppCard {
-                    VStack(alignment: .leading, spacing: AppSpacing.xs) {
-                        HStack {
-                            Image(systemName: "face.dashed")
-                                .foregroundStyle(AppColor.accentPrimary)
-                            Text("Tipe Jerawat Aktif Anda")
-                                .font(AppTypography.bodyBold)
-                                .foregroundStyle(AppColor.textPrimary)
-                        }
-                        
-                        if !viewModel.hasScanned {
-                            Text("Belum ada hasil pemindaian, silakan pindai wajah Anda untuk mengetahui kondisi jerawat yang ada.")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColor.textSecondary)
-                        } else if viewModel.activeAcneTypes.isEmpty {
-                            Text("Tidak ada jerawat aktif terdeteksi.")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColor.textSecondary)
-                        } else {
-                            HStack(spacing: AppSpacing.xs) {
-                                ForEach(viewModel.activeAcneTypes) { type in
-                                    Text(type.displayName)
-                                        .font(.system(size: 11, weight: .bold))
-                                        .padding(.horizontal, AppSpacing.sm)
-                                        .padding(.vertical, 4)
-                                        .background(AppColor.accentPrimary.opacity(0.08))
-                                        .foregroundStyle(AppColor.accentPrimary)
-                                        .clipShape(Capsule())
-                                }
-                            }
-                            .padding(.top, 4)
-                            
-                            Text("Berdasarkan hasil pemindaian wajah terakhir. Kandungan skincare Anda akan disesuaikan dengan tipe jerawat di atas.")
-                                .font(AppTypography.caption)
-                                .foregroundStyle(AppColor.textSecondary)
-                                .padding(.top, 4)
-                        }
-                    }
+                // Match Ingredient Section (SVG 08)
+                if viewModel.hasScanned {
+                    matchedSection
+                        .padding(.bottom, AppSpacing.sm)
                 }
                 
                 // Skincare List Section
@@ -136,7 +101,7 @@ struct SkincareView: View {
                 if !activeProducts.isEmpty {
                     VStack(alignment: .leading, spacing: AppSpacing.sm) {
                         HStack {
-                            Text("Sedang Digunakan (\(activeProducts.count))")
+                            Text("Your Current Skincare")
                                 .font(AppTypography.bodyBold)
                                 .foregroundStyle(AppColor.textPrimary)
                             
@@ -198,17 +163,11 @@ struct SkincareView: View {
                     }
                     .padding(.top, AppSpacing.sm)
                 }
-                
-                // Match Ingredient Section (SVG 08)
-                if viewModel.hasScanned {
-                    matchedSection
-                        .padding(.top, AppSpacing.sm)
-                }
             }
             .padding(AppSpacing.md)
         }
         .navigationTitle("Skincare")
-        .navigationBarTitleDisplayMode(.inline)
+        .toolbarTitleDisplayMode(.inlineLarge)
         .toolbar {
             ToolbarItem(placement: .topBarTrailing) {
                 Button(action: {

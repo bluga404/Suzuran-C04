@@ -154,8 +154,8 @@ struct IngredientDetailView: View {
                     Button("Tutup") {
                         dismiss()
                     }
-                    .font(AppTypography.bodyBold)
-                    .foregroundStyle(AppColor.accentPrimary)
+//                    .font(AppTypography.bodyBold)
+//                    .foregroundStyle(AppColor.accentPrimary)
                 }
             }
         }

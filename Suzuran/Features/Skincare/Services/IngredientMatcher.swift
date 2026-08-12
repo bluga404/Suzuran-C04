@@ -4,6 +4,7 @@ struct MatchedRecommendation: Identifiable, Equatable {
     var id: String { recommendation.ingredientName }
     let recommendation: SkincareIngredientRecommendation
     let matchedAcneTypes: [AcneType]
+    var foundInProducts: [String] = []
 }
 
 final class IngredientMatcher: IngredientMatchingService {

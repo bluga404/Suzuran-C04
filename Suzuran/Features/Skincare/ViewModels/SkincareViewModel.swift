@@ -38,9 +38,18 @@ final class SkincareViewModel: ObservableObject {
 
     var uniqueMatchedRecommendations: [MatchedRecommendation] {
         var unique: [String: MatchedRecommendation] = [:]
-        for (_, recommendations) in matchedRecommendations {
+        for (productId, recommendations) in matchedRecommendations {
+            let productName = products.first(where: { $0.id == productId })?.name ?? "Unknown Product"
             for rec in recommendations {
-                unique[rec.id] = rec
+                if unique[rec.id] != nil {
+                    if !unique[rec.id]!.foundInProducts.contains(productName) {
+                        unique[rec.id]!.foundInProducts.append(productName)
+                    }
+                } else {
+                    var newRec = rec
+                    newRec.foundInProducts = [productName]
+                    unique[rec.id] = newRec
+                }
             }
         }
         return Array(unique.values).sorted { $0.recommendation.ingredientName < $1.recommendation.ingredientName }

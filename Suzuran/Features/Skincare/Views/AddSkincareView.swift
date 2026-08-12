@@ -80,7 +80,6 @@ struct AddSkincareView: View {
                     )
                 }
                 .listRowBackground(Color.clear)
-                .listRowInsets(EdgeInsets())
                 .padding(.bottom, AppSpacing.xs)
                 
                 if !viewModel.ingredients.isEmpty {
@@ -164,7 +163,19 @@ struct AddSkincareView: View {
                 }
             }
             .fullScreenCover(isPresented: $isShowingScanner) {
-                IngredientScanView(viewModel: viewModel)
+                IngredientScanView(viewModel: viewModel, repository: ingredientRepository)
             }
     }
+}
+
+#Preview {
+    AddSkincareView(
+        skincareViewModel: SkincareViewModel(
+            skincareRepository: SkincareProductRepository(),
+            acneRepository: AcneIngredientRepository(),
+            acneProfileProvider: AcneProfileProvider(historyStore: ScanHistoryStore())
+        ),
+        ingredientRepository: CosingIngredientRepository(),
+        acneRepository: AcneIngredientRepository()
+    )
 }
