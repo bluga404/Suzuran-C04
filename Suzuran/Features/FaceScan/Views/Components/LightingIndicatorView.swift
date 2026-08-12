@@ -12,7 +12,7 @@ struct LightingIndicatorView: View {
         VStack(spacing: AppSpacing.sm) {
             Text(readiness.message)
                 .font(.system(size: 20, weight: .bold, design: .default))
-                .foregroundStyle(.primary)
+                .foregroundStyle(.white)
                 .multilineTextAlignment(.center)
                 .contentTransition(.numericText())
                 .animation(.easeInOut(duration: 0.25), value: readiness)
@@ -22,7 +22,7 @@ struct LightingIndicatorView: View {
             
             Text("\(completedAngles)/3 \(targetName)")
                 .font(Font.metadata)
-                .foregroundStyle(.primary)
+                .foregroundStyle(.white.opacity(0.9))
                 .contentTransition(.numericText())
         }
     }

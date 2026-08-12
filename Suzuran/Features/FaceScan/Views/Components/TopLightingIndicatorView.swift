@@ -8,11 +8,11 @@ struct TopLightingIndicatorView: View {
         VStack(alignment: .leading, spacing: AppSpacing.xxs) {
             Text(condition.title)
                 .font(Font.helperText)
-                .foregroundStyle(.primary)
+                .foregroundStyle(.white)
             
             Text(condition.subtitle)
                 .font(Font.system(size: 10, weight: .regular))
-                .foregroundStyle(.secondary)
+                .foregroundStyle(.white.opacity(0.8))
         }
         .padding(.horizontal, AppSpacing.md)
         .padding(.vertical, AppSpacing.xs)
