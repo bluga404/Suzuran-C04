@@ -64,7 +64,6 @@ struct FaceScanResultView: View {
                 ZoneDetailView(subZone: subZone) {
                     selectedSubZone = nil
                 }
-                .presentationDragIndicator(.visible)
             }
         }
     }
@@ -235,7 +234,7 @@ struct FaceScanResultView: View {
                 }
                 .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
 
-                Text("\(subZone.acneCount) Jerawat")
+                Text("\(subZone.acneCount) Acne")
                     .font(Font.helperText)
                     .foregroundStyle(.primary)
             }
