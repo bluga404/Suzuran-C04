@@ -362,7 +362,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Suzuran/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Rona;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Suzuran membutuhkan akses kamera untuk memindai wajah dan mendeteksi jerawat.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Rona membutuhkan akses kamera untuk memindai wajah dan mendeteksi jerawat.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -397,7 +397,7 @@
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = Suzuran/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Rona;
-				INFOPLIST_KEY_NSCameraUsageDescription = "Suzuran membutuhkan akses kamera untuk memindai wajah dan mendeteksi jerawat.";
+				INFOPLIST_KEY_NSCameraUsageDescription = "Rona membutuhkan akses kamera untuk memindai wajah dan mendeteksi jerawat.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;

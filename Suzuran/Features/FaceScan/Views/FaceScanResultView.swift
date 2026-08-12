@@ -71,13 +71,13 @@ struct FaceScanResultView: View {
             .navigationDestination(item: $activeDetailPayload) { payload in
                 FullPhotoDetailView(payload: payload)
             }
-            .alert("Discard Scan Result?", isPresented: $isShowingDiscardAlert) {
-                Button("Discard & Retake", role: .destructive) {
+            .alert("Back to Scanning Process", isPresented: $isShowingDiscardAlert) {
+                Button("Yes") {
                     onRetake()
                 }
-                Button("Cancel", role: .cancel) { }
+                Button("No", role: .cancel) { }
             } message: {
-                Text("Are you sure you want to go back? Your current scan result will be discarded and won't be saved.")
+                Text("Are you sure to re-do the scanning process? All the photos taken will be deleted")
             }
         }
     }

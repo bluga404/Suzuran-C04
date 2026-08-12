@@ -21,17 +21,15 @@ struct IngredientSection: View {
                 .padding(.horizontal, AppSpacing.md)
 
             if visibleRecommendations.isEmpty {
-                AppCard {
-                    VStack(alignment: .leading, spacing: AppSpacing.md) {
-                        if hasTrackedSkincare {
-                            Text("Here, you'll find ingredients that may help with your most common acne type.")
-                                .font(Font.labelRegularItalic)
-                                .foregroundStyle(AppColor.textSecondary)
-                        } else {
-                            Text("Here, you'll find ingredients that may help with your most common acne type. Add your skincare routine to see if your products already contain them.")
-                                .font(Font.labelRegularItalic)
-                                .foregroundStyle(AppColor.textSecondary)
-                        }
+                VStack(alignment: .leading, spacing: AppSpacing.md) {
+                    if hasTrackedSkincare {
+                        Text("Here, you'll find ingredients that may help with your most common acne type.")
+                            .font(Font.labelRegularItalic)
+                            .foregroundStyle(AppColor.textSecondary)
+                    } else {
+                        Text("Here, you'll find ingredients that may help with your most common acne type. Add your skincare routine to see if your products already contain them.")
+                            .font(Font.labelRegularItalic)
+                            .foregroundStyle(AppColor.textSecondary)
                     }
                 }
                 .padding(.horizontal, AppSpacing.md)
