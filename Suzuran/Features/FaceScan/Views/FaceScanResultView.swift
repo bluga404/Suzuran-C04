@@ -79,7 +79,7 @@ struct FaceScanResultView: View {
                     .foregroundStyle(.primary)
                     .padding(.bottom, 4)
                 
-                Text(severityText)
+                Text(HomeScoreCalculator().scoreLabel(for: displayScore))
                     .font(.custom("AvenirNext-Bold", size: 42, relativeTo: .largeTitle))
                     .foregroundStyle(.primary)
                     .minimumScaleFactor(0.5)
@@ -146,14 +146,7 @@ struct FaceScanResultView: View {
         .padding(.top, AppSpacing.sm)
     }
 
-    private var severityText: String {
-        switch result.overallSeverity {
-        case .clear: return "Excellent"
-        case .mild: return "Good"
-        case .moderate: return "Moderate"
-        case .severe: return "Severe"
-        }
-    }
+    // (Removed severityText since we use HomeScoreCalculator now)
 
     private var mostDetectedAcneType: String {
         if let highest = result.acneTypeSummaries.max(by: { $0.count < $1.count }), highest.count > 0 {

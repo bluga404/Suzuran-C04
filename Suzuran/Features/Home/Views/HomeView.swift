@@ -138,6 +138,12 @@ struct HomeView: View {
         .sheet(isPresented: $isShowingAboutSkinScore) {
             AboutSkinScoreView()
         }
+        .sheet(isPresented: $isShowingAboutAcne) {
+            AboutAcneTypeView()
+        }
+        .sheet(isPresented: $isShowingAboutSkinScore) {
+            AboutSkinScoreView()
+        }
     }
 
     /// Returns the detection count of the dominant acne type from the latest scan, if available.

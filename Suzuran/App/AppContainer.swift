@@ -35,6 +35,8 @@ final class AppContainer: ObservableObject {
         let bootstrapper = AppBootstrapper(environment: environment)
         let scanHistoryStore = ScanHistoryStore()
 
+        SkincareFactory.scanHistoryStoreProvider = { [weak scanHistoryStore] in scanHistoryStore?.records.first }
+
         let rootViewModel = RootViewModel(
             bootstrapper: bootstrapper,
             scanHistoryStore: scanHistoryStore,
