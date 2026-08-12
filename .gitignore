@@ -34,7 +34,7 @@ Pods/
 *.pbxproj
 
 # MISC
-# .kiro
+.kiro
 # Documentation/
 # SuzuranTests/
 PRD/
