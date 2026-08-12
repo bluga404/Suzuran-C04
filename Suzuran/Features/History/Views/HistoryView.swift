@@ -80,8 +80,9 @@ struct HistoryView: View {
                                  ? "Compare (\(viewModel.selectedCount)/2)"
                                  : "Compare")
                         }
+                        .buttonStyle(.plain)
                         .disabled(viewModel.isCompareMode && !viewModel.canCompare)
-                        .glassEffect(.regular.interactive(), in: .capsule)
+                        .glassEffect(.regular, in: .capsule)
 
                         if viewModel.isCompareMode {
                             Button {
@@ -91,13 +92,15 @@ struct HistoryView: View {
                             } label: {
                                 Image(systemName: "xmark")
                             }
-                            .glassEffect(.regular.interactive(), in: .circle)
+                            .buttonStyle(.plain)
+                            .glassEffect(.regular, in: .circle)
                             .transition(.scale.combined(with: .opacity))
                             .accessibilityLabel("Cancel compare")
                         }
                     }
                     .animation(.snappy(duration: 0.35), value: viewModel.isCompareMode)
                 }
+
             }
             .toolbar(.visible, for: .tabBar)
             .navigationDestination(item: $activePayload) { payload in
