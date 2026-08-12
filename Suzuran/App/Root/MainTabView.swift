@@ -14,10 +14,12 @@ struct MainTabView: View {
     @ObservedObject var viewModel: RootViewModel
     @State private var selectedTab: AppTab = .summary
     @StateObject private var homeSummaryViewModel: HomeSummaryViewModel
+    @StateObject private var historyViewModel: HistoryViewModel
 
     init(viewModel: RootViewModel) {
         self.viewModel = viewModel
         self._homeSummaryViewModel = StateObject(wrappedValue: viewModel.makeHomeSummaryViewModel())
+        self._historyViewModel = StateObject(wrappedValue: HistoryViewModel(historyStore: viewModel.scanHistoryStore))
     }
 
     var body: some View {
@@ -34,7 +36,7 @@ struct MainTabView: View {
             }
 
             Tab("History", systemImage: "photo.on.rectangle.angled", value: .history) {
-                HistoryFactory.makeView(historyStore: viewModel.scanHistoryStore)
+                HistoryView(viewModel: historyViewModel)
             }
 
             Tab("Report", systemImage: "chart.line.uptrend.xyaxis", value: .report) {

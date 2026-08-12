@@ -4,6 +4,8 @@ struct ScanDetailView: View {
     /// Owned by this view so the ViewModel persists across body re-evaluations
     /// (e.g., when presented inside a sheet).
     @ObservedObject private var viewModel: ScanDetailViewModel
+    
+    @State private var isShowingAboutAcne = false
 
     init(viewModel: ScanDetailViewModel) {
         self.viewModel = viewModel
@@ -35,6 +37,9 @@ struct ScanDetailView: View {
         .navigationBarTitleDisplayMode(.inline)
         .task(id: ObjectIdentifier(viewModel)) {
             await viewModel.load()
+        }
+        .sheet(isPresented: $isShowingAboutAcne) {
+            AboutAcneTypeView()
         }
     }
 
@@ -81,7 +86,7 @@ struct ScanDetailView: View {
                 
                 // Region Pills
                 ForEach(FaceRegion.displayOrder, id: \.self) { region in
-                    filterPill(title: region.rawValue, isSelected: viewModel.selectedRegion == region) {
+                    filterPill(title: region.englishDisplayName, isSelected: viewModel.selectedRegion == region) {
                         withAnimation { viewModel.selectedRegion = region }
                     }
                 }
@@ -209,9 +214,14 @@ struct ScanDetailView: View {
                     Text("Acne Type")
                         .font(.custom("AvenirNext-DemiBold", size: 12))
                         .foregroundStyle(.secondary)
-                    Image(systemName: "info.circle")
-                        .font(.system(size: 10))
-                        .foregroundStyle(.secondary)
+                    Button {
+                        isShowingAboutAcne = true
+                    } label: {
+                        Image(systemName: "info.circle")
+                            .font(.system(size: 10))
+                            .foregroundStyle(.secondary)
+                    }
+                    .accessibilityLabel("Acne type information")
                     Spacer()
                 }
                 

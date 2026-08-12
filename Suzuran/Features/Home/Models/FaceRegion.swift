@@ -29,6 +29,17 @@ enum FaceRegion: String, Codable, CaseIterable, Identifiable {
         case .chin: return "Dagu"
         }
     }
+    
+    /// User-facing display name in English.
+    var englishDisplayName: String {
+        switch self {
+        case .forehead: return "Forehead"
+        case .rightCheek: return "Right Cheek"
+        case .leftCheek: return "Left Cheek"
+        case .nose: return "Nose"
+        case .chin: return "Chin"
+        }
+    }
 
     /// Display order per spec: Forehead, Left Cheek, Right Cheek, Chin, Nose
     static let displayOrder: [FaceRegion] = [
