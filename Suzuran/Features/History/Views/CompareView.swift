@@ -18,7 +18,6 @@ struct CompareView: View {
         func hash(into hasher: inout Hasher) { hasher.combine(id) }
     }
 
-    @State private var selectedArea: ScanRecord.FaceArea? = nil
     @State private var activeDetailPayload: PhotoDetailPayload? = nil
     @State private var showAboutSkinScore = false
 
@@ -61,9 +60,6 @@ struct CompareView: View {
                 dateText: payload.dateText
             )
         }
-        .onAppear {
-            viewModel.selectedArea = selectedArea
-        }
         .sheet(isPresented: $showAboutSkinScore) {
             NavigationStack {
                 AboutSkinScoreView()
@@ -79,11 +75,10 @@ struct CompareView: View {
                 // "All" chip
                 CompareAreaChip(
                     label: "All",
-                    isSelected: selectedArea == nil,
+                    isSelected: viewModel.selectedArea == nil,
                     activeColor: primaryPurple
                 ) {
                     withAnimation(.easeInOut(duration: 0.18)) {
-                        selectedArea = nil
                         viewModel.selectedArea = nil
                     }
                 }
@@ -91,11 +86,10 @@ struct CompareView: View {
                 ForEach(ScanRecord.FaceArea.allCases) { area in
                     CompareAreaChip(
                         label: area.rawValue,
-                        isSelected: selectedArea == area,
+                        isSelected: viewModel.selectedArea == area,
                         activeColor: primaryPurple
                     ) {
                         withAnimation(.easeInOut(duration: 0.18)) {
-                            selectedArea = area
                             viewModel.selectedArea = area
                         }
                     }
@@ -105,15 +99,13 @@ struct CompareView: View {
         }
     }
 
-
-
     // MARK: - Face Images (181 x 213 with margin 8)
 
     private var faceImages: some View {
         HStack(spacing: 8) {
             CompareFaceImage(
                 record: viewModel.recordA,
-                selectedArea: selectedArea,
+                selectedArea: viewModel.selectedArea,
                 borderColor: cardBorder
             ) { imageData, title, dateText in
                 activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
@@ -121,7 +113,7 @@ struct CompareView: View {
 
             CompareFaceImage(
                 record: viewModel.recordB,
-                selectedArea: selectedArea,
+                selectedArea: viewModel.selectedArea,
                 borderColor: cardBorder
             ) { imageData, title, dateText in
                 activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
