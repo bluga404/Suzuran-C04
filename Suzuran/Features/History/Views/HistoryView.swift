@@ -63,11 +63,34 @@ struct HistoryView: View {
             .navigationTitle(ScreenTitle.history.title)
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
-                ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 8) {
-                        compareButton
-                        if viewModel.isCompareMode {
-                            closeCompareButton
+                if viewModel.isCompareMode {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Compare (\(viewModel.selectedCount)/2)") {
+                            if let (first, second) = viewModel.selectedPair {
+                                activePayload = ComparePayload(recordA: first, recordB: second)
+                            }
+                        }
+                        .disabled(!viewModel.canCompare)
+                    }
+
+                    // This is what keeps them as two separate glass pills
+                    ToolbarSpacer(.fixed, placement: .topBarTrailing)
+
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button {
+                            withAnimation(.snappy(duration: 0.25)) {
+                                viewModel.toggleCompareMode()
+                            }
+                        } label: {
+                            Image(systemName: "xmark")
+                        }
+                    }
+                } else {
+                    ToolbarItem(placement: .topBarTrailing) {
+                        Button("Compare") {
+                            withAnimation(.snappy(duration: 0.25)) {
+                                viewModel.toggleCompareMode()
+                            }
                         }
                     }
                 }
@@ -85,50 +108,6 @@ struct HistoryView: View {
             }
         }
         .appScreenContainer()
-    }
-
-    // MARK: - Toolbar compare controls
-
-    private var compareButton: some View {
-        Button {
-            if viewModel.isCompareMode {
-                if let (first, second) = viewModel.selectedPair {
-                    activePayload = ComparePayload(recordA: first, recordB: second)
-                }
-            } else {
-                withAnimation(.snappy(duration: 0.35)) {
-                    viewModel.toggleCompareMode()
-                }
-            }
-        } label: {
-            Text(viewModel.isCompareMode ? "Compare (\(viewModel.selectedCount)/2)" : "Compare")
-                .font(.body.weight(.medium))
-                .padding(.horizontal, 16)
-                .padding(.vertical, 10)
-                .contentShape(.capsule)
-        }
-        .buttonStyle(.plain)
-        .disabled(viewModel.isCompareMode && !viewModel.canCompare)
-        .tint(purpleAccent)
-        .glassEffect(.regular.interactive(), in: .capsule)
-        .opacity(viewModel.isCompareMode && !viewModel.canCompare ? 0.5 : 1.0)
-        .animation(.snappy(duration: 0.35), value: viewModel.isCompareMode)
-    }
-
-    private var closeCompareButton: some View {
-        Button {
-            withAnimation(.snappy(duration: 0.35)) {
-                viewModel.toggleCompareMode()
-            }
-        } label: {
-            Image(systemName: "xmark")
-                .font(.system(size: 15, weight: .bold))
-                .frame(width: 44, height: 44)
-                .contentShape(.circle)
-        }
-        .buttonStyle(.plain)
-        .glassEffect(.regular.interactive(), in: .circle)
-        .accessibilityLabel("Cancel compare")
     }
 
     // MARK: - Scrollable Grid Content

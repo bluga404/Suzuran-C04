@@ -18,7 +18,6 @@ struct CompareView: View {
         func hash(into hasher: inout Hasher) { hasher.combine(id) }
     }
 
-    @State private var selectedArea: ScanRecord.FaceArea? = nil
     @State private var activeDetailPayload: PhotoDetailPayload? = nil
     @State private var showAboutSkinScore = false
 
@@ -40,7 +39,6 @@ struct CompareView: View {
         ScrollView(.vertical, showsIndicators: false) {
             VStack(alignment: .leading, spacing: 16) {
                 areaFilterChips
-                dateSelectors
                 faceImages
                     .padding(.top, 0)
                 skinScoreAndInsightCard
@@ -62,9 +60,6 @@ struct CompareView: View {
                 dateText: payload.dateText
             )
         }
-        .onAppear {
-            viewModel.selectedArea = selectedArea
-        }
         .sheet(isPresented: $showAboutSkinScore) {
             NavigationStack {
                 AboutSkinScoreView()
@@ -80,11 +75,10 @@ struct CompareView: View {
                 // "All" chip
                 CompareAreaChip(
                     label: "All",
-                    isSelected: selectedArea == nil,
+                    isSelected: viewModel.selectedArea == nil,
                     activeColor: primaryPurple
                 ) {
                     withAnimation(.easeInOut(duration: 0.18)) {
-                        selectedArea = nil
                         viewModel.selectedArea = nil
                     }
                 }
@@ -92,11 +86,10 @@ struct CompareView: View {
                 ForEach(ScanRecord.FaceArea.allCases) { area in
                     CompareAreaChip(
                         label: area.rawValue,
-                        isSelected: selectedArea == area,
+                        isSelected: viewModel.selectedArea == area,
                         activeColor: primaryPurple
                     ) {
                         withAnimation(.easeInOut(duration: 0.18)) {
-                            selectedArea = area
                             viewModel.selectedArea = area
                         }
                     }
@@ -104,26 +97,7 @@ struct CompareView: View {
             }
             .padding(.vertical, 2)
         }
-    }
-
-    // MARK: - Date Selectors (Rounded 8, 16pt margin to photos)
-
-    private var dateSelectors: some View {
-        HStack(spacing: 8) {
-            CompareDateChip(
-                date: viewModel.recordA.date,
-                formatter: CompareViewModel.displayDateFormatter,
-                borderColor: cardBorder
-            )
-            .accessibilityLabel("Before date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordA.date))")
-
-            CompareDateChip(
-                date: viewModel.recordB.date,
-                formatter: CompareViewModel.displayDateFormatter,
-                borderColor: cardBorder
-            )
-            .accessibilityLabel("After date: \(CompareViewModel.displayDateFormatter.string(from: viewModel.recordB.date))")
-        }
+        .simultaneousGesture(DragGesture())
     }
 
     // MARK: - Face Images (181 x 213 with margin 8)
@@ -132,7 +106,7 @@ struct CompareView: View {
         HStack(spacing: 8) {
             CompareFaceImage(
                 record: viewModel.recordA,
-                selectedArea: selectedArea,
+                selectedArea: viewModel.selectedArea,
                 borderColor: cardBorder
             ) { imageData, title, dateText in
                 activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
@@ -140,7 +114,7 @@ struct CompareView: View {
 
             CompareFaceImage(
                 record: viewModel.recordB,
-                selectedArea: selectedArea,
+                selectedArea: viewModel.selectedArea,
                 borderColor: cardBorder
             ) { imageData, title, dateText in
                 activeDetailPayload = PhotoDetailPayload(imageData: imageData, title: title, dateText: dateText)
@@ -368,30 +342,12 @@ private struct CompareAreaChip: View {
                 )
         }
         .buttonStyle(.plain)
+        .contentShape(Capsule())
         .accessibilityLabel(isSelected ? "\(label), selected" : label)
     }
 }
 
-// MARK: - CompareDateChip
 
-private struct CompareDateChip: View {
-    let date: Date
-    let formatter: DateFormatter
-    let borderColor: Color
-
-    var body: some View {
-        Text(formatter.string(from: date))
-            .font(.system(size: 14, weight: .regular))
-            .foregroundStyle(.primary)
-            .padding(.horizontal, 12)
-            .padding(.vertical, 10)
-            .frame(maxWidth: .infinity)
-            .background(
-                RoundedRectangle(cornerRadius: 8)
-                    .stroke(borderColor, lineWidth: 1)
-            )
-    }
-}
 
 // MARK: - CompareFaceImage
 
@@ -527,31 +483,46 @@ private struct CompareFaceImage: View {
         Button {
             onTap(displayImageData, displayTitle, dateStr)
         } label: {
-            Group {
-                if let data = displayImageData, let uiImage = UIImage(data: data) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFill()
-                        .id(selectedArea?.rawValue ?? "All")
-                        .transition(.opacity)
-                } else {
-                    Rectangle()
-                        .fill(Color(.systemBackground))
-                        .overlay(
-                            VStack(spacing: 8) {
-                                Image(systemName: "person.crop.rectangle")
-                                    .font(.system(size: 36))
-                                    .foregroundStyle(.secondary)
-                                Text("No Image")
-                                    .font(.system(size: 11))
-                                    .foregroundStyle(.secondary)
-                            }
-                        )
+            ZStack(alignment: .bottom) {
+                Group {
+                    if let data = displayImageData, let uiImage = UIImage(data: data) {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .id(selectedArea?.rawValue ?? "All")
+                            .transition(.opacity)
+                    } else {
+                        Rectangle()
+                            .fill(Color(.systemBackground))
+                            .overlay(
+                                VStack(spacing: 8) {
+                                    Image(systemName: "person.crop.rectangle")
+                                        .font(.system(size: 36))
+                                        .foregroundStyle(.secondary)
+                                    Text("No Image")
+                                        .font(.system(size: 11))
+                                        .foregroundStyle(.secondary)
+                                }
+                            )
+                    }
                 }
+                .frame(width: 181, height: 213)
+                .clipped()
+
+                // Date banner overlay at bottom of photo frame (matching History page layout)
+                HStack {
+                    Spacer()
+                    Text(dateStr)
+                        .font(Font.metadata)
+                        .foregroundStyle(.white)
+                        .lineLimit(1)
+                    Spacer()
+                }
+                .padding(.vertical, 6)
+                .background(Color.black.opacity(0.50))
             }
             .animation(.easeInOut(duration: 0.25), value: selectedArea)
             .frame(width: 181, height: 213)
-            .clipped()
             .clipShape(RoundedRectangle(cornerRadius: 12))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
@@ -559,6 +530,7 @@ private struct CompareFaceImage: View {
             )
         }
         .buttonStyle(.plain)
+        .contentShape(RoundedRectangle(cornerRadius: 12))
         .accessibilityLabel(record.frontImageData != nil ? "\(displayTitle), tap to view full photo" : "No face image available")
     }
 }
@@ -572,7 +544,7 @@ private struct CompareBreakdownRow: View {
     let primaryPurple: Color
 
     var body: some View {
-        HStack(spacing: 8) {
+        HStack(spacing: 0) {
             Text(row.label)
                 .font(.system(size: 15, weight: .regular))
                 .foregroundStyle(.primary)
@@ -584,16 +556,19 @@ private struct CompareBreakdownRow: View {
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.primary)
                 .monospacedDigit()
+                .frame(width: 32, alignment: .trailing)
 
             Image(systemName: "arrow.right")
                 .font(.system(size: 12, weight: .medium))
                 .foregroundStyle(.secondary)
                 .accessibilityHidden(true)
+                .frame(width: 28)
 
             Text("\(row.valueB)")
                 .font(.system(size: 15, weight: .semibold))
                 .foregroundStyle(.primary)
                 .monospacedDigit()
+                .frame(width: 32, alignment: .trailing)
 
             // Delta Badge
             let diff = row.delta
@@ -605,6 +580,7 @@ private struct CompareBreakdownRow: View {
                 .padding(.vertical, 6)
                 .background(cardFill)
                 .clipShape(RoundedRectangle(cornerRadius: 8))
+                .padding(.leading, 8)
         }
         .padding(.vertical, 2)
         .accessibilityElement(children: .combine)
@@ -669,5 +645,41 @@ private struct FullPhotoDetailView: View {
         .navigationTitle(title)
         .navigationBarTitleDisplayMode(.inline)
         .toolbar(.hidden, for: .tabBar)
+    }
+}
+
+// MARK: - Preview
+
+#Preview {
+    let recA = DummyScanData.createAugust9Record()
+    let recB = ScanRecord(
+        id: UUID(),
+        date: Date(),
+        frontImageData: nil,
+        skinScore: 78,
+        totalAcneCount: 8,
+        severity: .mild,
+        acneTypeCounts: [
+            ScanRecord.AcneTypeCount(acneType: .papule, count: 3),
+            ScanRecord.AcneTypeCount(acneType: .pustule, count: 2),
+            ScanRecord.AcneTypeCount(acneType: .blackhead, count: 2),
+            ScanRecord.AcneTypeCount(acneType: .whitehead, count: 1)
+        ],
+        acneAreaCounts: [
+            ScanRecord.AcneAreaCount(area: .forehead, count: 3),
+            ScanRecord.AcneAreaCount(area: .rightCheek, count: 2),
+            ScanRecord.AcneAreaCount(area: .leftCheek, count: 1),
+            ScanRecord.AcneAreaCount(area: .nose, count: 1),
+            ScanRecord.AcneAreaCount(area: .chin, count: 1)
+        ],
+        subZoneThumbnails: nil,
+        areaTypeCounts: nil,
+        frontMarkers: nil,
+        areaMarkers: nil
+    )
+    let vm = CompareViewModel(recordA: recA, recordB: recB, allRecords: [recA, recB])
+
+    return NavigationStack {
+        CompareView(viewModel: vm)
     }
 }
