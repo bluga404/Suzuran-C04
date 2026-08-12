@@ -193,17 +193,15 @@ struct FaceScanView: View {
 
             // Layer 4: Top & Bottom UI Controls Overlay (ON TOP of dark mask)
             VStack {
-                // Top Bar with Native Close X Button
+                // Top Bar with Native Apple Close Button
                 HStack(alignment: .center) {
                     Button {
                         onDismiss()
                     } label: {
-                        Image(systemName: "xmark")
-                            .font(.system(size: 16, weight: .bold))
-                            .foregroundStyle(.white)
-                            .padding(12)
-                            .background(Circle().fill(Color.black.opacity(0.45)))
-                            .overlay(Circle().stroke(Color.white.opacity(0.25), lineWidth: 1))
+                        Image(systemName: "xmark.circle.fill")
+                            .font(.system(size: 32))
+                            .symbolRenderingMode(.palette)
+                            .foregroundStyle(Color.white, Color.white.opacity(0.3))
                     }
                     .buttonStyle(.plain)
 
