@@ -64,7 +64,7 @@ struct HistoryView: View {
             .navigationBarTitleDisplayMode(.large)
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
-                    HStack(spacing: 6) {
+                    HStack(spacing: 8) {
                         Button {
                             if viewModel.isCompareMode {
                                 if let (first, second) = viewModel.selectedPair {
@@ -80,9 +80,8 @@ struct HistoryView: View {
                                  ? "Compare (\(viewModel.selectedCount)/2)"
                                  : "Compare")
                         }
-                        .buttonStyle(.plain)
+                        .buttonStyle(.glass)
                         .disabled(viewModel.isCompareMode && !viewModel.canCompare)
-                        .glassEffect(.regular, in: .capsule)
 
                         if viewModel.isCompareMode {
                             Button {
@@ -92,15 +91,14 @@ struct HistoryView: View {
                             } label: {
                                 Image(systemName: "xmark")
                             }
-                            .buttonStyle(.plain)
-                            .glassEffect(.regular, in: .circle)
+                            .buttonStyle(.glass)
+                            .clipShape(.circle)
                             .transition(.scale.combined(with: .opacity))
                             .accessibilityLabel("Cancel compare")
                         }
                     }
                     .animation(.snappy(duration: 0.35), value: viewModel.isCompareMode)
                 }
-
             }
             .toolbar(.visible, for: .tabBar)
             .navigationDestination(item: $activePayload) { payload in
