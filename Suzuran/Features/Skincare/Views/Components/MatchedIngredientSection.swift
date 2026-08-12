@@ -5,9 +5,8 @@ import SwiftUI
 /// full match list that corresponds to mockup `09_SeeDetails.png`.
 struct MatchedIngredientSection: View {
     let matched: [MatchedIngredient]
-    let onSelect: (MatchedIngredient) -> Void
     var onShowAll: (() -> Void)? = nil
-    var previewLimit: Int = 2
+    var previewLimit: Int = 3
 
     private var previewItems: ArraySlice<MatchedIngredient> {
         matched.prefix(previewLimit)
@@ -29,19 +28,16 @@ struct MatchedIngredientSection: View {
                         .fontWeight(.semibold)
                         .foregroundStyle(AppColor.accentPrimary)
                         .frame(minHeight: 44)
+                        .buttonStyle(.plain)
                         .accessibilityHint("Buka semua ingredient yang cocok")
                 }
             }
 
             LazyVStack(spacing: AppSpacing.sm) {
                 ForEach(previewItems) { item in
-                    Button { onSelect(item) } label: {
-                        RecommendationCard(matched: item)
-                    }
-                    .buttonStyle(.plain)
-                    .accessibilityElement(children: .combine)
-                    .accessibilityLabel(Text(accessibilityLabel(for: item)))
-                    .accessibilityHint(Text("Ketuk untuk melihat detail ingredient"))
+                    RecommendationCard(matched: item, isCompact: true)
+                        .accessibilityElement(children: .combine)
+                        .accessibilityLabel(Text(accessibilityLabel(for: item)))
                 }
             }
         }

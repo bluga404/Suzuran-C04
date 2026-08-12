@@ -9,7 +9,7 @@ import SwiftUI
 ///
 struct RecommendationCard: View {
     let matched: MatchedIngredient
-    var onTapDetail: () -> Void = {}
+    var isCompact: Bool = false
 
     var body: some View {
         AppCard {
@@ -29,14 +29,16 @@ struct RecommendationCard: View {
 
                     Spacer()
 
-                    HStack(spacing: 2) {
-                        Text("Detail")
-                            .font(AppTypography.caption)
-                            .fontWeight(.semibold)
-                        Image(systemName: "chevron.right")
-                            .font(.system(size: 10, weight: .bold))
+                    if !isCompact {
+                        HStack(spacing: 2) {
+                            Text("Detail")
+                                .font(AppTypography.caption)
+                                .fontWeight(.semibold)
+                            Image(systemName: "chevron.right")
+                                .font(.system(size: 10, weight: .bold))
+                        }
+                        .foregroundStyle(AppColor.accentPrimary)
                     }
-                    .foregroundStyle(AppColor.accentPrimary)
                 }
 
                 // Matched Acne Types Badges
@@ -60,14 +62,16 @@ struct RecommendationCard: View {
                     }
                 }
 
-                Divider()
-                    .background(AppColor.borderSubtle)
+                if !isCompact {
+                    Divider()
+                        .background(AppColor.borderSubtle)
 
-                Text(matched.recommendation.description)
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColor.textSecondary)
-                    .lineLimit(3)
-                    .multilineTextAlignment(.leading)
+                    Text(matched.recommendation.description)
+                        .font(AppTypography.caption)
+                        .foregroundStyle(AppColor.textSecondary)
+                        .lineLimit(3)
+                        .multilineTextAlignment(.leading)
+                }
             }
         }
     }

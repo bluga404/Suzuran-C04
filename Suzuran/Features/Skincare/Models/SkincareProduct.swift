@@ -1,7 +1,7 @@
 import Foundation
 
 /// User-owned skincare product model.
-struct SkincareProduct: Identifiable, Equatable, Codable {
+struct SkincareProduct: Identifiable, Equatable, Hashable, Codable {
     let id: UUID
     var name: String
     var brand: String

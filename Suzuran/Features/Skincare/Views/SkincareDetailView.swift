@@ -34,7 +34,7 @@ struct SkincareDetailView: View {
                     .foregroundStyle(AppColor.accentPrimary)
             }
         }
-        .sheet(isPresented: $isShowingEdit) {
+        .navigationDestination(isPresented: $isShowingEdit) {
             if let latest = skincareViewModel.products.first(where: { $0.id == product.id }) {
                 AddSkincareView(
                     skincareViewModel: skincareViewModel,
@@ -74,11 +74,6 @@ struct SkincareDetailView: View {
                     .clipShape(Capsule())
 
                     Spacer()
-
-                    Text(product.isUsedCurrently ? "Sedang Digunakan" : "Tidak Digunakan")
-                        .font(AppTypography.caption)
-                        .fontWeight(.semibold)
-                        .foregroundStyle(product.isUsedCurrently ? AppColor.accentPrimary : AppColor.textSecondary)
                 }
 
                 Text(product.name)

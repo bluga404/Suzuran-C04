@@ -1,4 +1,6 @@
 import SwiftUI
+import UIKit
+import PhotosUI
 
 /// Add/Edit form built as a custom scroll layout instead of `Form` so its
 /// hierarchy follows the mid-fidelity flow: category → product information →
@@ -8,10 +10,13 @@ struct AddSkincareView: View {
     @ObservedObject var skincareViewModel: SkincareViewModel
     @StateObject private var viewModel: AddSkincareViewModel
 
-    @State private var isShowingSearch = false
-    @State private var isShowingScanner = false
+    @State private var isShowingCamera = false
+    @State private var isShowingPhotoSource = false
+    @State private var selectedImage: UIImage?
+    @State private var selectedItem: PhotosPickerItem?
     @State private var isConfirmingClearAll = false
     @State private var manualCandidate = ""
+    @State private var searchResults: [String] = []
 
     private let ingredientRepo: IngredientRepositoryProtocol
 
@@ -26,8 +31,7 @@ struct AddSkincareView: View {
     }
 
     var body: some View {
-        NavigationStack {
-            ScrollView {
+        ScrollView {
                 VStack(alignment: .leading, spacing: AppSpacing.lg) {
                     categorySection
                     productInformationSection
@@ -38,14 +42,6 @@ struct AddSkincareView: View {
             .background(AppColor.backgroundPrimary)
             .navigationTitle(viewModel.isEditing ? "Edit Skincare" : "Tambah Skincare")
             .navigationBarTitleDisplayMode(.inline)
-            .toolbar {
-                ToolbarItem(placement: .topBarLeading) {
-                    Button("Batal") { dismiss() }
-                        .font(AppTypography.body)
-                        .foregroundStyle(AppColor.accentPrimary)
-                        .frame(minHeight: 44)
-                }
-            }
             .safeAreaInset(edge: .bottom) {
                 PrimaryButton(
                     title: viewModel.isEditing ? "Simpan Perubahan" : "Simpan Skincare",
@@ -59,13 +55,50 @@ struct AddSkincareView: View {
                 .background(.regularMaterial)
             }
             .disabled(viewModel.alert != nil)
-            .sheet(isPresented: $isShowingSearch) {
-                IngredientSearchView(repository: ingredientRepo) { name in
-                    viewModel.addIngredient(name)
+            .fullScreenCover(isPresented: $isShowingCamera) {
+                CameraPicker(selectedImage: $selectedImage)
+                    .ignoresSafeArea()
+            }
+            .sheet(isPresented: $isShowingPhotoSource) {
+                PhotoSourceSheet(
+                    isShowingCamera: $isShowingCamera,
+                    selectedItem: $selectedItem
+                )
+                .presentationDetents([.height(180)])
+                .presentationDragIndicator(.visible)
+            }
+            .onChange(of: selectedImage) { _, image in
+                if let image = image {
+                    Task { await viewModel.processImage(image) }
                 }
             }
-            .sheet(isPresented: $isShowingScanner) {
-                IngredientScanView(viewModel: viewModel)
+            .onChange(of: selectedItem) { _, newItem in
+                isShowingPhotoSource = false
+                Task {
+                    if let data = try? await newItem?.loadTransferable(type: Data.self),
+                       let image = UIImage(data: data) {
+                        await MainActor.run { selectedImage = image }
+                    }
+                }
+            }
+            .overlay {
+                if viewModel.isScanning {
+                    ZStack {
+                        AppColor.backgroundPrimary.opacity(0.8)
+                            .ignoresSafeArea()
+
+                        VStack(spacing: AppSpacing.sm) {
+                            ProgressView()
+                                .tint(AppColor.accentPrimary)
+                            Text("Membaca teks komposisi...")
+                                .font(AppTypography.bodyBold)
+                                .foregroundStyle(AppColor.textPrimary)
+                        }
+                        .padding(AppSpacing.lg)
+                        .background(.regularMaterial)
+                        .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
+                    }
+                }
             }
             .confirmationDialog(
                 "Hapus semua bahan?",
@@ -92,18 +125,27 @@ struct AddSkincareView: View {
             .onChange(of: viewModel.didSave) { _, saved in
                 if saved { dismiss() }
             }
-        }
     }
 
     // MARK: - Sections
 
     private var categorySection: some View {
-        VStack(alignment: .leading, spacing: AppSpacing.sm) {
-            Text("Pilih Kategori")
-                .font(AppTypography.bodyBold)
-                .foregroundStyle(AppColor.textPrimary)
-
-            CategorySelector(selected: $viewModel.draft.category)
+        AppCard {
+            HStack {
+                Text("Kategori")
+                    .font(AppTypography.bodyBold)
+                    .foregroundStyle(AppColor.textPrimary)
+                
+                Spacer()
+                
+                Picker("Kategori", selection: $viewModel.draft.category) {
+                    ForEach(SkincareCategory.allCases) { category in
+                        Text(category.displayName).tag(category)
+                    }
+                }
+                .pickerStyle(.menu)
+                .tint(AppColor.accentPrimary)
+            }
         }
     }
 
@@ -126,10 +168,6 @@ struct AddSkincareView: View {
                     text: $viewModel.draft.brand
                 )
 
-                Toggle("Sedang digunakan", isOn: $viewModel.draft.isUsedCurrently)
-                    .font(AppTypography.body)
-                    .tint(AppColor.accentPrimary)
-                    .frame(minHeight: 44)
             }
         }
     }
@@ -137,14 +175,9 @@ struct AddSkincareView: View {
     private var ingredientSection: some View {
         VStack(alignment: .leading, spacing: AppSpacing.sm) {
             HStack {
-                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                    Text("Ingredient")
-                        .font(AppTypography.bodyBold)
-                        .foregroundStyle(AppColor.textPrimary)
-                    Text("Pindai label atau tambahkan bahan secara manual.")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColor.textSecondary)
-                }
+                Text("Ingredients")
+                    .font(AppTypography.bodyBold)
+                    .foregroundStyle(AppColor.textPrimary)
 
                 Spacer()
 
@@ -163,52 +196,39 @@ struct AddSkincareView: View {
                 scannedReviewSection
             }
 
-            ingredientSearchAction
-
-            if viewModel.draft.ingredients.isEmpty {
-                emptyIngredientHint
-            } else {
-                ingredientChips
-            }
+            ingredientChips
         }
     }
 
     /// Large primary scan affordance, matching the visual priority of mockups 01/03.
     private var scanAction: some View {
-        Button { isShowingScanner = true } label: {
-            HStack(spacing: AppSpacing.sm) {
-                Image(systemName: "doc.text.viewfinder")
-                    .font(AppTypography.bodyBold)
-                    .foregroundStyle(AppColor.accentPrimary)
-                    .frame(width: 44, height: 44)
-                    .background(AppColor.accentPrimary.opacity(0.08))
-                    .clipShape(Circle())
-
-                VStack(alignment: .leading, spacing: AppSpacing.xxs) {
-                    Text("Pindai komposisi produk")
-                        .font(AppTypography.bodyBold)
-                        .foregroundStyle(AppColor.textPrimary)
-                    Text("Gunakan kamera atau pilih foto label")
-                        .font(AppTypography.caption)
-                        .foregroundStyle(AppColor.textSecondary)
+        Button { isShowingPhotoSource = true } label: {
+            VStack(spacing: AppSpacing.sm) {
+                ZStack {
+                    Circle()
+                        .fill(AppColor.accentPrimary.opacity(0.1))
+                        .frame(width: 64, height: 64)
+                    
+                    Image(systemName: "viewfinder.rectangular")
+                        .font(.system(size: 32, weight: .semibold))
+                        .foregroundStyle(AppColor.accentPrimary)
                 }
-
-                Spacer()
-                Image(systemName: "chevron.right")
+                
+                Text("Use the camera to scan the product")
                     .font(AppTypography.caption)
                     .foregroundStyle(AppColor.textSecondary)
             }
-            .padding(AppSpacing.sm)
-            .frame(maxWidth: .infinity, minHeight: 72)
-            .background(AppColor.surfacePrimary)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.md))
+            .frame(maxWidth: .infinity, minHeight: 200)
+            .background(AppColor.backgroundPrimary)
+            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.lg))
             .overlay(
-                RoundedRectangle(cornerRadius: AppCornerRadius.md)
-                    .stroke(AppColor.borderSubtle, lineWidth: 1)
+                RoundedRectangle(cornerRadius: AppCornerRadius.lg)
+                    .stroke(style: StrokeStyle(lineWidth: 1.5, dash: [8]))
+                    .foregroundStyle(AppColor.accentPrimary.opacity(0.4))
             )
         }
         .buttonStyle(.plain)
-        .accessibilityHint("Buka pilihan kamera atau galeri untuk membaca label")
+        .accessibilityHint("Buka kamera untuk membaca label")
     }
 
     /// OCR candidates stay in the Add screen for review and manual correction,
@@ -248,50 +268,70 @@ struct AddSkincareView: View {
     }
 
     private var manualCandidateField: some View {
-        HStack(spacing: AppSpacing.xs) {
-            TextField("Tambah ingredient manual", text: $manualCandidate)
-                .font(AppTypography.body)
-                .textInputAutocapitalization(.words)
-                .padding(.horizontal, AppSpacing.sm)
-                .frame(minHeight: 44)
-                .background(AppColor.backgroundPrimary)
+        VStack(alignment: .leading, spacing: 0) {
+            HStack(spacing: AppSpacing.xs) {
+                TextField("Tambah ingredient manual", text: $manualCandidate)
+                    .font(AppTypography.body)
+                    .textInputAutocapitalization(.words)
+                    .padding(.horizontal, AppSpacing.sm)
+                    .frame(minHeight: 44)
+                    .background(AppColor.backgroundPrimary)
+                    .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
+                    .overlay(
+                        RoundedRectangle(cornerRadius: AppCornerRadius.sm)
+                            .stroke(AppColor.borderSubtle, lineWidth: 1)
+                    )
+                    .onChange(of: manualCandidate) { _, newValue in
+                        if newValue.isEmpty {
+                            searchResults = []
+                        } else {
+                            searchResults = ingredientRepo.search(query: newValue).map { $0.name }
+                        }
+                    }
+                    .onSubmit(addManualCandidate)
+
+                Button(action: addManualCandidate) {
+                    Image(systemName: "plus")
+                        .font(AppTypography.bodyBold)
+                        .frame(width: 44, height: 44)
+                }
+                .buttonStyle(.borderedProminent)
+                .tint(AppColor.accentPrimary)
+                .accessibilityLabel("Tambah ingredient manual")
+            }
+            
+            if !searchResults.isEmpty {
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 0) {
+                        ForEach(searchResults.prefix(5), id: \.self) { result in
+                            Button(action: {
+                                manualCandidate = result
+                                addManualCandidate()
+                            }) {
+                                Text(result)
+                                    .font(AppTypography.body)
+                                    .foregroundStyle(AppColor.textPrimary)
+                                    .padding(.vertical, AppSpacing.sm)
+                                    .padding(.horizontal, AppSpacing.md)
+                                    .frame(maxWidth: .infinity, alignment: .leading)
+                            }
+                            Divider()
+                        }
+                    }
+                }
+                .frame(maxHeight: 180)
+                .background(AppColor.surfacePrimary)
                 .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
                 .overlay(
                     RoundedRectangle(cornerRadius: AppCornerRadius.sm)
                         .stroke(AppColor.borderSubtle, lineWidth: 1)
                 )
-                .onSubmit(addManualCandidate)
-
-            Button(action: addManualCandidate) {
-                Image(systemName: "plus")
-                    .font(AppTypography.bodyBold)
-                    .frame(width: 44, height: 44)
+                .padding(.top, 4)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(AppColor.accentPrimary)
-            .accessibilityLabel("Tambah ingredient manual")
         }
     }
 
-    private var ingredientSearchAction: some View {
-        Button { isShowingSearch = true } label: {
-            Label("Cari ingredient secara manual", systemImage: "magnifyingglass")
-                .font(AppTypography.bodyBold)
-                .frame(maxWidth: .infinity, minHeight: 44)
-        }
-        .buttonStyle(.bordered)
-        .tint(AppColor.accentPrimary)
-    }
 
-    private var emptyIngredientHint: some View {
-        Text("Belum ada ingredient ditambahkan.")
-            .font(AppTypography.caption)
-            .foregroundStyle(AppColor.textSecondary)
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .padding(AppSpacing.sm)
-            .background(AppColor.surfacePrimary)
-            .clipShape(RoundedRectangle(cornerRadius: AppCornerRadius.sm))
-    }
 
     private var ingredientChips: some View {
         LazyVGrid(
@@ -347,5 +387,54 @@ struct AddSkincareView: View {
         case .deleteProduct, .deleteLastProduct:
             Alert(title: Text(""))
         }
+    }
+}
+
+// MARK: - PhotoSourceSheet
+
+struct PhotoSourceSheet: View {
+    @Binding var isShowingCamera: Bool
+    @Binding var selectedItem: PhotosPickerItem?
+    @Environment(\.dismiss) private var dismiss
+
+    var body: some View {
+        VStack(spacing: AppSpacing.md) {
+            Button {
+                dismiss()
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
+                    isShowingCamera = true
+                }
+            } label: {
+                HStack {
+                    Image(systemName: "camera.fill")
+                    Text("Ambil Foto Label")
+                        .font(AppTypography.bodyBold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, AppSpacing.md)
+                .background(AppColor.accentPrimary)
+                .foregroundStyle(AppColor.textOnAccent)
+                .cornerRadius(AppCornerRadius.md)
+            }
+
+            PhotosPicker(selection: $selectedItem, matching: .images) {
+                HStack {
+                    Image(systemName: "photo.on.rectangle.angled")
+                    Text("Pilih dari Galeri")
+                        .font(AppTypography.bodyBold)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, AppSpacing.md)
+                .background(AppColor.surfacePrimary)
+                .foregroundStyle(AppColor.accentPrimary)
+                .cornerRadius(AppCornerRadius.md)
+                .overlay(
+                    RoundedRectangle(cornerRadius: AppCornerRadius.md)
+                        .stroke(AppColor.accentPrimary, lineWidth: 1.5)
+                )
+            }
+        }
+        .padding(AppSpacing.lg)
+        .padding(.top, AppSpacing.sm)
     }
 }

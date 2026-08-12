@@ -7,9 +7,8 @@ struct SkincareView: View {
     let onDismiss: () -> Void
 
     @State private var isShowingAdd = false
-    @State private var productToEdit: SkincareProduct?
     @State private var isShowingMatchedList = false
-    @State private var selectedMatched: MatchedIngredient?
+    @State private var isShowingSkincareList = false
 
     var body: some View {
         NavigationStack {
@@ -22,39 +21,19 @@ struct SkincareView: View {
             }
             .background(AppColor.backgroundPrimary)
             .navigationTitle("Skincare")
-            .navigationBarTitleDisplayMode(.large)
-            .toolbar {
-                if !viewModel.products.isEmpty {
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button(action: { isShowingAdd = true }) {
-                            Image(systemName: "plus")
-                                .font(AppTypography.bodyBold)
-                                .foregroundStyle(AppColor.accentPrimary)
-                                .frame(minWidth: 44, minHeight: 44)
-                        }
-                        .accessibilityLabel(Text("Tambah Skincare"))
-                    }
-                }
-            }
-            .sheet(isPresented: $isShowingAdd) {
+            .toolbarTitleDisplayMode(.inlineLarge)
+            .navigationDestination(isPresented: $isShowingAdd) {
                 AddSkincareView(
                     skincareViewModel: viewModel,
                     ingredientRepo: ingredientRepo,
                     makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: nil) }
                 )
             }
-            .sheet(item: $productToEdit) { product in
-                AddSkincareView(
-                    skincareViewModel: viewModel,
-                    ingredientRepo: ingredientRepo,
-                    makeViewModel: { SkincareFactory.makeAddSkincareViewModel(editing: product) }
-                )
-            }
             .navigationDestination(isPresented: $isShowingMatchedList) {
                 MatchedIngredientListView(matched: viewModel.matchedIngredients)
             }
-            .sheet(item: $selectedMatched) { matched in
-                IngredientDetailView(recommendation: matched.recommendation)
+            .navigationDestination(isPresented: $isShowingSkincareList) {
+                SkincareListView(viewModel: viewModel, ingredientRepo: ingredientRepo)
             }
             .alert(item: $viewModel.alert, content: makeAlert)
             .alert(
@@ -79,47 +58,39 @@ struct SkincareView: View {
             VStack(alignment: .leading, spacing: AppSpacing.lg) {
                 matchPreview
                 
-                Text("Skincare Saat Ini")
-                    .font(AppTypography.bodyBold)
-                    .foregroundStyle(AppColor.textPrimary)
-                    .accessibilityAddTraits(.isHeader)
+                HStack {
+                    Text("Skincare Saat Ini")
+                        .font(AppTypography.bodyBold)
+                        .foregroundStyle(AppColor.textPrimary)
+                        .accessibilityAddTraits(.isHeader)
+
+                    Spacer()
+
+                    Button("See Detail") {
+                        isShowingSkincareList = true
+                    }
+                    .font(AppTypography.caption)
+                    .fontWeight(.semibold)
+                    .foregroundStyle(AppColor.accentPrimary)
+                    .frame(minHeight: 44)
+                    .buttonStyle(.plain)
+                }
             }
             .listRowInsets(EdgeInsets(top: AppSpacing.md, leading: AppSpacing.md, bottom: AppSpacing.sm, trailing: AppSpacing.md))
             .listRowBackground(Color.clear)
             .listRowSeparator(.hidden)
 
-            let activeProducts = viewModel.products.filter(\.isUsedCurrently)
-            ForEach(activeProducts) { product in
-                productRow(product)
+            let previewProducts = viewModel.products.prefix(3)
+            ForEach(previewProducts) { product in
+                SkincareCard(
+                    product: product,
+                    recommendationsCount: 0,
+                    onEdit: nil
+                )
+                .listRowInsets(EdgeInsets(top: AppSpacing.xs, leading: AppSpacing.md, bottom: AppSpacing.xs, trailing: AppSpacing.md))
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
             }
-
-            let inactiveProducts = viewModel.products.filter { !$0.isUsedCurrently }
-            if !inactiveProducts.isEmpty {
-                Text("Produk Tersimpan")
-                    .font(AppTypography.caption)
-                    .foregroundStyle(AppColor.textSecondary)
-                    .padding(.top, AppSpacing.xs)
-                    .listRowInsets(EdgeInsets(top: AppSpacing.md, leading: AppSpacing.md, bottom: AppSpacing.xs, trailing: AppSpacing.md))
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-
-                ForEach(inactiveProducts) { product in
-                    productRow(product)
-                }
-            }
-
-            Button {
-                isShowingAdd = true
-            } label: {
-                Label("Tambah Skincare Baru", systemImage: "plus")
-                    .font(AppTypography.bodyBold)
-                    .frame(maxWidth: .infinity, minHeight: 44)
-            }
-            .buttonStyle(.bordered)
-            .tint(AppColor.accentPrimary)
-            .listRowInsets(EdgeInsets(top: AppSpacing.md, leading: AppSpacing.md, bottom: AppSpacing.xl, trailing: AppSpacing.md))
-            .listRowBackground(Color.clear)
-            .listRowSeparator(.hidden)
         }
         .listStyle(.plain)
         .scrollContentBackground(.hidden)
@@ -138,40 +109,13 @@ struct SkincareView: View {
             } else {
                 MatchedIngredientSection(
                     matched: viewModel.matchedIngredients,
-                    onSelect: { selectedMatched = $0 },
                     onShowAll: { isShowingMatchedList = true }
                 )
             }
         }
     }
 
-    private func productRow(_ product: SkincareProduct) -> some View {
-        ZStack {
-            SkincareCard(
-                product: product,
-                recommendationsCount: viewModel.matchedIngredients(in: product).count,
-                onEdit: { productToEdit = product }
-            )
-            NavigationLink(destination: SkincareDetailView(
-                skincareViewModel: viewModel,
-                ingredientRepo: ingredientRepo,
-                product: product
-            )) {
-                EmptyView()
-            }
-            .opacity(0)
-        }
-        .listRowInsets(EdgeInsets(top: AppSpacing.xs, leading: AppSpacing.md, bottom: AppSpacing.xs, trailing: AppSpacing.md))
-        .listRowBackground(Color.clear)
-        .listRowSeparator(.hidden)
-        .swipeActions(edge: .trailing, allowsFullSwipe: true) {
-            Button(role: .destructive) {
-                viewModel.requestDelete(product)
-            } label: {
-                Label("Hapus", systemImage: "trash")
-            }
-        }
-    }
+
 
     // MARK: - Delete confirmation
 
@@ -195,4 +139,8 @@ struct SkincareView: View {
             Alert(title: Text(""))
         }
     }
+}
+
+#Preview {
+    SkincareFactory.makeView()
 }
