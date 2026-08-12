@@ -1,17 +1,15 @@
 {
   "images" : [
     {
-      "filename" : "os1_universal.png",
+      "filename" : "OS2Suzuran.png",
       "idiom" : "universal",
       "scale" : "1x"
     },
     {
-      "filename" : "os1_universal@2x.png",
       "idiom" : "universal",
       "scale" : "2x"
     },
     {
-      "filename" : "os1_universal@3x.png",
       "idiom" : "universal",
       "scale" : "3x"
     }

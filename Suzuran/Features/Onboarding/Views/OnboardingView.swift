@@ -26,53 +26,56 @@ struct OnboardingView: View {
 
                         OnboardingPage3View()
                             .tag(OnboardingStep.page3)
+
+                        OnboardingPage4View()
+                            .tag(OnboardingStep.page4)
                     }
                     .tabViewStyle(.page(indexDisplayMode: .never))
                     .ignoresSafeArea()
 
-                    // Bottom Navigation Controls: Custom Page Control & Start Button
-                    VStack(spacing: 20) {
-                        // Custom Page Control Dots
+                    // Bottom Navigation Controls: 4 Dots & Get Started Button
+                    VStack(spacing: AppSpacing.md) {
+                        // Custom 4-dot Page Control
                         PageIndicatorView(
-                            numberOfPages: 3,
+                            numberOfPages: 4,
                             currentPage: viewModel.currentStep.pageIndex,
+                            activeColor: .black,
+                            inactiveColor: Color.gray.opacity(0.3),
                             onSelectPage: { index in
                                 withAnimation(.easeInOut) {
                                     switch index {
                                     case 0: viewModel.currentStep = .page1
                                     case 1: viewModel.currentStep = .page2
                                     case 2: viewModel.currentStep = .page3
+                                    case 3: viewModel.currentStep = .page4
                                     default: break
                                     }
                                 }
                             }
                         )
 
-                        // Start Button present on all pages
+                        // Get Started Button
                         Button(action: {
                             withAnimation(.easeInOut) {
-                                viewModel.completeOnboarding()
+                                viewModel.nextStep()
                             }
                         }) {
-                            Text("Start")
-                                .font(.headline)
-                                .foregroundStyle(Color(UIColor.systemBackground))
+                            Text("Get Started")
+                                .font(Font.bodyLarge)
+                                .foregroundStyle(Color.white)
                                 .frame(maxWidth: .infinity)
                                 .frame(height: 52)
-                               .background(
-                                   Capsule()
-                                       .fill(AppColor.accentPrimary)
-                               )
+                                .background(AppColor.buttonPrimaryPurple)
+                                .clipShape(Capsule())
                         }
-                        .padding(.horizontal, 24)
+                        .padding(.horizontal, AppSpacing.lg)
                     }
-                    .padding(.bottom, 24)
+                    .padding(.bottom, AppSpacing.xl)
                 }
-                .ignoresSafeArea(edges: .top)
                 .transition(.opacity)
             }
         }
-        .background(Color(UIColor.systemBackground).ignoresSafeArea())
+        .background(Color.white.ignoresSafeArea())
     }
 }
 

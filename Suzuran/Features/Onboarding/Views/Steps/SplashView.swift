@@ -7,20 +7,12 @@ struct SplashView: View {
 
     var body: some View {
         ZStack {
-            AppColor.backgroundPrimary.ignoresSafeArea()
+            Color.white.ignoresSafeArea()
 
-            VStack(spacing: 32) {
-                // Circle Placeholder
-                Circle()
-                    .fill(AppColor.surfacePrimary)
-                    .frame(width: 180, height: 180)
-
-                // APP NAME
-                Text("Rona")
-                    .font(.largeTitle)
-                    .fontWeight(.bold)
-                    .foregroundStyle(AppColor.textPrimary)
-            }
+            Image("Splash")
+                .resizable()
+                .scaledToFit()
+                .padding(32)
         }
         .onAppear {
             DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {

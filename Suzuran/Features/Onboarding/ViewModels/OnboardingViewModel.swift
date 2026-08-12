@@ -29,6 +29,8 @@ final class OnboardingViewModel: ObservableObject {
         case .page2:
             currentStep = .page3
         case .page3:
+            currentStep = .page4
+        case .page4:
             completeOnboarding()
         }
     }
@@ -43,6 +45,8 @@ final class OnboardingViewModel: ObservableObject {
             currentStep = .page1
         case .page3:
             currentStep = .page2
+        case .page4:
+            currentStep = .page3
         }
     }
 
