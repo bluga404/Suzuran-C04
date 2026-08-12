@@ -13,6 +13,7 @@ struct HistoryView: View {
 
     @State private var activePayload: ComparePayload? = nil
     @State private var detailScanID: UUID?
+    @State private var isShowingScanSheet = false
 
     init(viewModel: HistoryViewModel) {
         self._viewModel = ObservedObject(wrappedValue: viewModel)
@@ -63,35 +64,30 @@ struct HistoryView: View {
             .navigationTitle(ScreenTitle.history.title)
             .toolbarTitleDisplayMode(.inlineLarge)
             .toolbar {
-                if viewModel.isCompareMode {
-                    ToolbarItem(placement: .topBarTrailing) {
+                ToolbarItem(placement: .topBarTrailing) {
+                    if viewModel.isCompareMode {
                         Button("Compare (\(viewModel.selectedCount)/2)") {
                             if let (first, second) = viewModel.selectedPair {
                                 activePayload = ComparePayload(recordA: first, recordB: second)
                             }
                         }
                         .disabled(!viewModel.canCompare)
-                    }
-
-                    ToolbarItem(placement: .topBarTrailing) {
-                        Button {
-                            withAnimation(.snappy(duration: 0.25)) {
-                                viewModel.toggleCompareMode()
-                            }
-                        } label: {
-                            Image(systemName: "xmark.circle.fill")
-                                .font(.system(size: 18, weight: .semibold))
-                        }
-                        .accessibilityLabel("Cancel compare")
-                    }
-                } else {
-                    ToolbarItem(placement: .topBarTrailing) {
+                    } else {
                         Button("Compare") {
                             withAnimation(.snappy(duration: 0.25)) {
                                 viewModel.toggleCompareMode()
                             }
                         }
                     }
+                }
+
+                ToolbarItem(placement: .topBarTrailing) {
+                    Button(action: { isShowingScanSheet = true }) {
+                        Image(systemName: "camera")
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(AppColor.accentPrimary)
+                    }
+                    .accessibilityLabel("Start face scan")
                 }
             }
             .toolbar(.visible, for: .tabBar)
@@ -105,9 +101,24 @@ struct HistoryView: View {
             .navigationDestination(item: $detailScanID) { scanID in
                 HomeFactory.makeDetailView(scanID: scanID, historyStore: viewModel.historyStore)
             }
+            .fullScreenCover(isPresented: $isShowingScanSheet) {
+                FaceScanFactory.makeView(
+                    onScanSaved: { session, result in
+                        let mapper = FaceScanToSkinScanMapper()
+                        let skinScan = mapper.map(session: session)
+                        HomeFactory.sharedScanRepository.save(skinScan)
+                        viewModel.historyStore.save(result)
+                    },
+                    onDismiss: {
+                        isShowingScanSheet = false
+                    }
+                )
+            }
         }
         .appScreenContainer()
     }
+
+    // MARK: - Scrollable Grid Content
 
     private var scrollContent: some View {
         ScrollView {
