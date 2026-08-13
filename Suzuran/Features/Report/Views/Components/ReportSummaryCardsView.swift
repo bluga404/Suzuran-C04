@@ -1,0 +1,120 @@
+import SwiftUI
+
+struct ReportSummaryCardsView: View {
+    let selectedMetric: ReportMetric
+    let skinScoreSummary: ReportComparisonSummary
+    let acneSummary: ReportComparisonSummary
+    let insight: ReportInsightSummary
+    var onRetry: (() -> Void)?
+
+    var body: some View {
+        VStack(spacing: AppSpacing.md) {
+            if selectedMetric == .skinScore {
+                summaryCard(summary: skinScoreSummary)
+            } else {
+                summaryCard(summary: acneSummary)
+            }
+
+            AppCard {
+                VStack(alignment: .leading, spacing: AppSpacing.sm) {
+                    HStack(alignment: .center, spacing: AppSpacing.xs) {
+                        let (iconName, iconColor): (String, Color) = {
+                            switch insight.source {
+                            case .generated: return ("sparkles", AppColor.accentPrimary)
+                            case .cached: return ("clock", AppColor.textSecondary)
+                            case .error: return ("exclamationmark.triangle.fill", .red)
+                            case .empty: return ("info.circle", AppColor.textSecondary)
+                            }
+                        }()
+
+                        Image(systemName: iconName)
+                            .font(.system(size: 16, weight: .semibold))
+                            .foregroundStyle(iconColor)
+
+                        Text(insight.title)
+                            .font(Font.bodyParagraph)
+                            .foregroundStyle(AppColor.accentPrimary)
+                    }
+
+                    Text(insight.body)
+                        .font(Font.bodyParagraph)
+                        .foregroundStyle(AppColor.textSecondary)
+                        .fixedSize(horizontal: false, vertical: true)
+
+                    if let ts = insight.timestamp, insight.source == .cached {
+                        Text("Last updated: \(DateFormatters.fullDateEN.string(from: ts))")
+                                .font(Font.graphLabel)
+                            .foregroundStyle(AppColor.textSecondary)
+                    }
+
+                    if insight.source == .error {
+                        HStack(spacing: AppSpacing.sm) {
+                            if let onRetry {
+                                Button(action: onRetry) {
+                                    Text("Try again")
+                                }
+                                .buttonStyle(.borderedProminent)
+                            }
+
+                            Text("There was an error generating the summary. Please check your connection or API configuration.")
+                            .font(Font.graphLabel)
+                                .foregroundStyle(AppColor.textSecondary)
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private func summaryCard(summary: ReportComparisonSummary) -> some View {
+        AppCard(backgroundColor: AppColor.surfacePurple, borderColor: .clear, borderWidth: 0) {
+            HStack(alignment: .center, spacing: AppSpacing.lg) {
+                VStack(alignment: .leading, spacing: AppSpacing.xs) {
+                    Text(summary.baselineLabel)
+                        .font(Font.metadata)
+                        .foregroundStyle(AppColor.textSecondary)
+
+                    Text(summary.headline)
+                        .font(Font.sectionTitle)
+                        .foregroundStyle(AppColor.accentPrimary)
+                        .lineLimit(2)
+                        .fixedSize(horizontal: false, vertical: true)
+                }
+
+                Spacer()
+
+                VStack(alignment: .center, spacing: AppSpacing.xs) {
+
+                    numberedBadge(label: "Total", value: summary.deltaText)
+                }
+                .frame(minWidth: badgeSize, alignment: .center)
+            }
+        }
+    }
+
+    private var badgeSize: CGFloat {
+        AppSpacing.lg * 2 + AppSpacing.sm
+    }
+
+    private func numberedBadge(label: String, value: String) -> some View {
+        ZStack {
+            Circle()
+                .fill(AppColor.surfacePrimary)
+                .frame(width: badgeSize, height: badgeSize)
+                .overlay(
+                    Circle()
+                        .stroke(AppColor.borderSubtle, lineWidth: 1)
+                )
+
+            VStack(spacing: 0) {
+                Text(label)
+                    .font(Font.metadata)
+                        .foregroundStyle(AppColor.accentPrimary)
+                Text(verbatim: value)
+                    .font(Font.bodyLarge)
+                        .foregroundStyle(AppColor.accentPrimary)
+            }
+        }
+        .frame(width: badgeSize, height: badgeSize)
+    }
+}

@@ -1,0 +1,417 @@
+[
+  {
+    "Ingredients": "Adapalene",
+    "Alternatives Name": "Form of Retinoids",
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "A third-generation synthetic retinoid originally developed for acne that has significant anti-aging benefits. Adapalene is more stable than tretinoin (resistant to light and oxygen degradation) and better tolerated because it selectively binds to RAR-beta and RAR-gamma receptors rather than all three subtypes. The 0.1% concentration became available OTC in 2016 (Differin), making it the most accessible prescription-strength retinoid.",
+    "Concentration & Usage": "OTC: 0.1% gel, apply pea-sized amount once nightly to clean, dry skin. Prescription: 0.3% gel for more resistant acne. Can be applied to slightly damp skin with less irritation than tretinoin. Results visible at 8-12 weeks.",
+    "Application": "Topical (gel, cream, lotion). More stable than tretinoin \u2014 can tolerate some benzoyl peroxide layering (Epiduo combines both).",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Ceramides",
+        "status": "Excellent Combo",
+        "description": "Like all retinoids, adapalene benefits from ceramide moisturizers to manage irritation. Apply ceramide cream after adapalene has absorbed for 5-10 minutes."
+      },
+      {
+        "ingredient": "Benzoyl Peroxide",
+        "status": "Works Well",
+        "description": "Unlike retinol and tretinoin, adapalene is chemically stable with benzoyl peroxide. This is the basis of the prescription product Epiduo. Can be layered or used in a combined formulation."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "Dryness, peeling, redness \u2014 generally less than tretinoin. Initial purging for 4-6 weeks.",
+      "Serious": "Avoid in pregnancy (retinoid class).",
+      "Rare": "Allergic contact dermatitis, severe peeling."
+    },
+    "Research Papers": "https://doi.org/10.1002%2Fhsr2.71803"
+  },
+  {
+    "Ingredients": "Azelaic Acid",
+    "Alternatives Name": null,
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "A dicarboxylic acid naturally produced by yeast on the skin. Azelaic acid is a true multi-tasker that treats acne, rosacea, and hyperpigmentation simultaneously. It is one of the few active ingredients considered safe during pregnancy, and it uniquely targets only abnormal melanocytes \u2014 meaning it brightens dark spots without lightening normal skin. Effective for both inflammatory acne and post-inflammatory hyperpigmentation (PIH).",
+    "Concentration & Usage": "OTC: 10% (The Ordinary). Prescription: 15% gel (Finacea for rosacea), 20% cream (Azelex for acne). Apply twice daily. Well-tolerated but may sting/itch initially. Full effects at 8-12 weeks.",
+    "Application": "Topical (gel, cream, serum). Slightly gritty texture in some formulations. Apply to clean skin.",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Niacinamide",
+        "status": "Excellent Combo",
+        "description": "Both reduce melanin production through different pathways and both are anti-inflammatory. This combination is pregnancy-safe and effective for hyperpigmentation, rosacea, and acne."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "Stinging, burning, itching on initial application (usually subsides within 2 weeks). Mild dryness.",
+      "Serious": "None. Safe during pregnancy and breastfeeding.",
+      "Rare": "Allergic contact dermatitis, hypopigmentation (rare at cosmetic concentrations)."
+    },
+    "Research Papers": "https://doi.org/10.1002%2Fhsr2.71803"
+  },
+  {
+    "Ingredients": "Benzoyl Peroxide",
+    "Alternatives Name": null,
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "The most effective OTC acne treatment and one of the few topical treatments that kills acne-causing bacteria (C. acnes) without promoting antibiotic resistance. Benzoyl peroxide works through oxidation \u2014 it releases oxygen into pores, creating an environment where anaerobic bacteria cannot survive. It is one of three first-line acne treatments (alongside adapalene and salicylic acid) recommended by dermatological guidelines.",
+    "Concentration & Usage": "Concentrations: 2.5%, 5%, 10%. 2.5% is as effective as 10% for most people with significantly less irritation. Apply as a thin layer to acne-prone areas. Short-contact therapy (apply for 5-10 minutes then rinse) reduces irritation while maintaining efficacy. Bleaches fabrics \u2014 use white towels and pillowcases.",
+    "Application": "Topical (wash, gel, cream, spot treatment). Short-contact therapy: apply 2.5% for 5-10 minutes, then rinse \u2014 reduces irritation while maintaining antibacterial activity.",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Adapalene",
+        "status": "Works Well",
+        "description": "Unlike retinol and tretinoin, adapalene is chemically stable with benzoyl peroxide. This is the basis of the prescription product Epiduo. Can be layered or used in a combined formulation."
+      },
+      {
+        "ingredient": "Niacinamide",
+        "status": "Works Well",
+        "description": "Niacinamide reduces the dryness and irritation caused by benzoyl peroxide. Apply BP first, let it absorb, then layer niacinamide. Good acne combination."
+      },
+      {
+        "ingredient": "Salicylic Acid",
+        "status": "Use Carefully",
+        "description": "Using both at the same time can be very drying. Better approach: salicylic acid cleanser in the AM, benzoyl peroxide spot treatment at PM, or alternate days."
+      },
+      {
+        "ingredient": "Retinol",
+        "status": "Use Separately",
+        "description": "Benzoyl peroxide oxidizes and inactivates retinol and tretinoin. Use BP in the morning, retinoid at night. Exception: adapalene + BP (Epiduo) is specifically formulated to be stable together."
+      },
+      {
+        "ingredient": "Tretinoin",
+        "status": "Use Separately",
+        "description": "Benzoyl peroxide inactivates tretinoin on contact. Always separate them: BP in the morning, tretinoin at night. Adapalene is the only retinoid stable with BP."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "Dryness, peeling, redness, bleaching of hair, towels, and clothing.",
+      "Serious": "Allergic contact dermatitis (un",
+      "Rare": "Severe allergic reaction with swelling."
+    },
+    "Research Papers": "https://doi.org/10.1002%2Fhsr2.71803"
+  },
+  {
+    "Ingredients": "Green Tea Extract (EGCG)",
+    "Alternatives Name": "Epigallocatechin-3-gallate, Camellia Sinensis Leaf Extract",
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "Epigallocatechin gallate (EGCG) is the primary polyphenol in green tea and one of the most potent topical antioxidants. It has been shown to reduce UV damage, decrease sebum production, reduce inflammation, and inhibit the enzymes that break down collagen and elastin. Green tea extract is one of the few antioxidants with evidence for both topical and oral skin benefits.",
+    "Concentration & Usage": "Topical: 1-5% green tea extract in formulations. Look for products with EGCG specifically listed. Oral: 400-800 mg green tea extract (standardized to EGCG) daily. Apply topical products before sunscreen for additional photoprotection.",
+    "Application": "Topical (serum, cream, toner) or oral (supplement, tea). Topical is effective for localized skin benefits.",
+    "Ingredient Interactions": null,
+    "Risks & Safety": {
+      "Common": null,
+      "Serious": "None topically. Oral high-dose EGCG supplements have",
+      "Rare": "liver toxicity reports.  RARE Contact dermatitis."
+    },
+    "Research Papers": "https://doi.org/10.1002%2Fhsr2.71803"
+  },
+  {
+    "Ingredients": "Salicylic Acid",
+    "Alternatives Name": "Beta-hydroxy acid (BHA)",
+    "Acne Types": "Mild acne, especially comedonal acne",
+    "Description": "The only beta-hydroxy acid (BHA) used in skincare. Salicylic acid is oil-soluble, meaning it can penetrate into pores and dissolve the sebum and dead skin that cause blackheads and acne. This makes it fundamentally different from AHAs (which only work on the skin surface). It also has direct anti-inflammatory properties, reducing the redness and swelling of acne lesions.",
+    "Concentration & Usage": "Concentrations: 0.5-2% for daily use products (cleansers, toners, serums). Up to 30% for professional peels. Start with 0.5-1% every other day and increase. Leave-on products are more effective than wash-off. For body acne (back, chest): 2% is standard.",
+    "Application": "Topical (cleanser, toner, serum, spot treatment, body wash, peel). Leave-on products provide better efficacy than wash-off.",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Niacinamide",
+        "status": "Excellent Combo",
+        "description": "Salicylic acid exfoliates pores while niacinamide provides anti-inflammatory and barrier-repair benefits. Niacinamide can reduce the redness and irritation from BHA use."
+      },
+      {
+        "ingredient": "Glycolic Acid",
+        "status": "Use Carefully",
+        "description": "Using both AHA and BHA in the same routine over-exfoliates most skin types. If you want both, use them on different days. Some people with oily, resilient skin can tolerate a gentle version of both, but start cautiously."
+      },
+      {
+        "ingredient": "Benzoyl Peroxide",
+        "status": "Use Carefully",
+        "description": "Using both at the same time can be very drying. Better approach: salicylic acid cleanser in the AM, benzoyl peroxide spot treatment at PM, or alternate days."
+      },
+      {
+        "ingredient": "Retinol",
+        "status": "Use Separately",
+        "description": "While some skin can tolerate both, layering retinol and BHA in the same routine risks over-exfoliation. Use salicylic acid in the AM and retinol at PM, or alternate nights."
+      },
+      {
+        "ingredient": "Tretinoin",
+        "status": "Use Separately",
+        "description": "Salicylic acid in the AM cleanser, tretinoin at PM is the safe approach. Avoid layering both at night unless specifically directed by a dermatologist."
+      },
+      {
+        "ingredient": "Vitamin C (L-Ascorbic Acid)",
+        "status": "Use Separately",
+        "description": "Both work at low pH and can irritate when layered. Vitamin C in the morning under sunscreen, salicylic acid in the evening or a different day."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "Dryness, peeling, mild stinging. Over-use can compromise the skin barrier.",
+      "Serious": "Salicylate sensitivity (",
+      "Rare": ") \u2014 avoid if allergic to aspirin. Not recommended in pregnancy at high concentrations.   RARE Severe peeling from over-application."
+    },
+    "Research Papers": "https://doi.org/10.1002%2Fhsr2.71803"
+  },
+  {
+    "Ingredients": "Sulfur",
+    "Alternatives Name": null,
+    "Acne Types": "Mild acne",
+    "Description": "One of the oldest acne treatments, used for centuries. Sulfur has keratolytic (exfoliating), antimicrobial, and anti-inflammatory properties that make it effective for acne, seborrheic dermatitis, and rosacea. It has a distinctive smell but is gentler than benzoyl peroxide and works well for people who cannot tolerate BP or salicylic acid. Often found in traditional 'sulfur soap' and spot treatments.",
+    "Concentration & Usage": "Concentrations: 2-10% in OTC products. Leave-on treatments: 3-8%. Wash-off: 5-10%. Can be used daily for mild acne. Sulfur masks (De La Cruz sulfur ointment) applied for 10-20 minutes are popular. Drying \u2014 follow with moisturizer.",
+    "Application": "Topical (ointment, mask, cleanser, spot treatment). Leave-on or wash-off. Apply to clean skin.",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Retinol",
+        "status": "Use Separately",
+        "description": "Sulfur treatments and retinol are both drying. Using both in the same routine can damage the barrier. Use sulfur as a spot treatment or mask on non-retinol nights."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "Drying, distinctive rotten-egg smell, may bleach fabrics.",
+      "Serious": "None at cosmetic concentrations.",
+      "Rare": "Allergic reaction (sulfur allergy is distinct from sulfonamide or sulfite allergy)."
+    },
+    "Research Papers": "https://doi.org/10.1002%2Fhsr2.71803"
+  },
+  {
+    "Ingredients": "Tretinoin",
+    "Alternatives Name": "Retinoic Acid, All-Trans-Retinoic Acid, Form of Retinoids",
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "The gold standard anti-aging ingredient with the most clinical evidence of any topical. Tretinoin (all-trans retinoic acid) is the active form of vitamin A that directly binds to retinoic acid receptors in skin cells. It accelerates cell turnover, stimulates collagen synthesis, reduces fine lines and wrinkles, fades hyperpigmentation, and improves skin texture. Prescription-only in most countries.",
+    "Concentration & Usage": "Concentrations: 0.025%, 0.05%, 0.1%. Start with 0.025% every other night for 4-6 weeks, then increase frequency. Apply pea-sized amount to dry face 20 minutes after cleansing. Always use with SPF 30+ during the day. Retinization period: 4-12 weeks of initial irritation.",
+    "Application": "Topical (cream, gel, microsphere). Apply to clean, dry skin at night. Microsphere formulations (Retin-A Micro) release tretinoin slowly, reducing irritation.",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Ceramides",
+        "status": "Excellent Combo",
+        "description": "Tretinoin is more irritating than retinol, making barrier support critical. Ceramide moisturizers reduce peeling, redness, and dryness without reducing tretinoin's efficacy."
+      },
+      {
+        "ingredient": "Centella Asiatica",
+        "status": "Excellent Combo",
+        "description": "Centella's madecassoside and asiaticoside compounds reduce inflammation and support collagen synthesis \u2014 complementing the retinoid while calming redness and sensitivity."
+      },
+      {
+        "ingredient": "Niacinamide",
+        "status": "Works Well",
+        "description": "Studies show that niacinamide can reduce the redness, peeling, and dryness associated with tretinoin use. Apply niacinamide serum first, then tretinoin."
+      },
+      {
+        "ingredient": "Hydroquinone",
+        "status": "Works Well",
+        "description": "Tretinoin enhances hydroquinone penetration and efficacy. This combination (often with a mild steroid) is the basis of Tri-Luma, a prescription treatment for melasma. Use under dermatologist supervision."
+      },
+      {
+        "ingredient": "Glycolic Acid",
+        "status": "Use Separately",
+        "description": "Tretinoin is more potent than retinol \u2014 combining with glycolic acid significantly increases irritation, peeling, and barrier damage. Use glycolic acid on non-tretinoin nights or in the morning."
+      },
+      {
+        "ingredient": "Salicylic Acid",
+        "status": "Use Separately",
+        "description": "Salicylic acid in the AM cleanser, tretinoin at PM is the safe approach. Avoid layering both at night unless specifically directed by a dermatologist."
+      },
+      {
+        "ingredient": "Lactic Acid",
+        "status": "Use Separately",
+        "description": "Though lactic acid is gentle, combining with prescription tretinoin can over-stress the barrier. Alternate or separate routines."
+      },
+      {
+        "ingredient": "Vitamin C (L-Ascorbic Acid)",
+        "status": "Use Separately",
+        "description": "pH requirements conflict. Additionally, both can be irritating. Keep vitamin C in the morning (antioxidant UV protection) and tretinoin at night for best results."
+      },
+      {
+        "ingredient": "Benzoyl Peroxide",
+        "status": "Use Separately",
+        "description": "Benzoyl peroxide inactivates tretinoin on contact. Always separate them: BP in the morning, tretinoin at night. Adapalene is the only retinoid stable with BP."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "Dryness, peeling, redness, increased sun sensitivity (mandatory SPF). Initial purging (breakouts) for 4-8 weeks.",
+      "Serious": "Teratogenic \u2014 absolutely contraindicated in pregnancy and breastfeeding.",
+      "Rare": "Severe irritant contact dermatitis, eczema flare-ups."
+    },
+    "Research Papers": "https://doi.org/10.1002%2Fhsr2.71803"
+  },
+  {
+    "Ingredients": "Zinc Oxide",
+    "Alternatives Name": null,
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "The gold standard mineral (physical) sunscreen filter. Zinc oxide provides the broadest spectrum UV protection of any single ingredient, covering the entire UVA and UVB range. It works by physically reflecting and scattering UV photons rather than absorbing them (though new research shows it also absorbs some UV energy). It is the only sunscreen filter generally recognized as safe for all ages, including infants.",
+    "Concentration & Usage": "In sunscreens: 10-25% concentration. Apply 1/4 teaspoon for face. Reapply every 2 hours during sun exposure. Tinted formulations with iron oxides provide additional visible light protection. Micronized/nano zinc oxide reduces white cast.",
+    "Application": "Topical (sunscreen, tinted moisturizer). Apply liberally. Reapply every 2 hours during exposure. Works immediately upon application (no wait time).",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Vitamin C (L-Ascorbic Acid)",
+        "status": "Works Well",
+        "description": "Vitamin C serum under a zinc oxide sunscreen is one of the best photoprotection strategies. The antioxidant neutralizes free radicals that UV generates even with sunscreen."
+      },
+      {
+        "ingredient": "Niacinamide",
+        "status": "Works Well",
+        "description": "Niacinamide and zinc oxide coexist in many sunscreen formulations. Niacinamide provides barrier support while zinc oxide blocks UV."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "White cast (more pronounced on darker skin tones), heavy/thick feel, potential for pilling under makeup.",
+      "Serious": "Nano zinc oxide safety is debated but current evidence shows it does not penetrate intact skin.",
+      "Rare": "Contact allergy (extremely rare)."
+    },
+    "Research Papers": "https://doi.org/10.1002%2Fhsr2.71803"
+  },
+  {
+    "Ingredients": "Hemp Seed Oil",
+    "Alternatives Name": "Cannabis Sativa Seed Oil",
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "Cold-pressed from Cannabis sativa seeds, hemp seed oil has an ideal 3:1 ratio of omega-6 to omega-3 fatty acids \u2014 the ratio considered optimal for skin health. It is rich in linoleic acid (which acne-prone skin is deficient in), gamma-linolenic acid (GLA, a potent anti-inflammatory), and natural vitamin E. Does not contain THC or CBD. One of the best oils for acne-prone, inflamed, or eczema-prone skin.",
+    "Concentration & Usage": "Apply 2-5 drops as a moisturizer or mix with other products. Cold-pressed, unrefined oil is dark green with a nutty scent. Suitable for oily and acne-prone skin. Comedogenic rating: 0 (non-comedogenic). Use within 3-6 months and store refrigerated.",
+    "Application": "Topical (pure oil). Cold-pressed, unrefined. Can also be taken orally as a supplement.",
+    "Ingredient Interactions": null,
+    "Risks & Safety": {
+      "Common": "Can feel slightly heavy for very oily skin. Goes rancid quickly if not stored properly.",
+      "Serious": "None.",
+      "Rare": "Very rare allergic reaction."
+    },
+    "Research Papers": "https://ethesisarchive.library.tu.ac.th/thesis/2021/TU_2021_6329040460_15922_19761.pdf"
+  },
+  {
+    "Ingredients": "Mandelic Acid",
+    "Alternatives Name": "alpha-hydroxy acid (AHA)",
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "The gentlest AHA, derived from bitter almonds. Mandelic acid has the largest molecular size of commonly used AHAs (152 Da), giving it the slowest skin penetration and the least irritation potential. It is also lipophilic (partially oil-soluble), giving it some ability to penetrate pores \u2014 a property unique among AHAs. Especially effective for acne-prone skin with hyperpigmentation, and safe for darker skin tones.",
+    "Concentration & Usage": "Concentrations: 5-10% for daily use. 25-40% for professional peels. Can be used daily with minimal irritation for most skin types. Particularly effective for skin of color (Fitzpatrick IV-VI) due to lower risk of post-inflammatory hyperpigmentation.",
+    "Application": "Topical (serum, peel, toner). Safe for daily use. Apply at night.",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Vitamin C (L-Ascorbic Acid)",
+        "status": "Use Separately",
+        "description": "Mandelic acid is gentler than glycolic but still an AHA. Separate from vitamin C to avoid pH stacking. Vitamin C in AM, mandelic acid at PM."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "Very mild \u2014 less irritating than any other AHA. Slight tingling.",
+      "Serious": "None.",
+      "Rare": "Contact dermatitis. Cross-reactivity in people with almond allergies is theoretically possible but unconfirmed."
+    },
+    "Research Papers": "https://www.researchgate.net/publication/371653581_Comparison_of_efficacy_of_40_mandelic_acid_with_30_salicylic_acid_peels_in_mild-to-moderate_acne_vulgaris_A_randomized_study"
+  },
+  {
+    "Ingredients": "Niacinamide",
+    "Alternatives Name": null,
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "A true multitasker \u2014 niacinamide (vitamin B3) addresses almost every skin concern simultaneously. It strengthens the skin barrier by boosting ceramide production, reduces hyperpigmentation by inhibiting melanosome transfer, controls sebum production, minimizes pore appearance, reduces redness, and has anti-aging benefits. One of the most versatile and well-tolerated actives in skincare.",
+    "Concentration & Usage": "Concentrations: 2-10%. 5% is the most studied concentration and provides the best balance of efficacy and tolerability. Higher concentrations (10%) are available but may cause irritation in sensitive skin without proportional benefit. Apply morning and/or night.",
+    "Application": "Topical (serum, moisturizer, toner). Water-soluble. Stable in formulation. Compatible with most actives.",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Hyaluronic Acid",
+        "status": "Excellent Combo",
+        "description": "Both are water-soluble and layer beautifully. HA draws moisture into the skin while niacinamide strengthens the barrier to keep it there. Safe for all skin types including sensitive."
+      },
+      {
+        "ingredient": "Azelaic Acid",
+        "status": "Excellent Combo",
+        "description": "Both reduce melanin production through different pathways and both are anti-inflammatory. This combination is pregnancy-safe and effective for hyperpigmentation, rosacea, and acne."
+      },
+      {
+        "ingredient": "Salicylic Acid",
+        "status": "Excellent Combo",
+        "description": "Salicylic acid exfoliates pores while niacinamide provides anti-inflammatory and barrier-repair benefits. Niacinamide can reduce the redness and irritation from BHA use."
+      },
+      {
+        "ingredient": "Panthenol (Pro-Vitamin B5)",
+        "status": "Excellent Combo",
+        "description": "Both strengthen the skin barrier through different mechanisms. Panthenol improves hydration and wound healing while niacinamide increases ceramide production. No conflicts."
+      },
+      {
+        "ingredient": "Ceramides",
+        "status": "Excellent Combo",
+        "description": "Niacinamide actually stimulates the skin's own ceramide synthesis, so pairing it with a ceramide moisturizer provides both external and internal barrier support. One of the best combinations for barrier repair."
+      },
+      {
+        "ingredient": "Centella Asiatica",
+        "status": "Excellent Combo",
+        "description": "Both calm inflammation through different pathways. Excellent for rosacea, sensitive skin, and post-inflammatory redness. No conflicts at all."
+      },
+      {
+        "ingredient": "Alpha Arbutin",
+        "status": "Excellent Combo",
+        "description": "Alpha arbutin inhibits tyrosinase while niacinamide blocks melanosome transfer. Together they target pigmentation at two different steps, providing superior brightening without irritation."
+      },
+      {
+        "ingredient": "Tranexamic Acid",
+        "status": "Excellent Combo",
+        "description": "Tranexamic acid blocks plasmin (reducing melanocyte stimulation) while niacinamide blocks melanosome transfer. Different mechanisms, additive brightening, no conflicts."
+      },
+      {
+        "ingredient": "Glycolic Acid",
+        "status": "Works Well",
+        "description": "Apply glycolic acid first, let it absorb, then follow with niacinamide. The niacinamide soothes irritation and provides brightening through a complementary mechanism."
+      },
+      {
+        "ingredient": "Retinol",
+        "status": "Works Well",
+        "description": "Niacinamide strengthens the barrier while retinol increases turnover. Niacinamide can reduce retinol-induced irritation. Layer niacinamide first, then retinol."
+      },
+      {
+        "ingredient": "Vitamin C (L-Ascorbic Acid)",
+        "status": "Works Well",
+        "description": "The myth that they cancel each other out comes from a 1960s study using nicotinic acid (not niacinamide) at 100\u00b0C. Modern research confirms niacinamide and L-ascorbic acid are safe and complementary. Vitamin C provides antioxidant defense, niacinamide strengthens the barrier."
+      },
+      {
+        "ingredient": "Tretinoin",
+        "status": "Works Well",
+        "description": "Studies show that niacinamide can reduce the redness, peeling, and dryness associated with tretinoin use. Apply niacinamide serum first, then tretinoin."
+      },
+      {
+        "ingredient": "Benzoyl Peroxide",
+        "status": "Works Well",
+        "description": "Niacinamide reduces the dryness and irritation caused by benzoyl peroxide. Apply BP first, let it absorb, then layer niacinamide. Good acne combination."
+      },
+      {
+        "ingredient": "Zinc Oxide",
+        "status": "Works Well",
+        "description": "Niacinamide and zinc oxide coexist in many sunscreen formulations. Niacinamide provides barrier support while zinc oxide blocks UV."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "Very well-tolerated at 2-5%. Flushing/redness at concentrations above 5% in some individuals.",
+      "Serious": "None documented.",
+      "Rare": "Contact dermatitis (un"
+    },
+    "Research Papers": "https://garuda.kemdiktisaintek.go.id/documents/detail/2612159 https://pubmed.ncbi.nlm.nih.gov/31553119/"
+  },
+  {
+    "Ingredients": "Propolis",
+    "Alternatives Name": null,
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "A resinous substance produced by honeybees from tree buds, used to seal and protect the hive. Propolis contains over 300 bioactive compounds including flavonoids, phenolic acids, and caffeic acid phenethyl ester (CAPE). In skincare, it provides potent anti-inflammatory, antimicrobial, and wound-healing effects. Popular in Korean skincare for acne-prone and sensitive skin.",
+    "Concentration & Usage": "Concentrations vary widely (10-80% extract). Products like COSRX Propolis line use high concentrations. Apply after cleansing. Can be used morning and night. Patch test first \u2014 bee product allergies are possible.",
+    "Application": "Topical (serum, essence, ampoule, cream). Available in many K-beauty products.",
+    "Ingredient Interactions": null,
+    "Risks & Safety": {
+      "Common": "Sticky texture.",
+      "Serious": "Allergic reaction in people with bee/honey allergies (important to patch test).",
+      "Rare": "Contact dermatitis."
+    },
+    "Research Papers": "https://www.herdin.ph/index.php/partner/journal?view=research&cid=87457"
+  },
+  {
+    "Ingredients": "Tea Tree Oil",
+    "Alternatives Name": null,
+    "Acne Types": "Whitehead, Blackhead, Papule, Pustule",
+    "Description": "An essential oil from Melaleuca alternifolia with broad-spectrum antimicrobial and anti-inflammatory properties. 5% tea tree oil has been shown in clinical trials to be as effective as 5% benzoyl peroxide for inflammatory acne, with fewer side effects (though slower onset). It is the most evidence-backed essential oil in dermatology. Must be used diluted \u2014 pure tea tree oil can cause severe irritation.",
+    "Concentration & Usage": "Standard: 5% diluted in a carrier or formulation. NEVER apply undiluted \u2014 pure tea tree oil causes chemical burns. Products should contain 5-10% tea tree oil. Results take longer than benzoyl peroxide (8-12 weeks vs 4-6 weeks).",
+    "Application": "Topical (diluted in products). Never undiluted. 5% in gel, cleanser, or spot treatment is standard.",
+    "Ingredient Interactions": [
+      {
+        "ingredient": "Retinol",
+        "status": "Use Separately",
+        "description": "Tea tree oil can be irritating to skin that is already sensitized by retinol. Use tea tree oil as a spot treatment on non-retinol nights."
+      }
+    ],
+    "Risks & Safety": {
+      "Common": "Dryness, irritation if concentration is too high, allergic contact dermatitis (5% of users).",
+      "Serious": "Chemical burns from undiluted application. Estrogenic effects in animal studies (clinical significance debated).",
+      "Rare": "Severe allergic reaction."
+    },
+    "Research Papers": "https://ethesisarchive.library.tu.ac.th/thesis/2021/TU_2021_6329040460_15922_19761.pdf"
+  }
+]
